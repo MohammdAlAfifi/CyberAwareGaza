@@ -1,0 +1,2 @@
+ALTER TABLE "options" ADD CONSTRAINT "options_scenario_fk" FOREIGN KEY ("content_version_id","scenario_key") REFERENCES "public"."scenarios"("content_version_id","key") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "rubric_entries" ADD CONSTRAINT "rubric_entries_option_fk" FOREIGN KEY ("content_version_id","scenario_key","option_id") REFERENCES "public"."options"("content_version_id","scenario_key","id") ON DELETE restrict ON UPDATE no action;

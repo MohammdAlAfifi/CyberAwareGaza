@@ -1,0 +1,367 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<title>CyberAwareGaza - Sign Up</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overscroll-behavior: none;
+        background-color: #F7F6F2;
+      }
+      main > :first-child { margin-top: 0 !important; }
+      main > :last-child { margin-bottom: 0 !important; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: "#132A3A",
+              navyDark: "#0B1A24",
+              navyHover: "#1C3B52",
+              teal: "#159A9C",
+              tealLight: "#E8F7F7",
+              tealDark: "#00696B",
+              bg: "#F7F6F2",
+              card: "#FFFFFF",
+              border: "#E7E7E2",
+              inputBg: "#F9F9F7"
+            }
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"]
+          },
+          boxShadow: {
+            'card': '0 16px 40px -12px rgba(19, 42, 58, 0.08), 0 4px 16px -4px rgba(19, 42, 58, 0.04)',
+            'nav': '0 1px 6px rgba(19, 42, 58, 0.05)'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#F7F6F2] font-sans text-[#1B1C1A] antialiased min-h-screen flex flex-col justify-between selection:bg-[#159A9C]/20 selection:text-[#132A3A]">
+<!-- Persistent Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 bg-[#F7F6F2]/90 backdrop-blur-md border-b border-[#E7E7E2]/70">
+<div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+<!-- Logo + Brand -->
+<a class="flex items-center gap-3 group" href="#">
+<img alt="CyberAwareGaza" class="h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhM_w1EZ2L4b6_BbEfoOPMK2TSSLFJ_7oL8OKMhj2BGgOFkAbR-S0SA6g7UeF0Xt9AxlqXM3E7s2Hj3Su28_1L8XcqF2ROLSFZu8y_sjYK69KIDNhQZoJyHoBeTqsH9Iv0LR2vRDafPpr-tTGF5rirwYmSnoQ3fnmzNoQUccFUxZGUbTjj2gKSFPVdofCUYGo3Uw3f2zKezhjKRYEExIwB28Nyy5mN0RnoERYKwu1d8L-E8BuK2MGIxaqIMLgujyFSAg">
+</a>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-1 sm:gap-2">
+<a class="text-sm font-medium text-gray-600 hover:text-[#132A3A] px-3.5 py-2 rounded-lg hover:bg-black/[0.03] transition-colors" href="#">About</a>
+<a class="text-sm font-medium text-gray-600 hover:text-[#132A3A] px-3.5 py-2 rounded-lg hover:bg-black/[0.03] transition-colors" href="#">Scenarios</a>
+<a class="text-sm font-medium text-gray-600 hover:text-[#132A3A] px-3.5 py-2 rounded-lg hover:bg-black/[0.03] transition-colors" href="#">Research</a>
+<a class="text-sm font-medium text-gray-600 hover:text-[#132A3A] px-3.5 py-2 rounded-lg hover:bg-black/[0.03] transition-colors" href="#">How It Works</a>
+</nav>
+<!-- Right Controls -->
+<div class="flex items-center gap-3">
+<!-- Language Switcher -->
+<div class="flex items-center bg-[#EAEAE5] rounded-full p-1 border border-[#E0E0DB]">
+<button class="px-2.5 py-0.5 rounded-full text-xs font-semibold text-[#132A3A] bg-white shadow-xs transition-all" type="button">EN</button>
+<button class="px-2.5 py-0.5 rounded-full text-xs font-medium text-gray-500 hover:text-[#132A3A] transition-colors" type="button">العربية</button>
+</div>
+<a class="hidden sm:inline-flex items-center justify-center text-sm font-medium px-4 py-2 rounded-lg bg-[#132A3A] text-white hover:bg-[#1C3B52] transition-colors shadow-sm" href="#">
+          Start Diagnostic
+        </a>
+<div class="w-9 h-9 rounded-full bg-[#132A3A] text-white flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[19px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Container with Ambient Lights -->
+<main class="w-full flex-grow pt-24 pb-16 px-4 relative overflow-hidden flex flex-col items-center justify-center">
+<!-- Subtle ambient gradient lights -->
+<div class="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#159A9C]/10 via-[#132A3A]/8 to-transparent blur-[110px] pointer-events-none -z-10 rounded-full"></div>
+<div class="absolute top-72 left-1/3 w-[450px] h-[350px] bg-gradient-to-br from-[#159A9C]/8 to-emerald-200/10 blur-[100px] pointer-events-none -z-10 rounded-full"></div>
+<!-- Auth Card -->
+<div class="w-full max-w-[540px] bg-white border border-[#E7E7E2] rounded-3xl p-7 sm:p-10 shadow-card relative z-10 transition-all">
+<!-- Logo & Branding Header -->
+<div class="flex flex-col items-center text-center">
+<!-- Prominent Official Logo -->
+<div class="flex items-center justify-center mb-5">
+<img alt="CyberAwareGaza Official Academic Identifier" class="h-14 sm:h-16 w-auto object-contain drop-shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxRPiZr4Cv2-KoYHpkBYc1VBoYp71iGuH_D6VT_-1CCAZ5j_lQngsk5nwiRFveneM_Efy6V5qyGMwJYXL83ZPtKE4o_qadsYO363ms7HydZZU4VVw-2M8WLkyWRI3Dd2hkiLZIJNtsOzXG_Mh9mCD_Gg9YVo4xmtz8XezRJxP9Qtmdx0u74b3swMF1DweACV68fUbCCyh_pOqr-_jQcT4ozm79aTtt4160D6p75NdZ0SjwispsAaDslLI3kWoxqBngYQ">
+</div>
+<!-- Academic Badge -->
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E8F7F7] text-[#159A9C] border border-[#159A9C]/20 mb-3 tracking-wide">
+<span class="w-1.5 h-1.5 rounded-full bg-[#159A9C] animate-pulse"></span>
+          Zero-PII Assessment Gateway
+        </span>
+<h1 class="text-2xl sm:text-[28px] font-bold text-[#132A3A] tracking-tight leading-snug">
+          Create Your Account
+        </h1>
+<p class="text-sm text-gray-500 mt-2 max-w-md leading-relaxed">
+          Your account allows you to return later and review your previous assessment results and resilience progress.
+        </p>
+</div>
+<!-- Privacy & Data Minimization Callout Banner -->
+<div class="mt-6 p-4 rounded-xl bg-[#F8FAFA] border border-[#159A9C]/20 flex items-start gap-3.5">
+<div class="p-1 rounded-lg bg-[#E8F7F7] text-[#159A9C] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+</div>
+<div class="space-y-0.5">
+<div class="text-xs font-semibold text-[#132A3A]">Privacy &amp; Data Minimization Guarantee</div>
+<p class="text-xs text-gray-600 leading-relaxed">
+            We never ask for emails, phone numbers, or institutional IDs. Your diagnostic telemetry remains completely sovereign and anonymous.
+          </p>
+</div>
+</div>
+<!-- Sign Up Form -->
+<form class="mt-6 space-y-4" onsubmit="event.preventDefault();">
+<!-- Username Field -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="text-xs font-semibold text-[#132A3A] tracking-wide" for="username">
+              Username <span class="text-red-500">*</span>
+</label>
+<span class="text-[11px] font-medium text-[#159A9C] bg-[#E8F7F7] px-2 py-0.5 rounded-full">
+              Anonymous Identifier
+            </span>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[19px]">badge</span>
+<input autocomplete="off" class="w-full bg-[#F9F9F7] text-[#132A3A] text-sm pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E7E7E2] placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-[#159A9C] focus:ring-2 focus:ring-[#159A9C]/20 transition-all duration-150" id="username" placeholder="e.g. resilient_cadet_84" required="" type="text">
+</div>
+<p class="text-[11px] text-gray-500 flex items-center gap-1.5 pl-0.5">
+<span class="material-symbols-outlined text-[14px] text-gray-400 shrink-0">info</span>
+<span>Used for sign-in instead of email to preserve complete civilian anonymity.</span>
+</p>
+</div>
+<!-- Display Name (Optional) -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="text-xs font-semibold text-[#132A3A] tracking-wide" for="display-name">
+              Display Name <span class="font-normal text-gray-500">(Optional)</span>
+</label>
+<span class="text-[11px] font-medium text-gray-500">
+              Cohort Visibility
+            </span>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[19px]">person_outline</span>
+<input class="w-full bg-[#F9F9F7] text-[#132A3A] text-sm pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E7E7E2] placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-[#159A9C] focus:ring-2 focus:ring-[#159A9C]/20 transition-all duration-150" id="display-name" placeholder="e.g. Ahmed Ali (optional public or cohort name)" type="text">
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="text-xs font-semibold text-[#132A3A] tracking-wide" for="password">
+              Password <span class="text-red-500">*</span>
+</label>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[19px]">lock</span>
+<input class="w-full bg-[#F9F9F7] text-[#132A3A] text-sm pl-10 pr-10 py-2.5 rounded-xl border border-[#E7E7E2] placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-[#159A9C] focus:ring-2 focus:ring-[#159A9C]/20 transition-all duration-150" id="password" oninput="updatePasswordStrength(this.value)" placeholder="Choose a strong passphrase" required="" type="password">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#132A3A] p-1 rounded-md transition-colors focus:outline-none" onclick="togglePasswordVisibility('password', 'password-icon')" type="button">
+<span class="material-symbols-outlined text-[19px]" id="password-icon">visibility</span>
+</button>
+</div>
+<!-- Entropy Score Bar -->
+<div class="pt-1 space-y-1.5">
+<div class="flex items-center justify-between text-xs">
+<span class="text-gray-500 text-[11px]">Entropy score: <span class="font-semibold text-gray-400" id="strength-label">Empty</span></span>
+<span class="text-[11px] font-medium text-[#159A9C]" id="strength-hint">Min. 8 characters recommended</span>
+</div>
+<div class="w-full h-1.5 bg-[#EAEAE5] rounded-full overflow-hidden flex gap-1 p-0.5">
+<div class="h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300" id="bar-1"></div>
+<div class="h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300" id="bar-2"></div>
+<div class="h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300" id="bar-3"></div>
+<div class="h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300" id="bar-4"></div>
+</div>
+</div>
+</div>
+<!-- Confirm Password Field -->
+<div class="space-y-1.5">
+<label class="text-xs font-semibold text-[#132A3A] tracking-wide" for="confirm-password">
+            Confirm Password <span class="text-red-500">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[19px]">verified_user</span>
+<input class="w-full bg-[#F9F9F7] text-[#132A3A] text-sm pl-10 pr-10 py-2.5 rounded-xl border border-[#E7E7E2] placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-[#159A9C] focus:ring-2 focus:ring-[#159A9C]/20 transition-all duration-150" id="confirm-password" placeholder="Re-enter chosen passphrase" required="" type="password">
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#132A3A] p-1 rounded-md transition-colors focus:outline-none" onclick="togglePasswordVisibility('confirm-password', 'confirm-password-icon')" type="button">
+<span class="material-symbols-outlined text-[19px]" id="confirm-password-icon">visibility</span>
+</button>
+</div>
+</div>
+<!-- Primary Action Button -->
+<div class="pt-2">
+<button class="w-full h-12 rounded-xl bg-[#132A3A] hover:bg-[#1C3B52] active:scale-[0.99] text-white text-sm font-semibold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all duration-150 cursor-pointer" type="submit">
+<span>Create Account</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Clean Divider -->
+<div class="relative my-6 flex items-center justify-center">
+<div class="w-full border-t border-[#E7E7E2]"></div>
+<span class="absolute bg-white px-3.5 text-xs text-gray-400 uppercase tracking-wider font-medium">
+          or continue without identity
+        </span>
+</div>
+<!-- Guest Anonymous Access Button -->
+<a class="group w-full p-3.5 rounded-2xl bg-[#F9F9F7] hover:bg-[#F2F2EC] border border-[#E7E7E2] flex items-center justify-between transition-all duration-150" href="#">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-white border border-[#E0E0DA] flex items-center justify-center text-[#159A9C] group-hover:scale-105 transition-transform shadow-xs">
+<span class="material-symbols-outlined text-[20px]">security</span>
+</div>
+<div class="text-left">
+<div class="text-sm font-semibold text-[#132A3A] group-hover:text-[#159A9C] transition-colors">
+              Continue Anonymously
+            </div>
+<div class="text-xs text-gray-500 font-normal">
+              Immediate guest assessment • Zero record retention
+            </div>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:text-[#159A9C] group-hover:translate-x-0.5 transition-all text-[20px]">
+          arrow_forward
+        </span>
+</a>
+<!-- Switch to Login -->
+<div class="mt-6 pt-5 border-t border-[#E7E7E2] text-center">
+<p class="text-xs sm:text-sm text-gray-600">
+          Already have an account? 
+          <a class="font-semibold text-[#159A9C] hover:text-[#00696B] hover:underline underline-offset-4 transition-colors ml-1" href="#">
+            Login
+          </a>
+</p>
+</div>
+</div>
+<!-- Academic IRB Trust Badges -->
+<div class="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs text-gray-500">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#E7E7E2] shadow-xs">
+<span class="material-symbols-outlined text-[#159A9C] text-[15px]">verified</span>
+<span class="font-medium text-[#132A3A]">IRB Protocol #2024-CAG</span>
+</div>
+<span class="text-gray-300">•</span>
+<div class="flex items-center gap-1">
+<span>ISO/IEC 27001 Methodology Aligned</span>
+</div>
+<span class="text-gray-300">•</span>
+<div class="flex items-center gap-1">
+<span>Zero External Telemetry Trackers</span>
+</div>
+</div>
+</main>
+<!-- Website Footer -->
+<footer class="w-full bg-[#EFEFEA] border-t border-[#E3E2DC] py-10 mt-auto">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-[#E3E2DC]">
+<!-- Brand & Mission -->
+<div class="flex items-center gap-3">
+<img alt="CyberAwareGaza" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFKDFu7bJJZdGOiQegU9jEcrNdUduoiaLKdmgEyvlUA-z89EhJ6tBMUYyRsOLEYdulqhdZkWV5prXw5niH6dPru0Nr1SRWgXgiDNbL_lCBZzVCiEOuTh608kRec4KZE6qLR-Un8uBmQXHPfWxArJyYGj07eXTre_iK-aBGARp_dI6giqmNAGhCo3n8eMcxaI7zw6upkiDVBjps9yKAP2IgQxv2g1VnX-7ENCKHqd-5qq2xl2jrBMFhtqMprn5PVH0Myg">
+<span class="text-base font-bold text-[#132A3A] tracking-tight">CyberAwareGaza</span>
+</div>
+<p class="text-xs sm:text-sm text-gray-600 text-center md:text-right max-w-lg leading-relaxed">
+          Academic Cyber Threat Diagnostic Initiative. Designed for civilian infrastructure resilience and sovereign secure communications education.
+        </p>
+</div>
+<div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+<p>© 2025 CyberAwareGaza Academic Consortium. All peer-reviewed diagnostic frameworks reserved.</p>
+<div class="flex items-center gap-5">
+<a class="hover:text-[#132A3A] transition-colors" href="#">Institutional Protocols</a>
+<a class="hover:text-[#132A3A] transition-colors" href="#">Academic Integrity</a>
+<a class="hover:text-[#132A3A] transition-colors" href="#">Open Methodologies</a>
+</div>
+</div>
+</div>
+</footer>
+<!-- Interactivity Scripts -->
+<script>
+    function togglePasswordVisibility(fieldId, iconId) {
+      const field = document.getElementById(fieldId);
+      const icon = document.getElementById(iconId);
+      if (!field || !icon) return;
+
+      if (field.type === 'password') {
+        field.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        field.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+
+    function updatePasswordStrength(val) {
+      const bar1 = document.getElementById('bar-1');
+      const bar2 = document.getElementById('bar-2');
+      const bar3 = document.getElementById('bar-3');
+      const bar4 = document.getElementById('bar-4');
+      const label = document.getElementById('strength-label');
+      const hint = document.getElementById('strength-hint');
+
+      const reset = () => {
+        [bar1, bar2, bar3, bar4].forEach(b => {
+          b.className = 'h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300';
+        });
+        label.textContent = 'Empty';
+        label.className = 'font-semibold text-gray-400';
+        hint.textContent = 'Min. 8 characters recommended';
+        hint.className = 'text-[11px] font-medium text-[#159A9C]';
+      };
+
+      if (!val) {
+        reset();
+        return;
+      }
+
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      [bar1, bar2, bar3, bar4].forEach(b => {
+        b.className = 'h-full w-1/4 rounded-full bg-gray-200 transition-all duration-300';
+      });
+
+      if (score === 1) {
+        bar1.className = 'h-full w-1/4 rounded-full bg-red-500 transition-all duration-300';
+        label.textContent = 'Weak';
+        label.className = 'font-semibold text-red-500';
+        hint.textContent = 'Add mixed case and digits';
+        hint.className = 'text-[11px] font-medium text-red-500';
+      } else if (score === 2) {
+        bar1.className = 'h-full w-1/4 rounded-full bg-[#159A9C] transition-all duration-300';
+        bar2.className = 'h-full w-1/4 rounded-full bg-[#159A9C] transition-all duration-300';
+        label.textContent = 'Moderate';
+        label.className = 'font-semibold text-[#159A9C]';
+        hint.textContent = 'Add special characters';
+        hint.className = 'text-[11px] font-medium text-[#159A9C]';
+      } else if (score === 3) {
+        bar1.className = 'h-full w-1/4 rounded-full bg-[#159A9C] transition-all duration-300';
+        bar2.className = 'h-full w-1/4 rounded-full bg-[#159A9C] transition-all duration-300';
+        bar3.className = 'h-full w-1/4 rounded-full bg-[#159A9C] transition-all duration-300';
+        label.textContent = 'Strong';
+        label.className = 'font-semibold text-[#159A9C]';
+        hint.textContent = 'Robust defense against credential stuffing';
+        hint.className = 'text-[11px] font-medium text-[#159A9C]';
+      } else if (score >= 4) {
+        bar1.className = 'h-full w-1/4 rounded-full bg-emerald-500 transition-all duration-300';
+        bar2.className = 'h-full w-1/4 rounded-full bg-emerald-500 transition-all duration-300';
+        bar3.className = 'h-full w-1/4 rounded-full bg-emerald-500 transition-all duration-300';
+        bar4.className = 'h-full w-1/4 rounded-full bg-emerald-500 transition-all duration-300';
+        label.textContent = 'Exceptional';
+        label.className = 'font-semibold text-emerald-600';
+        hint.textContent = 'Cryptographically resilient';
+        hint.className = 'text-[11px] font-medium text-emerald-600';
+      }
+    }
+  </script>
+</body></html>

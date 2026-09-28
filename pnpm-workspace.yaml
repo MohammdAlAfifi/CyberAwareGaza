@@ -1,0 +1,9 @@
+onlyBuiltDependencies:
+  - "@node-rs/argon2"
+  - esbuild
+  - sharp
+  - unrs-resolver
+confirmModulesPurge: false
+allowBuilds:
+  esbuild: set this to true or false
+  unrs-resolver: set this to true or false
