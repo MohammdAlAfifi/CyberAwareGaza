@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "@fontsource/noto-sans-arabic/arabic-400.css";
+import "@fontsource/noto-sans-arabic/arabic-600.css";
+import "@fontsource/noto-sans-arabic/arabic-700.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getDictionary, isLocale, locales } from "@/src/i18n";
@@ -27,7 +33,11 @@ export default async function LocaleLayout({
   const t = getDictionary(locale);
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <html
+      data-scroll-behavior="smooth"
+      lang={locale}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+    >
       <body>
         <a className="skip-link" href="#main">
           {t.skip}

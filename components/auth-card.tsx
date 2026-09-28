@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FormField } from "@/components/ui/form-field";
 import { getDictionary, type Locale } from "@/src/i18n";
 
 export function AuthCard({
@@ -17,43 +18,39 @@ export function AuthCard({
       <h1>{signup ? t.create : t.participantLogin}</h1>
       <p className="auth-intro">{signup ? t.createIntro : t.loginIntro}</p>
       <form className="auth-form" aria-describedby="auth-status">
-        <label>
-          {t.username}
-          <input
-            name="username"
-            autoComplete="username"
-            minLength={3}
-            maxLength={40}
-            required
-          />
-        </label>
+        <FormField
+          autoComplete="username"
+          label={t.username}
+          maxLength={40}
+          minLength={3}
+          name="username"
+          required
+        />
         {signup && (
-          <label>
-            {t.displayName}
-            <input name="displayName" autoComplete="name" maxLength={120} />
-          </label>
+          <FormField
+            autoComplete="name"
+            label={t.displayName}
+            maxLength={120}
+            name="displayName"
+          />
         )}
-        <label>
-          {t.password}
-          <input
-            name="password"
-            type="password"
-            autoComplete={signup ? "new-password" : "current-password"}
-            minLength={12}
-            required
-          />
-        </label>
+        <FormField
+          autoComplete={signup ? "new-password" : "current-password"}
+          label={t.password}
+          minLength={12}
+          name="password"
+          required
+          type="password"
+        />
         {signup && (
-          <label>
-            {t.confirm}
-            <input
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              minLength={12}
-              required
-            />
-          </label>
+          <FormField
+            autoComplete="new-password"
+            label={t.confirm}
+            minLength={12}
+            name="confirmPassword"
+            required
+            type="password"
+          />
         )}
         <p className="field-note">{t.noEmail}</p>
         <button
@@ -68,7 +65,7 @@ export function AuthCard({
         </p>
       </form>
       <div className="auth-divider">
-        <span>or</span>
+        <span aria-hidden="true">•••</span>
       </div>
       <Link
         className="button button-ghost button-large full"

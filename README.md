@@ -4,7 +4,7 @@ Production-oriented foundation for a bilingual cybersecurity awareness and risk-
 
 ## Current status
 
-Phase 0 is complete. Phase 1 source-independent repository and database work is implemented, and its live Supabase migration/seed/integration exit check passed on September 29, 2026. The public English/Arabic shell from the existing project remains intact.
+Phases 0 and 1 are complete, including the live Supabase migration/seed/integration exit check. Phase 2 now provides the reusable English/Arabic visual system, responsive participant shells, source-safe assessment/result previews, and an empty-data admin dashboard with desktop sidebar and mobile drawer. Authentication and all data-changing behavior remain intentionally deferred to later phases.
 
 Section 7, “Exact Assessment Content,” of the supplied design specification is authoritative for the exact bilingual S1-S8 question and option wording. Assessment content belongs to Phase 4 and is not seeded by the Phase 1 foundation. Scoring weights remain blocked on the legacy Python source.
 

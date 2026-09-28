@@ -26,6 +26,15 @@ Completed source-independent work:
 
 Credential-dependent Phase 1 exit checks passed against the configured development Supabase project on September 29, 2026: three migration ledger entries and all 15 expected tables were verified, the source-independent foundation seed completed, both pooler modes negotiated authorized TLS 1.3 connections to the same project identity, RLS was enabled, and the atomic counter concurrency check passed.
 
+## Phase 2 status: complete
+
+- Converted approved Stitch patterns into reusable logo, header/navigation, panel, button, form field, modal, progress, loading, empty, and error components.
+- Added an administration shell with a fixed desktop sidebar and keyboard-operable native-dialog drawer on mobile.
+- Added local Inter and Noto Sans Arabic assets, persistent route-preserving language selection, root-locale persistence, correct `lang`/`dir`, RTL control mirroring, mixed-direction filename handling, visible focus, 44px targets, and reduced-motion behavior.
+- Added representative landing/entry, disabled question, no-result, and empty-data admin shells without implementing authentication, submissions, scoring, or analytics queries.
+- Verified English and Arabic shells at 1440px desktop and 390px phone widths. Sixteen Playwright screenshots showed no horizontal overflow; keyboard focus, drawer operation, route/query-preserving language switching, long Arabic wrapping, loading/empty/error states, and reduced motion passed browser checks.
+- The official public logo file remains byte-for-byte identical to the approved source. Five available Stitch PNGs were used for visual comparison; the missing/invalid assessment, result, admin, mobile, and RTL reference screenshots remain a comparison-coverage limitation recorded in `docs/source-map.md`.
+
 ## Blocked source-dependent work
 
 - Transcribe and seed the source-approved Section 7 bilingual scenarios in Phase 4; approved consent wording is still missing.

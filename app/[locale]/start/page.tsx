@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Icon, type IconName } from "@/components/icon";
 import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = { title: "Start assessment" };
@@ -13,10 +14,10 @@ export default async function StartPage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale).start;
-  const cards = [
-    ["⌁", t.loginTitle, t.loginText, `/${locale}/login`],
-    ["＋", t.signupTitle, t.signupText, `/${locale}/signup`],
-    ["◌", t.anonTitle, t.anonText, `/${locale}/anonymous`],
+  const cards: ReadonlyArray<readonly [IconName, string, string, string]> = [
+    ["login", t.loginTitle, t.loginText, `/${locale}/login`],
+    ["user", t.signupTitle, t.signupText, `/${locale}/signup`],
+    ["shield", t.anonTitle, t.anonText, `/${locale}/anonymous`],
   ];
 
   return (
@@ -29,7 +30,7 @@ export default async function StartPage({
           {cards.map(([icon, title, text, href]) => (
             <Link className="entry-card" href={href} key={title}>
               <span className="entry-icon" aria-hidden="true">
-                {icon}
+                <Icon name={icon} size={25} />
               </span>
               <span>
                 <strong>{title}</strong>

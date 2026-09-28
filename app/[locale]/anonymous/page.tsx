@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SourceGate } from "@/components/source-gate";
+import { Modal } from "@/components/ui/modal";
 import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = { title: "Anonymous session" };
@@ -12,6 +13,7 @@ export default async function AnonymousPage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale).auth;
+  const modal = getDictionary(locale).modal;
   return (
     <main id="main" className="center-page auth-page">
       <section className="auth-card anonymous-card">
@@ -31,6 +33,13 @@ export default async function AnonymousPage({
         >
           {t.acknowledge}
         </button>
+        <Modal
+          closeLabel={modal.close}
+          eyebrow={modal.eyebrow}
+          text={modal.text}
+          title={modal.title}
+          triggerLabel={modal.trigger}
+        />
         <SourceGate locale={locale} />
       </section>
     </main>

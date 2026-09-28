@@ -8,12 +8,27 @@ export function isLocale(value: string): value is Locale {
 const dictionaries = {
   en: {
     skip: "Skip to main content",
+    language: "العربية",
+    languageAria: "Switch to Arabic",
+    common: {
+      preview: "Interface preview",
+      menu: "Menu",
+      close: "Close",
+      back: "Back",
+      retry: "Try again",
+      loading: "Loading",
+      empty: "Empty",
+      error: "Error",
+    },
     nav: {
       about: "About",
       how: "How it works",
       login: "Log in",
       signup: "Create account",
       start: "Start assessment",
+      assessmentPreview: "Question preview",
+      resultPreview: "Result preview",
+      adminPreview: "Admin preview",
     },
     landing: {
       eyebrow: "Cybersecurity awareness assessment",
@@ -42,6 +57,10 @@ const dictionaries = {
       research: "Educational and research use",
       researchText:
         "The platform separates website submissions from historical form data and excludes non-consenting responses from research analysis.",
+      shellsTitle: "Preview the interface system",
+      shellsText:
+        "These source-safe shells demonstrate layout and accessibility only. They do not submit answers, calculate scores, or expose research analytics.",
+      scenarioLabel: "scenarios",
     },
     start: {
       eyebrow: "Choose your path",
@@ -80,23 +99,121 @@ const dictionaries = {
         "Never enter real passwords, one-time codes, university credentials, or sensitive personal information anywhere in this assessment.",
       acknowledge: "I understand — continue",
       unavailable:
-        "Account and anonymous-session creation will be enabled after the development database is connected.",
+        "Visual preview only. Account and session actions are implemented in Phase 3.",
+    },
+    assessment: {
+      eyebrow: "Assessment shell",
+      title: "Scenario layout preview",
+      intro:
+        "This screen establishes the one-question layout without publishing or paraphrasing assessment content.",
+      progressLabel: "Assessment progress",
+      progressText: "Scenario 1 of 8",
+      questionLabel: "Scenario content placeholder",
+      questionText:
+        "The exact approved scenario wording will appear here when Phase 4 content is transcribed and verified.",
+      optionPlaceholder: "Approved response option will appear here",
+      previous: "Previous scenario",
+      next: "Next scenario",
+      sourceNote:
+        "Question and answer controls are intentionally disabled in this Phase 2 preview.",
+    },
+    result: {
+      eyebrow: "Result shell",
+      title: "Your assessment result",
+      previewBadge: "Preview — no calculated result",
+      emptyTitle: "No assessment result yet",
+      emptyText:
+        "A verified score, risk label, interpretation, and answer review will appear only after scoring is implemented and a real assessment is completed.",
+      scoreLabel: "Score",
+      riskLabel: "Risk level",
+      unavailable: "Not calculated",
+      feedbackTitle: "Personalized guidance",
+      feedbackText:
+        "Guidance remains empty until the legacy scoring and feedback source is verified.",
+      reviewTitle: "Answer review",
+      reviewText:
+        "Completed scenario responses will be listed here without revealing correctness before submission.",
+      start: "Return to entry options",
+    },
+    admin: {
+      brandLabel: "Research administration",
+      openMenu: "Open admin navigation",
+      closeMenu: "Close admin navigation",
+      overview: "Overview",
+      participants: "Participants",
+      assessments: "Assessments",
+      scenarios: "Scenario analytics",
+      imports: "Imports and exports",
+      settings: "Settings",
+      dashboard: "Dashboard preview",
+      dashboardIntro:
+        "A source-aware administration shell with no connected research records or invented statistics.",
+      previewNotice: "Preview data is intentionally empty",
+      previewText:
+        "Counts and charts stay blank until authorized queries and denominator rules are implemented in later phases.",
+      kpis: [
+        "Eligible participants",
+        "Completed assessments",
+        "Average score",
+        "Risk distribution",
+      ],
+      notAvailable: "No live data",
+      recentTitle: "Recent assessments",
+      recentText:
+        "Authorized assessment records will appear here with source, consent eligibility, and timezone-aware timestamps.",
+      fileHint:
+        "Imported filenames such as responses.csv remain left-to-right.",
+      viewLoading: "Preview loading state",
+      viewEmpty: "Preview empty state",
+      viewError: "Preview error state",
+    },
+    states: {
+      loadingTitle: "Loading secure data",
+      loadingText:
+        "The interface is waiting for an authorized server response. No placeholder totals are shown.",
+      emptyTitle: "Nothing to show yet",
+      emptyText:
+        "This area will remain empty until eligible records exist for the selected source and consent rules.",
+      errorTitle: "Data could not be loaded",
+      errorText:
+        "The preview demonstrates a recoverable error without exposing database or participant details.",
+    },
+    modal: {
+      trigger: "Preview safety notice",
+      eyebrow: "Safety notice",
+      title: "Protect your real credentials",
+      text: "CyberAwareGaza scenarios should never ask you to enter a real password, one-time code, or institutional credential.",
+      close: "Close notice",
     },
     gate: {
-      title: "Assessment content is awaiting source approval",
-      text: "The interface and data safeguards are being prepared, but scenarios and scoring are intentionally unavailable until the canonical bilingual questionnaire and legacy scoring rubric are supplied and reconciled.",
+      title: "Protected assessment content",
+      text: "The visual shell is ready, while exact scenarios, scoring, and feedback remain gated for their approved implementation phases.",
     },
     footer: "Educational cybersecurity awareness and research platform",
-    language: "العربية",
   },
   ar: {
     skip: "انتقل إلى المحتوى الرئيسي",
+    language: "English",
+    languageAria: "التبديل إلى الإنجليزية",
+    common: {
+      preview: "معاينة الواجهة",
+      menu: "القائمة",
+      close: "إغلاق",
+      back: "رجوع",
+      retry: "إعادة المحاولة",
+      loading: "تحميل",
+      empty: "فارغ",
+      error: "خطأ",
+    },
     nav: {
       about: "عن المنصة",
       how: "آلية العمل",
       login: "تسجيل الدخول",
       signup: "إنشاء حساب",
       start: "ابدأ التقييم",
+      assessmentPreview: "معاينة السؤال",
+      resultPreview: "معاينة النتيجة",
+      adminPreview: "معاينة الإدارة",
     },
     landing: {
       eyebrow: "تقييم الوعي بالأمن السيبراني",
@@ -122,6 +239,10 @@ const dictionaries = {
       research: "للاستخدام التعليمي والبحثي",
       researchText:
         "تفصل المنصة بين مشاركات الموقع وبيانات النماذج التاريخية، وتستبعد الردود غير الموافقة من التحليل البحثي.",
+      shellsTitle: "استعرض نظام الواجهة",
+      shellsText:
+        "توضح هذه النماذج الآمنة تخطيط الواجهة وإتاحتها فقط، ولا ترسل إجابات أو تحسب درجات أو تعرض تحليلات بحثية.",
+      scenarioLabel: "سيناريوهات",
     },
     start: {
       eyebrow: "اختر مسارك",
@@ -157,14 +278,97 @@ const dictionaries = {
         "لا تدخل أبدًا كلمات مرور حقيقية أو رموز تحقق أو بيانات اعتماد جامعية أو معلومات شخصية حساسة في أي جزء من هذا التقييم.",
       acknowledge: "فهمت — متابعة",
       unavailable:
-        "سيتم تفعيل إنشاء الحسابات والجلسات المجهولة بعد ربط قاعدة بيانات التطوير.",
+        "هذه معاينة مرئية فقط. تُنفّذ إجراءات الحساب والجلسة في المرحلة الثالثة.",
+    },
+    assessment: {
+      eyebrow: "نموذج التقييم",
+      title: "معاينة تخطيط السيناريو",
+      intro:
+        "تحدد هذه الشاشة تخطيط السؤال الواحد دون نشر محتوى التقييم أو إعادة صياغته.",
+      progressLabel: "تقدم التقييم",
+      progressText: "السيناريو 1 من 8",
+      questionLabel: "موضع محتوى السيناريو",
+      questionText:
+        "سيظهر هنا نص السيناريو المعتمد حرفيًا بعد نسخه والتحقق منه في المرحلة الرابعة.",
+      optionPlaceholder: "سيظهر هنا خيار الإجابة المعتمد",
+      previous: "السيناريو السابق",
+      next: "السيناريو التالي",
+      sourceNote:
+        "عناصر السؤال والإجابة معطلة عمدًا في معاينة المرحلة الثانية.",
+    },
+    result: {
+      eyebrow: "نموذج النتيجة",
+      title: "نتيجة تقييمك",
+      previewBadge: "معاينة — لا توجد نتيجة محسوبة",
+      emptyTitle: "لا توجد نتيجة تقييم بعد",
+      emptyText:
+        "لن تظهر الدرجة أو مستوى المخاطر أو التفسير أو مراجعة الإجابات إلا بعد تنفيذ آلية التقييم وإكمال تقييم فعلي.",
+      scoreLabel: "الدرجة",
+      riskLabel: "مستوى المخاطر",
+      unavailable: "غير محسوب",
+      feedbackTitle: "إرشادات مخصصة",
+      feedbackText:
+        "تظل الإرشادات فارغة حتى التحقق من مصدر آلية التقييم والتغذية الراجعة القديمة.",
+      reviewTitle: "مراجعة الإجابات",
+      reviewText:
+        "ستُعرض إجابات السيناريوهات المكتملة هنا دون كشف صحة الإجابة قبل الإرسال.",
+      start: "العودة إلى خيارات الدخول",
+    },
+    admin: {
+      brandLabel: "إدارة البحث",
+      openMenu: "فتح تنقل الإدارة",
+      closeMenu: "إغلاق تنقل الإدارة",
+      overview: "نظرة عامة",
+      participants: "المشاركون",
+      assessments: "التقييمات",
+      scenarios: "تحليلات السيناريوهات",
+      imports: "الاستيراد والتصدير",
+      settings: "الإعدادات",
+      dashboard: "معاينة لوحة التحكم",
+      dashboardIntro:
+        "نموذج إدارة يراعي مصدر البيانات دون سجلات بحثية متصلة أو إحصاءات مختلقة.",
+      previewNotice: "بيانات المعاينة فارغة عمدًا",
+      previewText:
+        "تبقى الأعداد والرسوم فارغة حتى تنفيذ الاستعلامات المصرح بها وقواعد المقام في المراحل اللاحقة.",
+      kpis: [
+        "المشاركون المؤهلون",
+        "التقييمات المكتملة",
+        "متوسط الدرجة",
+        "توزيع المخاطر",
+      ],
+      notAvailable: "لا توجد بيانات فعلية",
+      recentTitle: "التقييمات الحديثة",
+      recentText:
+        "ستظهر هنا سجلات التقييم المصرح بها مع المصدر وأهلية الموافقة والطابع الزمني المحدد المنطقة.",
+      fileHint:
+        "تبقى أسماء الملفات مثل responses.csv باتجاه من اليسار إلى اليمين.",
+      viewLoading: "معاينة حالة التحميل",
+      viewEmpty: "معاينة الحالة الفارغة",
+      viewError: "معاينة حالة الخطأ",
+    },
+    states: {
+      loadingTitle: "جارٍ تحميل البيانات الآمنة",
+      loadingText:
+        "تنتظر الواجهة استجابة مصرحًا بها من الخادم، ولا تعرض أرقامًا مؤقتة.",
+      emptyTitle: "لا يوجد ما يُعرض بعد",
+      emptyText:
+        "ستبقى هذه المساحة فارغة حتى تتوفر سجلات مؤهلة للمصدر وقواعد الموافقة المحددة.",
+      errorTitle: "تعذر تحميل البيانات",
+      errorText:
+        "توضح المعاينة خطأً يمكن التعافي منه دون كشف تفاصيل قاعدة البيانات أو المشاركين.",
+    },
+    modal: {
+      trigger: "معاينة تنبيه السلامة",
+      eyebrow: "تنبيه سلامة",
+      title: "احمِ بيانات دخولك الحقيقية",
+      text: "يجب ألا تطلب سيناريوهات CyberAwareGaza إدخال كلمة مرور حقيقية أو رمز تحقق أو بيانات اعتماد مؤسسية.",
+      close: "إغلاق التنبيه",
     },
     gate: {
-      title: "محتوى التقييم بانتظار اعتماد المصدر",
-      text: "يجري إعداد الواجهة وضوابط حماية البيانات، لكن السيناريوهات وآلية احتساب الدرجات غير متاحتين عمدًا حتى توفير الاستبيان الثنائي اللغة ومعيار التقييم القديم ومراجعتهما.",
+      title: "محتوى تقييم محمي",
+      text: "النموذج المرئي جاهز، بينما تظل السيناريوهات الدقيقة وآلية التقييم والتغذية الراجعة مقيدة لمراحل تنفيذها المعتمدة.",
     },
     footer: "منصة تعليمية وبحثية للتوعية بالأمن السيبراني",
-    language: "English",
   },
 } as const;
 

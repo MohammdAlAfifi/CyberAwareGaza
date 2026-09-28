@@ -41,7 +41,7 @@ Atomic PostgreSQL upserts allocate `CAG-0001` and `Anonymous 1` inside the same 
 | `/[locale]/admin/login`           | Separate admin entry       | Admin credential form                                                 |
 | `/[locale]/admin/*`               | Protected administration   | Sidebar/drawer, dashboard, tables, analytics, import/export, settings |
 
-The current source-independent slice implements the public shell and entry/authentication presentation. Assessment and analytics routes must not expose Stitch placeholder content.
+The current source-independent slice implements the reusable bilingual visual system, public and three-entry shells, a disabled source-safe question layout at `/[locale]/assessment/preview`, a no-result layout at `/[locale]/results/preview`, and an empty-data administration layout at `/[locale]/admin`. Preview routes label their status explicitly and contain no Stitch scenario wording, scores, identities, totals, percentages, or research findings. Authentication, submission, scoring, and authorized data queries remain deferred to their functional phases.
 
 ## Data model
 
