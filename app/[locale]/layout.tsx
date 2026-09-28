@@ -7,7 +7,8 @@ import "../globals.css";
 
 export const metadata: Metadata = {
   title: { default: "CyberAwareGaza", template: "%s | CyberAwareGaza" },
-  description: "Bilingual cybersecurity awareness and risk assessment for academic institutions in Gaza."
+  description:
+    "Bilingual cybersecurity awareness and risk assessment for academic institutions in Gaza.",
 };
 
 export function generateStaticParams() {
@@ -16,8 +17,11 @@ export function generateStaticParams() {
 
 export default async function LocaleLayout({
   children,
-  params
-}: Readonly<{ children: React.ReactNode; params: Promise<{ locale: string }> }>) {
+  params,
+}: Readonly<{
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}>) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale);
@@ -25,7 +29,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body>
-        <a className="skip-link" href="#main">{t.skip}</a>
+        <a className="skip-link" href="#main">
+          {t.skip}
+        </a>
         <SiteHeader locale={locale} />
         {children}
         <SiteFooter locale={locale} />

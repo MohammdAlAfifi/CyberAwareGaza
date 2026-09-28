@@ -4,7 +4,9 @@
 
 Use distinct Vercel Production and Preview variables. Prefer separate Supabase projects for development and production. If plan limits prevent that, keep production credentials entirely out of Preview and use local development for database-backed preview work.
 
-Required runtime values are documented in `.env.example`. `DATABASE_URL` is the copied Supabase shared transaction-pooler URL. Postgres.js disables prepared statements and limits each warm function instance to one application connection. `DIRECT_DATABASE_URL` is used only for controlled migrations and logical backups.
+Required runtime values are documented in `.env.example`. `DATABASE_URL` is the copied Supabase shared transaction-pooler URL. Drizzle uses `node-postgres` with a module-scoped pool limited to one connection per warm function instance and trusted TLS for hosted databases. `DIRECT_DATABASE_URL` is used only for controlled migrations, seed/check commands, and logical backups.
+
+The running Vercel app needs `DATABASE_URL`, `SESSION_SECRET`, `APP_ORIGINS`, `APP_TIMEZONE`, `ANONYMOUS_SESSION_HOURS`, and `REGISTERED_SESSION_DAYS`. None are public variables. Keep `DIRECT_DATABASE_URL` out of the runtime environment unless a separate controlled deployment job explicitly needs it.
 
 ## Region selection
 

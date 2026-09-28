@@ -12,11 +12,23 @@
 
 - Repository structure for Next.js App Router, TypeScript, Drizzle migrations, environment validation, security headers, localization, and automated unit checks.
 - Public bilingual shell and entry/authentication presentation using the supplied logo and approved visual tokens.
-- Versioned relational schema, transaction-safe counters, session model, import/audit model, and known risk-boundary implementation.
+- Known risk-boundary implementation and the existing bilingual presentation shell.
+
+## Phase 1 status
+
+Completed source-independent work:
+
+- Verified Node.js 24, pnpm, Next.js App Router, strict TypeScript, ESLint, Prettier, Vitest, Playwright configuration, design tokens, server-only environment validation, and secret-safe examples.
+- Completed the relational schema, constraints, indexes, composite content/option references, RLS enablement, and migration generation.
+- Replaced Postgres.js with the server-only Drizzle `node-postgres` adapter and a one-connection runtime pool suitable for the Supabase shared transaction pooler.
+- Added atomic CAG/anonymous allocation in the participant insert transaction, foundation counter seeding, and a database integration/concurrency check.
+- Documented local development, Supabase migrations/seeding, environment separation, and future Vercel variables.
+
+Credential-dependent Phase 1 exit checks passed against the configured development Supabase project on September 29, 2026: three migration ledger entries and all 15 expected tables were verified, the source-independent foundation seed completed, both pooler modes negotiated authorized TLS 1.3 connections to the same project identity, RLS was enabled, and the atomic counter concurrency check passed.
 
 ## Blocked source-dependent work
 
-- Freeze/seed eight bilingual scenarios and consent wording.
+- Transcribe and seed the source-approved Section 7 bilingual scenarios in Phase 4; approved consent wording is still missing.
 - Implement option validation, contributions, feedback, score range, normalization, and Python parity fixtures.
 - Import and verify the historical CSV (including 93/91/2).
 - Produce content-complete result review and scenario analytics.
@@ -25,7 +37,7 @@
 
 1. Add missing inputs under `reference/research/`, `reference/legacy/`, `reference/stitch/`, and `reference/` and update the source map.
 2. Reconcile and approve one canonical content/rubric version.
-3. Run migrations against a development Supabase project and seed only approved reference content.
+3. Re-run the verified migration/check workflow before future schema releases and seed only approved reference content.
 4. Finish authentication/session services, consent, assessment transaction, scoring parity, result/history, and authorization integration tests.
 5. Add admin reporting, analytics, import/export, accessibility/browser checks, and performance/security verification.
 6. Configure isolated Vercel/Supabase environments, preview smoke test, backup/restore drill, then production release with user authorization.

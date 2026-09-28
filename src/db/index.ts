@@ -1,20 +1,20 @@
 import "server-only";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import { env } from "@/src/lib/env";
+
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+
 import * as schema from "@/src/db/schema";
+import { buildRuntimePoolConfig } from "@/src/db/pool-config";
+import { env } from "@/src/lib/env";
 
-const globalForDb = globalThis as unknown as { sqlClient?: ReturnType<typeof postgres> };
+const globalForDb = globalThis as unknown as { cyberAwareDbPool?: Pool };
 
-const client =
-  globalForDb.sqlClient ??
-  postgres(env.DATABASE_URL, {
-    max: 1,
-    prepare: false,
-    idle_timeout: 20,
-    connect_timeout: 10
-  });
+const pool =
+  globalForDb.cyberAwareDbPool ??
+  new Pool(buildRuntimePoolConfig(env.DATABASE_URL, env.SUPABASE_CA_CERT_PATH));
 
-if (process.env.NODE_ENV !== "production") globalForDb.sqlClient = client;
+if (process.env.NODE_ENV !== "production") {
+  globalForDb.cyberAwareDbPool = pool;
+}
 
-export const db = drizzle(client, { schema });
+export const db = drizzle({ client: pool, schema });

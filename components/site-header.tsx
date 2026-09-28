@@ -9,7 +9,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link className="logo-link" href={`/${locale}`} aria-label="CyberAwareGaza home">
+        <Link
+          className="logo-link"
+          href={`/${locale}`}
+          aria-label="CyberAwareGaza home"
+        >
           <Logo priority />
         </Link>
         <nav className="primary-nav" aria-label="Primary navigation">
@@ -20,7 +24,10 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <Link className="language-link" href={`/${other}`} hrefLang={other}>
             <span aria-hidden="true">◎</span> {t.language}
           </Link>
-          <Link className="button button-ghost desktop-action" href={`/${locale}/login`}>
+          <Link
+            className="button button-ghost desktop-action"
+            href={`/${locale}/login`}
+          >
             {t.nav.login}
           </Link>
           <Link className="button button-primary" href={`/${locale}/start`}>

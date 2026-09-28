@@ -4,7 +4,7 @@ import { escapeSpreadsheetFormula } from "./csv";
 describe("CSV formula escaping", () => {
   it.each(["=SUM(A1:A2)", "+cmd", "-1+2", "@link", "\tpayload"])(
     "escapes %s",
-    (value) => expect(escapeSpreadsheetFormula(value)).toBe(`'${value}`)
+    (value) => expect(escapeSpreadsheetFormula(value)).toBe(`'${value}`),
   );
 
   it("preserves ordinary values", () => {

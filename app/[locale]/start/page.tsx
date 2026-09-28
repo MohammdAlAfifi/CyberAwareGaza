@@ -5,14 +5,18 @@ import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = { title: "Start assessment" };
 
-export default async function StartPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function StartPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale).start;
   const cards = [
     ["⌁", t.loginTitle, t.loginText, `/${locale}/login`],
     ["＋", t.signupTitle, t.signupText, `/${locale}/signup`],
-    ["◌", t.anonTitle, t.anonText, `/${locale}/anonymous`]
+    ["◌", t.anonTitle, t.anonText, `/${locale}/anonymous`],
   ];
 
   return (
@@ -24,9 +28,16 @@ export default async function StartPage({ params }: { params: Promise<{ locale: 
         <div className="entry-grid">
           {cards.map(([icon, title, text, href]) => (
             <Link className="entry-card" href={href} key={title}>
-              <span className="entry-icon" aria-hidden="true">{icon}</span>
-              <span><strong>{title}</strong><small>{text}</small></span>
-              <span className="entry-arrow" aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
+              <span className="entry-icon" aria-hidden="true">
+                {icon}
+              </span>
+              <span>
+                <strong>{title}</strong>
+                <small>{text}</small>
+              </span>
+              <span className="entry-arrow" aria-hidden="true">
+                {locale === "ar" ? "←" : "→"}
+              </span>
             </Link>
           ))}
         </div>

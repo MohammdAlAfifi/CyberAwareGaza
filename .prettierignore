@@ -1,0 +1,11 @@
+.next/
+node_modules/
+coverage/
+drizzle/
+public/
+reference/brand/
+reference/stitch/
+reference/*.pdf
+reference/*.txt
+pnpm-lock.yaml
+*.tsbuildinfo

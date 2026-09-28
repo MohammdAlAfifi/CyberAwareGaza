@@ -4,9 +4,15 @@ import { notFound } from "next/navigation";
 import { SourceGate } from "@/components/source-gate";
 import { getDictionary, isLocale } from "@/src/i18n";
 
-export const metadata: Metadata = { title: "Cybersecurity awareness assessment" };
+export const metadata: Metadata = {
+  title: "Cybersecurity awareness assessment",
+};
 
-export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function LandingPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale);
@@ -15,27 +21,48 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     <main id="main">
       <section className="hero" id="about">
         <div className="hero-copy">
-          <p className="eyebrow"><span aria-hidden="true">●</span> {t.landing.eyebrow}</p>
+          <p className="eyebrow">
+            <span aria-hidden="true">●</span> {t.landing.eyebrow}
+          </p>
           <h1>{t.landing.title}</h1>
           <p className="lede">{t.landing.intro}</p>
           <div className="hero-actions">
-            <Link className="button button-primary button-large" href={`/${locale}/start`}>
-              {t.nav.start} <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
+            <Link
+              className="button button-primary button-large"
+              href={`/${locale}/start`}
+            >
+              {t.nav.start}{" "}
+              <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
             </Link>
-            <a className="button button-ghost button-large" href="#how">{t.nav.how}</a>
+            <a className="button button-ghost button-large" href="#how">
+              {t.nav.how}
+            </a>
           </div>
-          <p className="privacy-note"><span aria-hidden="true">◇</span> {t.landing.privacy}</p>
+          <p className="privacy-note">
+            <span aria-hidden="true">◇</span> {t.landing.privacy}
+          </p>
         </div>
         <div className="hero-visual" aria-hidden="true">
           <div className="orbit orbit-one" />
           <div className="orbit orbit-two" />
-          <div className="signal-card signal-a"><b>01</b><span>••••</span></div>
-          <div className="signal-card signal-b"><b>08</b><span>••••••</span></div>
-          <div className="shield-mark"><span>8</span><small>scenarios</small></div>
+          <div className="signal-card signal-a">
+            <b>01</b>
+            <span>••••</span>
+          </div>
+          <div className="signal-card signal-b">
+            <b>08</b>
+            <span>••••••</span>
+          </div>
+          <div className="shield-mark">
+            <span>8</span>
+            <small>scenarios</small>
+          </div>
         </div>
       </section>
 
-      <div className="page-width"><SourceGate locale={locale} /></div>
+      <div className="page-width">
+        <SourceGate locale={locale} />
+      </div>
 
       <section className="how-section" id="how">
         <div className="section-heading">

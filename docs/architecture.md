@@ -8,7 +8,7 @@ Use Next.js App Router with strict TypeScript on Vercel, Supabase hosted Postgre
 
 Drizzle is selected over Prisma for a small, explicit SQL model and a lightweight serverless runtime. Runtime queries use the Supabase shared transaction pooler with the `node-postgres` driver, a module-scoped pool capped at one connection per warm function instance, TLS required, and no named prepared statements. Migrations and backups use the direct connection (or the documented session-pooler alternative when the runner lacks IPv6). Both URLs must be copied from Supabase; hosts are never guessed.
 
-The initial foundation used Postgres.js. Supabase now documents that its default query pipelining can hang or mismatch results with the shared transaction pooler and that disabling the pipeline breaks transactions. Because assessment completion and imports require transactions, Phase 1 must replace the current Postgres.js runtime adapter with Drizzle's `node-postgres` adapter before any database integration gate can pass. This is a recorded implementation correction, not permission to use a different stack.
+The initial foundation used Postgres.js. Supabase now documents that its default query pipelining can hang or mismatch results with the shared transaction pooler and that disabling the pipeline breaks transactions. Because assessment completion and imports require transactions, Phase 1 replaced it with Drizzle's `node-postgres` adapter. Runtime pooling is module-scoped and capped at one connection per warm function instance.
 
 ## Deployment boundaries
 
@@ -24,7 +24,7 @@ Public registration accepts normalized username, optional display name, and pass
 
 Login creates a random opaque token; only its SHA-256 hash is stored. Cookies are HttpOnly, Secure in production, SameSite=Lax, path-scoped, and rotated after authentication. Cookie-authenticated mutations enforce same-origin checks and server-side authorization. Anonymous entry creates a separate expiring session and participant record. Logout or explicit session end revokes it. Initial policy: registered sessions expire after 30 days of inactivity; anonymous sessions after 24 hours and are not recoverable. These values are configurable and documented to users.
 
-Database-backed counters allocate `CAG-0001` and `Anonymous 1` transactionally. Public codes are display identifiers, never credentials.
+Atomic PostgreSQL upserts allocate `CAG-0001` and `Anonymous 1` inside the same transaction that inserts the participant record. Counter increments roll back if participant creation fails. Public codes are display identifiers, never credentials.
 
 ## Routes and component map
 
@@ -45,7 +45,7 @@ The current source-independent slice implements the public shell and entry/authe
 
 ## Data model
 
-Drizzle schema and SQL migrations define accounts, participants, consents, assessment attempts, responses, content/rubric versions, scenarios/options, sessions, counters, import batches/rows, and admin audit. Important constraints include normalized-username uniqueness, one account per registered participant, one response per attempt/scenario, immutable completed attempt fields at the service layer, unique source submission keys, and server-assigned roles.
+Drizzle schema and SQL migrations define accounts, participants, consents, assessment attempts, responses, content/rubric versions, scenarios/options, sessions, counters, import batches/rows, and admin audit. Database constraints cover normalized-username uniqueness, participant/source shapes, one account per registered participant, one response per attempt/scenario, content-option references, completed-attempt shape, unique source submissions, import counts, session/token shapes, and server-assigned roles. RLS is enabled on every application table with no browser policies, so direct Data API roles are deny-by-default; the server's controlled database role remains the only application data path.
 
 Timestamps are stored in UTC. UI/export presentation uses an explicit timezone, defaulting to `Asia/Hebron`. Declined consent is retained only as minimized audit evidence and is excluded from scoring and research aggregates.
 

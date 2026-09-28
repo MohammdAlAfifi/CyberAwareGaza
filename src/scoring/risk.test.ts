@@ -6,7 +6,7 @@ describe("classifyRisk", () => {
     [9, "high"],
     [10, "medium"],
     [24, "medium"],
-    [25, "low"]
+    [25, "low"],
   ] as const)("classifies boundary score %i as %s", (score, expected) => {
     expect(classifyRisk(score)).toBe(expected);
   });
