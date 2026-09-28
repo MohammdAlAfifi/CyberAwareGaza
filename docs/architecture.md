@@ -6,7 +6,9 @@ Status: accepted for source-independent foundation; content/scoring portions rem
 
 Use Next.js App Router with strict TypeScript on Vercel, Supabase hosted PostgreSQL, Drizzle ORM and SQL migrations, and server-managed opaque sessions. All sensitive database access stays in server-only modules. The browser never receives database credentials, password hashes, session tokens, option weights, or authoritative scoring logic.
 
-Drizzle is selected over Prisma for a small, explicit SQL model and a lightweight serverless runtime. Runtime queries use the Supabase shared transaction pooler with Postgres.js `prepare: false` and a very small application pool. Migrations and backups use the direct connection (or the documented session-pooler alternative when the runner lacks IPv6). Both URLs must be copied from Supabase; hosts are never guessed.
+Drizzle is selected over Prisma for a small, explicit SQL model and a lightweight serverless runtime. Runtime queries use the Supabase shared transaction pooler with the `node-postgres` driver, a module-scoped pool capped at one connection per warm function instance, TLS required, and no named prepared statements. Migrations and backups use the direct connection (or the documented session-pooler alternative when the runner lacks IPv6). Both URLs must be copied from Supabase; hosts are never guessed.
+
+The initial foundation used Postgres.js. Supabase now documents that its default query pipelining can hang or mismatch results with the shared transaction pooler and that disabling the pipeline breaks transactions. Because assessment completion and imports require transactions, Phase 1 must replace the current Postgres.js runtime adapter with Drizzle's `node-postgres` adapter before any database integration gate can pass. This is a recorded implementation correction, not permission to use a different stack.
 
 ## Deployment boundaries
 
@@ -26,18 +28,18 @@ Database-backed counters allocate `CAG-0001` and `Anonymous 1` transactionally. 
 
 ## Routes and component map
 
-| Route | Purpose | Core components |
-| --- | --- | --- |
-| `/[locale]` | Public landing | Brand header, purpose card, eight-scenario overview, How it works |
-| `/[locale]/start` | Three-way entry | Login/signup/anonymous route cards |
-| `/[locale]/login`, `/signup` | Participant authentication | Accessible credential forms |
-| `/[locale]/anonymous` | Anonymous session entry | Warning and session limitation |
-| `/[locale]/home` | Participant home/history | Warning acknowledgement, attempts list, new assessment |
-| `/[locale]/consent` | Exact approved consent | Versioned explicit Yes/No decision |
-| `/[locale]/assessment/[scenario]` | One scenario at a time | Progress, radio-card options, previous/next |
-| `/[locale]/results/[attemptId]` | Owned completed result | Raw score/risk, documented ring, feedback/review |
-| `/[locale]/admin/login` | Separate admin entry | Admin credential form |
-| `/[locale]/admin/*` | Protected administration | Sidebar/drawer, dashboard, tables, analytics, import/export, settings |
+| Route                             | Purpose                    | Core components                                                       |
+| --------------------------------- | -------------------------- | --------------------------------------------------------------------- |
+| `/[locale]`                       | Public landing             | Brand header, purpose card, eight-scenario overview, How it works     |
+| `/[locale]/start`                 | Three-way entry            | Login/signup/anonymous route cards                                    |
+| `/[locale]/login`, `/signup`      | Participant authentication | Accessible credential forms                                           |
+| `/[locale]/anonymous`             | Anonymous session entry    | Warning and session limitation                                        |
+| `/[locale]/home`                  | Participant home/history   | Warning acknowledgement, attempts list, new assessment                |
+| `/[locale]/consent`               | Exact approved consent     | Versioned explicit Yes/No decision                                    |
+| `/[locale]/assessment/[scenario]` | One scenario at a time     | Progress, radio-card options, previous/next                           |
+| `/[locale]/results/[attemptId]`   | Owned completed result     | Raw score/risk, documented ring, feedback/review                      |
+| `/[locale]/admin/login`           | Separate admin entry       | Admin credential form                                                 |
+| `/[locale]/admin/*`               | Protected administration   | Sidebar/drawer, dashboard, tables, analytics, import/export, settings |
 
 The current source-independent slice implements the public shell and entry/authentication presentation. Assessment and analytics routes must not expose Stitch placeholder content.
 
@@ -65,11 +67,15 @@ The UI uses semantic landmarks, native controls, visible focus, 44px targets, li
 
 ## Current provider checks (2026-09-28)
 
-- Next.js App Router remains the supported file-system router.
-- Vercel has distinct Development, Preview, and Production environments and per-environment variables.
-- Vercel functions should run near the database; the default region may not be suitable.
-- Supabase recommends transaction pooling for serverless functions; transaction mode does not support prepared statements.
-- Supabase Free projects can pause for low activity; paid projects do not. Free projects should maintain independent logical exports because managed daily backup access is a paid-plan feature.
+- [Next.js App Router](https://nextjs.org/docs/app) remains the supported file-system router and supports Server Components and Server Functions.
+- [Vercel environments](https://vercel.com/docs/deployments/environments) remain separated into Local/Development, Preview, and Production, with environment-scoped variables. Preview must not inherit production database credentials.
+- [Vercel Functions default to `iad1`](https://vercel.com/docs/functions/configuring-functions/region) for new projects. The project must instead choose a function region near the selected Supabase database after measuring target-user latency; Phase 0 deliberately does not guess a region.
+- [Vercel Functions currently impose a 4.5 MB request/response payload limit](https://vercel.com/docs/functions/limitations). The CSV import workflow must enforce a smaller explicit upload limit or move larger files to private object storage.
+- [Supabase recommends the shared transaction pooler for serverless functions](https://supabase.com/docs/guides/database/connecting-to-postgres), with one application connection, TLS, and no prepared statements. Direct connections are preferred for migrations and backups, while the session pooler is the IPv4 alternative.
+- [Supabase warns against Postgres.js pipelining with the transaction pooler](https://supabase.com/docs/guides/database/postgres-js). The selected runtime adapter is therefore `node-postgres`, which Drizzle supports directly.
+- [Supabase Free projects can pause after low activity](https://supabase.com/docs/guides/platform/free-project-pausing); paid projects do not. A paused project can currently be restored for up to one year, but this must be rechecked at deployment.
+- [Free-tier projects should maintain independent logical exports](https://supabase.com/docs/guides/platform/backups); managed daily backup access is described for paid plans.
+- [Supabase currently grants two Free projects per account](https://supabase.com/docs/guides/platform/billing-on-supabase), allowing development/production separation when the user's account has capacity. Provider limits remain deployment-time checks, not permanent assumptions.
 
 Re-check these items in the provider dashboards immediately before deployment.
 

@@ -1,0 +1,203 @@
+CyberAwareGaza — Product Requirements Document and Codex Handoff
+Version: 2.0, 28 September 2026
+Project: Design and Implementation of an Intelligent Cybersecurity Awareness and Risk Evaluation System for Academic Institutions in Gaza
+Status: Fixed stack: Next.js + TypeScript, Vercel hosting, Supabase PostgreSQL. Stitch and legacy-scoring source review are required before dependent coding.
+1. Instructions for Codex
+Build a production-ready responsive bilingual web platform for the eight-scenario cybersecurity awareness assessment. The Google Stitch export supplies the visual reference; the official logo supplies the brand asset; the questionnaire supplies exact scenario text and options; the old Python prototype supplies the authoritative scoring algorithm. Inspect these materials first. Deliver a short architecture review for the fixed Next.js/Vercel/Supabase stack, source-of-truth mapping, open decisions, and implementation plan before changing application code. Then implement and verify the complete platform in phases. Do not edit the thesis chapters during this work.
+Do not invent missing scenario wording, scoring weights, option mappings, feedback, historical data, or research findings. If an authoritative source is absent or contradictory, finish the independent work, record the exact unresolved item, and ask for that source before implementing the dependent portion. The known final risk thresholds are Low >= 25, Medium 10–24, High < 10; the per-option scoring values and possible score range must be verified from the old project.
+Handoff package
+Place these items together in the Codex workspace, preferably under reference/ and outside publicly served assets:
+- stitch/: original Stitch export ZIP and its extracted contents; preserve the original export for comparison.
+- screenshots/: representative desktop, mobile, English, and Arabic RTL screens, especially states missing from the export.
+- brand/: original logo assets, including the full logo and symbol if supplied; no reconstructed version.
+- research/: canonical eight-scenario bilingual questionnaire/source, option list, consent wording, and the historical Google Forms response CSV. Keep identifiable raw response files private and out of the application repository if appropriate.
+- legacy/: Python/Tkinter scoring code, score mappings, feedback text, representative output, and any tests or fixtures.
+- This PRD and the design specification PDF.
+Document the provenance and filename of each authoritative input. A response-export CSV can show the selected options and consent values, but may not contain the full question text or all unchosen options. Do not derive missing questions from observed responses. PDF text extraction can distort Arabic; inspect the original bilingual questionnaire or original design source before freezing strings.
+2. Stitch-to-Codex workflow
+1. Export the entire Stitch project as code/assets if the interface offers it. Keep the original ZIP and extract it beside this PRD. If the export is individual HTML/CSS screens, include every screen and its assets. If a usable code export is unavailable, provide screenshots at desktop/mobile widths plus any design tokens and assets that Stitch can export.
+2. Capture the principal screens at desktop and mobile sizes, including English LTR and Arabic RTL, modal, selected option, error, empty, and completed states where available. Screenshots are visual references, not sources of questionnaire wording or scoring.
+3. Codex inventories screen coverage, file types, dependencies, reusable assets, fonts, accessibility, RTL behavior, and any generated placeholder data. It produces a screen-to-route/component map and gap list. Compare with this PRD; current product requirements override older design-copy or account assumptions.
+4. Codex inspects the export and proposes implementation details within the fixed Next.js + TypeScript / Vercel / Supabase PostgreSQL stack. Select a maintained ORM/migration tool and explain authentication, data boundaries, regional deployment, and CSV processing in a short architecture decision record. Reuse sound exported React code where possible; refactor or rebuild components for real state, semantics, routing, security, and responsive behavior. Do not replace the fixed stack or add a separately hosted backend without an identified blocker and user approval.
+5. Implement with an ordinary version-controlled app. Keep reference exports separate from production source. Validate visual fidelity against screenshots and functional fidelity against this PRD. Do not ship Stitch mock statistics, hard-coded accounts, or sample results as real research data.
+A ZIP plus screenshots and original assets is the preferred handoff. A Stitch link may help review, but the workspace must contain accessible files so implementation and visual comparison are reproducible. Do not assume a particular ZIP structure, framework, or export capability until inspected.
+2A. Fixed stack and online deployment architecture
+Layer	Required choice	Implementation rule
+Web app	Next.js App Router + TypeScript	Pages, server-side mutations/route handlers, React components adapted from Stitch
+Hosting	Vercel	Production deployment, previews, environment-specific secrets, TLS
+Database	Supabase hosted PostgreSQL	Persistent accounts, consent, assessment attempts, responses, content, import history, admin audit
+Database access	Server-side only for sensitive operations	Maintained ORM/migrations (Prisma or Drizzle after review), connection pooling for Vercel functions
+Authentication	Username/password app accounts plus anonymous session	No email/phone requirement; explicit participant/admin roles; no public admin signup
+Scoring	One server-only deterministic service	Same versioned rubric for website and CSV import
+Charts	Lightweight accessible React visualizations	Load admin charts only on admin pages; counts and legends accompany graphics
+
+
+Supabase configuration: Create separate Supabase projects for development and production if free-plan limits allow; otherwise isolate development locally and keep production credentials out of preview deployments. Select the Supabase region alongside the Vercel function region and measure response time from target users. For Vercel's short-lived server functions, use the Supabase shared transaction pooler with a compatible driver/ORM configuration; prepared statements and session-state features may need disabling. Use the appropriate direct connection for migrations/backup where reachable, or a documented supported alternative if the migration runner lacks IPv6. Copy actual connection strings from Supabase; never construct them from a guessed region. Run migrations as a controlled deployment step, never on each request.
+Authentication without email: Supabase is the database provider, not a reason to impose Supabase Auth's email/password user flow. Implement secure username/password accounts and server-managed sessions with a maintained solution. An Auth.js Credentials provider may accept usernames, but the application must implement credential registration, hashing and persistence itself. Store roles server-side. Anonymous access receives a separate opaque, expiring session cookie. Public CAG IDs and anonymous labels are display identifiers, never access tokens. Do not expose Supabase database credentials, service-role keys, or raw participant records to browser code. Restrict direct Data API access to the research tables and enable/test RLS policies as appropriate even when the default architecture uses server-only database queries. If any browser Data API is added later, design and test strict participant/admin RLS policies first.
+Runtime and data safeguards: Keep public landing pages cacheable; never cross-cache authenticated results or admin data. Use unique database constraints and transactions for IDs, submissions, and imports. Avoid loading chart packages on participant assessment screens. Validate CSV limits before upload: Vercel functions have request size and duration constraints. Parse the existing small questionnaire CSV server-side if it fits; for larger files, use private object storage and a controlled background workflow. Do not store uploads in Vercel's ephemeral filesystem as durable data.
+Free-plan operations: Supabase Free is suitable for a small pilot, but projects with low database activity over seven days may pause. One login per week is not a dependable availability plan. Document dashboard pause warnings and manual resume, make independent exports/backups of research data, and recommend a paid plan if continuous public availability is required. Free-plan capacity, backup availability, and provider limits must be checked again at deployment time. Do not add artificial research participants or fabricate assessment traffic to keep a project active.
+Deployment deliverables: Vercel configuration, Supabase schema/migrations, scoped environment-variable template, production and preview separation, region/connection guidance, build/deploy instructions, a safe admin-creation procedure, backup/restore instructions, and a post-deployment smoke-test checklist. Never commit real secrets. The final live deployment depends on access to the user's Vercel and Supabase projects; complete all code and deploy configuration first.
+3. Product purpose and boundaries
+The platform presents eight realistic cybersecurity decisions, applies a deterministic explainable scoring rubric, gives educational feedback, and permits authorized research administration and analysis. It serves registered participants, anonymous participants, and administrators. It is educational/research software, not a security testing tool, credential collector, live phishing simulator, ML model, or diagnostic prediction service.
+Research provenance: Historical Google Form responses and new web submissions are different collection sources. The user's historical count is 93 submitted forms, 91 consented and two declined; verify actual file rows and values during import. Never claim historical respondents used the website. Non-consenting responses are excluded from research analyses and scoring exports. Show source-specific totals and source filters in admin reporting so combined counts cannot be misrepresented.
+Scope: Public landing and entry, participant accounts and anonymous session, warning and consent, eight scenarios, result and review, registered result history, separate admin portal, CSV import/export, scenario analytics, localization, security, tests, deployment documentation. No thesis rewrite until the platform is working and verified.
+4. Roles and access
+Role	Entry	Can do	Cannot do
+Visitor	Public landing	Choose language, sign in, sign up, enter anonymously	See protected assessment data or admin data
+Registered participant	Username and password	Consent, submit/retake assessment, view own past results	See another participant's results or admin data
+Anonymous participant	Continue anonymously, session-bound access	Consent, complete/retake while current session is active, see own immediate result	Restore results after leaving/ending session; access account history
+Administrator	Separate protected admin sign-in; account provisioned privately	View permitted participant/assessment data, analytics, import/export, settings	Register through public sign-up
+
+
+Use explicit role checks on every server-side data access, mutation, and export. A separate admin login UI must lead to an admin-only authorization boundary. Public registration always creates a participant account; it must never accept a role supplied by the browser.
+5. Visual identity and layout
+Token	Value
+Background	#F7F6F2
+Cards	#FFFFFF
+Primary navy	#132A3A
+Teal	#159A9C
+Main text	#1D2935
+Secondary text	#66727D
+Border	#E7E7E2
+Card radius	Approx. 18–22 px
+Shadow	Approx. 0 8px 30px rgba(19,42,58,0.08)
+Fonts	Inter for English; Noto Sans Arabic or IBM Plex Sans Arabic for Arabic
+
+
+Use the unaltered official logo: full horizontal artwork in header and admin login; original symbol for compact display/favicon if supplied. Preserve clear space. Warm off-white pages, white cards, restrained shadows, navy primary actions, and selective teal accents. Avoid dark hacker visuals, neon, 3D charts, generic form templates, or excessive motion. The newer three-way authentication requirement supersedes the old Stitch “name or anonymous” entry screen. The new admin metrics “registered versus anonymous” supersede old “named versus anonymous.”
+Mobile-first assessment: full-width stacked cards, 16–20 px mobile margins, approximately 44 px minimum touch targets, centered limited reading width on desktop. Admin sidebar on desktop and drawer on small screens. Responsive tables may scroll or become cards without dropping essential fields. Implement reduced-motion support and visible loading/empty/error states.
+6. Language and content
+- Provide English and Arabic interfaces; lang and document dir switch together (en/LTR, ar/RTL). Mirror navigation, sidebar/drawer, icon direction, progress placement where appropriate, and previous/next order. Keep email addresses, usernames, IDs, dates, and Invoice.pdf.exe readable in mixed-direction text.
+- Language choice persists during the current session and route navigation; preferably remember it for returning registered users. Persisted preference must not expose assessment content.
+- Localize interface labels, validation messages, warning, consent, feedback, chart legends, timestamps, and export labels when appropriate. Do not show both languages simultaneously on regular screens.
+- Seed exactly eight scenarios in the specified order with immutable keys S1–S8 and stable option IDs. Store exact approved English/Arabic question and answer text. Never rewrite, auto-translate, abbreviate, or reorder source content. Scenario 4 contains literal password-looking examples from the questionnaire: display them as inert text only; never request a real password as an assessment answer.
+- The design specification PDF has the original eight scenarios, but the authoritative questionnaire and old rubric must be reconciled with it. Record any mismatches and obtain a single approved canonical content file before seeding.
+7. Participant journey and functional requirements
+7.1 Landing and entry
+Public landing displays official logo, product purpose, eight-scenario overview, language switch, Start Assessment, and a concise How It Works. Start presents three clear routes: log in, sign up, and continue anonymously. Account sign-in uses username + password; registration uses required unique username, optional display name, password, and confirmation. Do not require email, phone, university ID, or institutional credentials. Normalize usernames consistently for uniqueness and sign-in, while retaining display casing as desired. Apply reasonable password policy and avoid username enumeration in error messages.
+On successful login, registration, or anonymous entry, show the educational/research warning before participant home/consent: no real passwords, OTPs, university credentials, or sensitive information. The modal must be acknowledged. A registered user may see previous results and begin a new assessment from participant home.
+Generate a unique internal participant ID in the form CAG-0001 using a concurrency-safe database sequence/counter and a uniqueness constraint; do not generate by counting rows in the browser. Anonymous labels are Anonymous 1, Anonymous 2, etc., stable per anonymous participant and separate from the CAG identifier. Assign IDs according to a documented policy at entry or consent; keep declined/uncompleted records out of completed research metrics. Admin display name precedence: registered display name, else username; anonymous label for anonymous entries.
+7.2 Consent and instructions
+Present the exact approved bilingual voluntary consent question and explicit Yes/No choices. Record consent decision, consent version, timestamp, and source. A No response ends the assessment respectfully and cannot reach scenarios, score, or research analytics. Do not silently treat page navigation as consent. Before scenario 1, explain the eight situations and answer behavior; repeat the sensitive-data warning.
+7.3 Assessment
+Display one scenario per screen, Scenario X of 8, teal progress bar, question, and full-width selectable answer cards. Selection uses teal border/light teal background and accessible radio semantics. Next disabled until a choice is selected. Previous preserves prior selections. Avoid revealing correctness, score contribution, attack category, or feedback before final submission. Support refresh/navigation as specified: registered in-progress work may be saved server-side; anonymous in-progress work may survive only the active browser session. Make server-side submission validation authoritative: exactly one approved option for each of the eight scenario IDs and recorded affirmative consent. Prevent duplicate final submissions on double click/retry with an idempotent transaction.
+After scenario 8, submit once, show a brief processing state (Analyzing your cybersecurity decisions...), and route to the completed result. Do not simulate success when persistence fails; provide a retry path without duplicate scores.
+7.4 Result, history, and review
+Show participant display name/anonymous number, CAG ID, final raw score with verified scale, Low/Medium/High Risk, 8/8 completion, a large labelled ring/donut, short interpretation, answer-by-answer educational feedback, Review My Answers, and sensible retake/home actions. The ring must represent a documented quantity (for example normalized score or answered count); never convert an unknown raw score range to a misleading percentage. Use semantic low/medium/high colors only after submission, plus text labels.
+Registered users can revisit only their own completed results with dates, scores, and details, including multiple attempts. Anonymous users can view the result only while the current anonymous session is valid; show This anonymous session cannot be restored after you leave. Do not issue a durable recovery token or account lookup for anonymous results. Clarify precise session expiration in the implementation notes; logout/end session revokes anonymous access. Admin access to anonymous records remains possible under its separate role.
+8. Scoring service
+Use one reusable server-side deterministic scoring service for direct website submissions and accepted CSV imports. The client never supplies a score or risk category. The service takes canonical scenario/option IDs and a versioned rubric, returns per-answer contributions, total score, risk category, and feedback IDs/text. Preserve old prototype weights and decision rules after inspection; the known thresholds are Low >=25, Medium 10–24, High <10. Validate whether scores can be negative, maximum score, and whether any special rules exist. Define explicit boundary tests for 9, 10, 24, 25 and representative eight-answer vectors matched against the Python prototype.
+Persist the scoring rubric version and content version on each completed assessment; keep results reproducible if wording or rubric later changes. Re-score imported rows only after exact CSV-option mapping is verified. Unknown options, missing answers, or mismatched source versions are excluded with row-level reasons, not guessed. Imported records must be tagged as Google Form source and must not masquerade as registered website accounts.
+9. Admin portal
+Navigation
+Dashboard, Participants, Assessments, Scenario Analytics, Import / Export, Settings, Logout. Admin login has no public registration. Administrator creation/rotation uses a documented private command or secure provisioning flow; do not seed a published default password.
+Dashboard
+Top cards: total participants, registered users, anonymous participants, completed assessments, average score, and Low/Medium/High Risk percentages. Each card defines its denominator and source scope. Show Risk Distribution and Registered versus Anonymous donuts, recent assessments, and scenario response summaries. All charts show title, total count, each category count and percentage, legend, accessible text alternative, and empty-state handling. Use modern flat circular charts; no 3D pie charts or decorative unsupported percentages. A source filter distinguishes website and historical Google Form entries; a combined view must be visibly labelled.
+Participants and assessments
+Search by display name, username, or CAG ID. Filter by registered/anonymous, risk, completed/incomplete, and collection source where relevant. Sort newest/oldest/highest/lowest score; unscored records sort predictably. Show participant, CAG ID, account type, username where applicable, latest score/risk, submitted at, status, and details. Distinguish a participant row from an assessment attempt row; one registered participant can have many attempts. Detail shows all eight selected responses, contributions and feedback if defined, final result, rubric/content versions, timestamps, and source. Never expose password hashes or session secrets.
+Scenario analytics
+Exactly eight cards with number, total response count, donut, and per-option count and percentage. Detail displays the full exact bilingual content and breakdown, filtered by source if needed. Denominator is the number of eligible, consented, completed assessments with a valid answer for that scenario; explain any exclusion. Count totals and rounded percentages remain consistent with displayed data.
+Settings
+Implement minimal useful admin settings: administrator's own password change, language preference, and read-only rubric/content version and import history. Do not expose editable scoring thresholds or scenario wording without a governed version-change workflow.
+10. Data model and persistence
+Use migrations and constraints. Suggested logical entities (adjust naming/normalization in architecture proposal):
+Entity	Essential fields / constraints
+accounts	ID, unique normalized username, optional display name, password hash, role (participant/admin), timestamps; no public role escalation
+participants	Internal ID, unique public CAG code, nullable account FK, type (registered/anonymous/imported as modelled), stable anonymous ordinal where applicable, source, timestamps
+consents	Participant/assessment relation, decision, consent-version, timestamp, source; declined entries barred from research analysis
+assessment_attempts	Participant FK, status, source (web/google_form), source submission key, started/completed timestamps, total score/risk, rubric/content versions; unique import key; immutable completion
+responses	Attempt FK, scenario ID, selected option ID, contribution, feedback reference; unique (attempt, scenario)
+scenario_content / options	Versioned bilingual strings, stable IDs, display order, active version; no editing of an already used version
+import_batches / import_rows	Upload metadata, source/checksum, validation state, row counts, row number and rejection reason; avoid storing unnecessary raw responses
+admin_audit	Actor, action, timestamp, import/export/settings event, limited metadata
+
+
+Use true database keys separate from public CAG identifiers. Store timestamps in UTC and display/export with explicit timezone (Asia/Hebron for local presentation when desired). Document deletion/retention and data minimization choices. Encrypt backups and limit data access by role. Do not store plaintext passwords, OTPs, real credentials, or entire CSV uploads indefinitely without need.
+11. CSV import and export
+Admin-only upload with drag-and-drop and accessible file chooser. Accept documented CSV formats, validate extension plus content, UTF-8/BOM, header mapping, size/row limits, and escaped spreadsheet formulas on export. Preview mapping and counts before commit. Validate consent, all eight answers, allowed option strings/IDs, duplicate source keys, and timestamps. The import summary must report Total Rows, Accepted Rows, Excluded Rows, Imported Assessments and downloadable row-level error reasons. Explain whether Accepted Rows includes previously imported duplicates; use separate duplicate count if useful. Import is idempotent by source file/hash and original row identifier or a stable derived key. A failed batch cannot partially masquerade as success; transaction boundaries and restart behavior must be documented.
+For the historical Google Form data, verify actual counts against the stated 93/91/2. Exclude declined rows from scoring and research charts; retain only the minimum audit aggregate/metadata needed to explain exclusions. Import participant records with google_form provenance, not web registration/anonymous sessions. If the form export lacks stable participant identifiers, create source-specific pseudonymous IDs and avoid merging people across sources without evidence. Ask for explicit mapping when bilingual option text is ambiguous. Use the exact same scoring service as live submissions.
+Exports: Participants, Assessments, Risk Distribution, Scenario Analytics. Respect filters and include source, consent eligibility, rubric version, denominator, timestamps/timezone, and column definitions where relevant. Avoid unnecessary account identifiers and PII. Escape CSV cells beginning with spreadsheet formula characters. Restrict exports to admins and log them. Never include declined responses in research results export.
+12. Security, privacy, accessibility, reliability
+- Hash passwords with a maintained adaptive password hashing method; use secure server sessions, session rotation after login, expiration, logout invalidation, HttpOnly/Secure/SameSite cookies, and CSRF protection for cookie-authenticated mutations.
+- Validate inputs on the server, parameterize queries, encode output, apply a protective content security policy when feasible, and avoid leaking sensitive errors. Rate-limit login, registration, admin login, and upload endpoints; log security-relevant events without passwords or raw tokens.
+- Authorize every result read, dashboard query, import/export, and admin mutation on the server. Test horizontal access between participant accounts and anonymous sessions; protect all admin APIs, not merely pages.
+- No direct public access to imported raw files. Secrets via environment variables, with example config containing no real secrets. Migrations, backup/restore plan, and TLS-ready deployment configuration.
+- Semantic landmarks, labelled inputs, keyboard-only operation, visible focus, understandable validation, live region for progress/errors, sufficient contrast, approximately 44 px targets, chart text equivalents, and reduced-motion support. Aim for WCAG 2.2 AA in key participant/admin flows.
+- Do not claim offline operation unless implemented and tested. Present processing animation as a UI state, not evidence of ML.
+13. Quality gates and test plan
+1. Source review: inventory Stitch export/assets/screens, verify original logo, identify canonical bilingual text, compare CSV headers/consent values, inspect old Python scoring and its output. Record conflicts and decisions before implementation.
+2. Unit tests: score vectors and thresholds, ID sequence/concurrency, display-name precedence, response validation, consent gate, option mapping, localization completeness, source/denominator calculations, CSV escaping.
+3. Integration tests: signup/login/logout and private admin provisioning; authorized result history; anonymous session expiry; eight-answer transaction and duplicate submit; row import and idempotent re-import; consent exclusions; filters and exports; role/object access denial.
+4. Browser checks: mobile and desktop participant journeys, English and Arabic RTL, keyboard focus/labels, long Arabic text wrapping, chart legends, loading/error/empty states, all eight scenarios, answer preservation, result review, admin mobile navigation.
+5. Visual QA: compare implementation screenshots against Stitch for representative screens at phone and desktop sizes. Preserve logo/color/spacing system while resolving generated design inconsistencies.
+6. Deployment gate: migrations and seeding run cleanly on a fresh environment; no demo statistics or default credentials in production; configured HTTPS and secrets; smoke-test live/auth/admin/import paths with safe test data; document rollback and backup recovery.
+Do not report the 91 consenting Google Form records as platform usage. Use test fixtures separately from research data and remove demo rows before presenting real statistics.
+14. Acceptance criteria
+- Visitor can choose English/Arabic and enter by username login, username-only signup with optional display name, or anonymous session, without email/phone/university ID.
+- Warning is acknowledged; explicit No consent stops all assessment/scoring paths. Yes enables eight screens in the fixed order with no premature answer cues.
+- Every completed submission yields one server-calculated, persisted result using verified legacy option weights and exact risk boundaries; double-click does not create duplicate attempts.
+- Registered user sees only their own historical attempts after a later login. Anonymous user sees full current-session result but cannot recover it after session end; admin can inspect its labelled record.
+- English/Arabic content matches approved source verbatim, interface direction works throughout, and original logo and design tokens are faithfully implemented.
+- Admin portal is separately authenticated and authorized, with complete dashboard, table, details, eight scenario analytics, source-aware charts, import/export, and honest counts/denominators.
+- Importing historical Google Form data recognizes the stated consent split when confirmed by file inspection, excludes non-consenting rows from research analytics, preserves source provenance, and produces the same scores as the direct submission engine for identical eight-answer vectors.
+- Fresh deployment passes migrations and smoke tests. Security, accessibility, and automated checks pass with documented commands; no sample data is presented as research findings.
+15. Phased implementation plan for Codex
+Work through the phases in order. At each phase, commit a coherent change, run the relevant checks, and give a concise report of what works, the commands/results, and unresolved source dependencies. Continue independent work when one source is missing; never replace a missing scoring rule or Arabic sentence with a guess. A phase is complete only when its exit gate passes.
+Phase 0 — Source inspection and architecture decision
+- Inspect the Stitch ZIP, source screens, images, fonts, logo, design specification, questionnaire, historical CSV, and legacy Python scoring project.
+- Produce docs/source-map.md naming the exact canonical file for every bilingual scenario/option, consent text, rubric, and logo. Compare contradictory variants and flag differences.
+- Produce docs/architecture.md: route/component map, Supabase schema outline, Auth/session design, Vercel region and pooler design, import plan, and chosen ORM/migration tool. Identify any Stitch screens missing from the export.
+- Gate: No implementation of content/scoring until the canonical strings and scoring weights are verified. Stack remains Next.js/Vercel/Supabase.
+Phase 1 — Repository and Supabase foundation
+- Initialize Next.js App Router + TypeScript project, linting, formatting, unit/integration/browser test tools, CSS/design tokens, typed configuration, and environment template.
+- Implement schema/migrations for accounts, participants, consents, assessment attempts, responses, versioned scenario content/options, import batches/rows, admin audit, and session storage as needed. Add indexes, unique constraints, and transaction-safe CAG/anonymous numbering.
+- Configure pooled Supabase runtime connection and a separate migration workflow; document local development and Vercel environment setup.
+- Gate: Fresh database migration and seed of nonresearch reference content work; no secrets or real respondent CSV in the repository; basic database integration check passes.
+Phase 2 — Visual system and bilingual shell
+- Turn reusable Stitch patterns into real components: logo header, cards, buttons, forms, warning modal, progress, page layouts, admin sidebar/drawer, loading/empty/error states.
+- Implement English/Arabic strings, persisted language selection, lang/dir, RTL navigation, mixed-direction IDs and filenames, desktop/tablet/mobile styles, focus states, and reduced motion.
+- Gate: Representative landing, entry, question shell, result shell, and admin shell match reference screenshots at phone and desktop sizes; Arabic navigation mirrors correctly; no mock analytics appear as real data.
+Phase 3 — Registered authentication, admin provision, and anonymous session
+- Build username/password sign-up and login, optional display name, secure hashing, session rotation/logout, rate limiting, password validation, separate admin login, and private admin provisioning. No email, phone, university ID, or public admin registration.
+- Build anonymous entry with opaque session cookie, stable Anonymous X label and unique CAG ID. Protect server routes and queries by role/ownership.
+- Gate: Account can log in later; anonymous access ends with its session; a participant cannot see another's result or admin data; admin APIs reject participants and anonymous sessions.
+Phase 4 — Consent and eight-scenario assessment
+- Implement warning acknowledgement, participant home, explicit consent/no-consent exit, instructions, and exactly one scenario per page with verified bilingual text/options and stable IDs.
+- Implement selection/previous/next/progress behavior, drafts where appropriate, server-side input validation, and transactional idempotent completion.
+- Gate: All eight screens work on mobile and desktop; no pre-submission correctness clues; No consent cannot submit; a double submit produces one completed attempt.
+Phase 5 — Rule engine, result, and history
+- Port exact legacy weights and feedback into one versioned server-only scoring service; use it for every submission. Test representative answer vectors against Python outputs and boundaries 9/10/24/25.
+- Build brief processing state, score/risk result, labelled ring, interpretation, answer review/feedback, retake, and registered history. Anonymous results are available only during the active session; admin records remain accessible under admin role.
+- Gate: Server scores match legacy fixtures; browser values cannot override scores; registered history is private; anonymous results cannot be recovered after session end.
+Phase 6 — Admin participants and assessments
+- Build separate admin dashboard shell, participants/attempts tables, search, filters, sort, source labels, detail view, all eight responses, status, timestamps, and minimal settings.
+- Preserve the difference between a person and multiple attempts. Provision admin accounts through a private command; implement admin password change and import audit view.
+- Gate: Search/filter/sort results match fixture data; all detail and export endpoints enforce server-side admin authorization.
+Phase 7 — Analytics and charts
+- Implement cards for participant/attempt counts, average score, risk percentages, registered versus anonymous distribution, recent assessments, and eight scenario analytics cards/details.
+- Define eligible denominator, consent rule, and source filter for each metric. Render donuts with textual counts, percentages, legends and empty states; exclude historical nonconsent rows.
+- Gate: Calculated counts match database fixtures across web-only, Google Form-only, and clearly labelled combined views. Charts never display preview numbers in production.
+Phase 8 — Historical CSV import and exports
+- Build admin drag/drop chooser, header/encoding/size validation, preview mapping, consent/option matching, per-row errors, duplicate handling, idempotent transactional import, and batch summary.
+- Verify the claimed 93 Google Form rows, 91 consented and 2 declined against actual files. Use google_form provenance, exclude declined rows from scoring/research analytics, and never label these records as website users. Use the same scoring service as Phase 5.
+- Export Participants, Assessments, Risk Distribution, and Scenario Analytics with source, denominator, timezone and rubric version; protect and audit exports; escape spreadsheet formulas.
+- Gate: Reimport is idempotent, ambiguous options fail visibly, excluded rows never affect research metrics, and matching answer vectors have matching scores between direct and imported paths.
+Phase 9 — Security, accessibility, and performance verification
+- Test authentication/authorization boundaries, CSRF handling, input limits, rate limits, secure cookies, session expiry, error handling, CSV abuse, and absence of sensitive secrets in browser bundles.
+- Run keyboard and screen-reader-oriented checks, English/Arabic visual checks, mobile touch checks, contrast/reduced-motion checks, end-to-end flows, and a representative load test of the intended audience (including a burst around 100 users if that is the recruitment plan).
+- Measure server and database response times from intended user locations; inspect indexes, query counts, and chart bundle loading. Fix concrete failures.
+- Gate: Documented automated/browser checks pass; performance measurements and any remaining limitations are reported honestly.
+Phase 10 — Vercel production readiness and release
+- Prepare Vercel project settings, production environment variables, Supabase production project, migration procedure, region/pooling setup, preview separation, safe admin creation, backup/export routine, and rollback instructions.
+- Deploy a preview and smoke-test complete participant/admin flows with test accounts and data. Remove/isolate demo data before showing real analytics. Deploy production when the user's deployment access/authorization is available; validate live auth, submission, result history, admin charts and import/export without publishing sensitive research data.
+- Gate: Live URL works over HTTPS, database persistence survives redeploy, no default credentials or placeholder statistics ship, and release notes list tested behavior and limitations. Document the Supabase Free pause behavior and the operational plan.
+Required final handoff: application source, migration files, approved content seed, scoring fixtures/tests, example environment file, source map, architecture decision, deployment and recovery guide, QA evidence, and a concise completion report. Begin thesis Chapter 3 revision only in a later task after this platform is fully implemented and verified.
+Current provider references for implementation checks
+- Vercel Next.js deployment
+- Vercel Postgres provider integration
+- Supabase database connection modes
+- Supabase Free project pausing
+- Supabase plan limits
+Verify current provider settings and limits during Phase 0 and again at deployment.
+16. Thesis handoff after platform verification
+Only after the final implementation and tests, prepare a separate Chapter 3 revision plan for sections 3.1–3.7. Describe the actual selected stack, architecture, rule-based evaluation, consent/privacy, and evaluation method. Keep historical Google Form results explicitly separate from website usage. Chapter 2 is out of scope here. Google Stitch and Codex are development tools rather than system architecture components; follow university disclosure policy separately if needed.

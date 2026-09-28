@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-28",
+  "hashAlgorithm": "SHA-256",
+  "primarySources": [
+    {
+      "path": "CyberAwareGaza_PRD_v2.0.txt",
+      "bytes": 39648,
+      "sha256": "61b131645224bd6b16eb8f7baad1f814592fad6060dc7706ec38c3b151348cfe",
+      "provenance": "Byte-for-byte copy of the user attachment named Pasted text.txt",
+      "authority": "Product behavior, fixed stack, risk thresholds, and prohibitions"
+    },
+    {
+      "path": "CyberAwareGaza_Stitch_Design_Specification.pdf",
+      "bytes": 417046,
+      "sha256": "a9751b90ee8fa71c8871f2253be2339e1b5fde6b97cb5ee1f3c81cae83e40431",
+      "provenance": "User-supplied Stitch design specification",
+      "authority": "Visual and comparison reference only; content requires reconciliation"
+    },
+    {
+      "path": "brand/CyberAwareGaza_Logo.jpg",
+      "bytes": 193762,
+      "sha256": "34c6de562137b239d289c1a410942e589b6be07d9105823a41ef74d0b34625aa",
+      "provenance": "User-supplied original full logo artwork",
+      "authority": "Full-logo placements"
+    }
+  ],
+  "stitchExport": {
+    "provenance": "Partial extracted Stitch export; original ZIP not supplied",
+    "permittedUse": "Visual reference only",
+    "designTokens": {
+      "path": "stitch/stitch_cyberawaregaza_platform_ux_design/academic_cyber_resilience/DESIGN.md",
+      "bytes": 12620,
+      "sha256": "9799886c1ad42aba58ff201d69b041b196dec4d5159b1e9a492bbf5e84e4516c"
+    },
+    "htmlScreens": [
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/1_8/code.html",
+        "bytes": 22074,
+        "sha256": "842a8bdd7222dfc69f37a1bc52fa5e15c013633c7e4381f5c3befbfb85c0bc22"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/assessment_scenario_1_of_8/code.html",
+        "bytes": 21403,
+        "sha256": "03df1ed816531933b7b77b76255f4b77675f48857086538a1785c7efeee9bdc5"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_admin_dashboard/code.html",
+        "bytes": 43880,
+        "sha256": "8ef2c3d7fd7bfcd67a3c2f0488d17c9333679d85a13ece28e4aae84c1b20b476"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_assessment_result/code.html",
+        "bytes": 47744,
+        "sha256": "3f2f41bfb5f6c6da47b689b0266b0dae3a0fe1753fe0e08849dcc41755c8f144"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_login_1/code.html",
+        "bytes": 20258,
+        "sha256": "e0f6554ac5976c2cd445469b2247d5533e49468fe25c815a086697a15310e5ba"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_login_2/code.html",
+        "bytes": 17417,
+        "sha256": "a3c4d56327e326b8b44ba6117200d9ba4520e9fe66f43ab76fdf4f9652759f33"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_public_landing_page/code.html",
+        "bytes": 33450,
+        "sha256": "cf4f3e5e0478102e7499a3a2fe834e63f53e44a28ad98a0bba61be67398ba099"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_sign_up_1/code.html",
+        "bytes": 23693,
+        "sha256": "4bc86fbd4ff9fce2749e718c007d77dbcd69a0b5aca69cb7e1227682e6aa12c9"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_sign_up_2/code.html",
+        "bytes": 20295,
+        "sha256": "2fb8f4d5f1cdd8c129c9a6730e6f9286b6c856c906e318be2039897ccb5edd9a"
+      }
+    ],
+    "validScreenshots": [
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_login_1/screen.png",
+        "bytes": 314491,
+        "sha256": "bd3e4c99d8d2b5d54a7161644b6988c917cb7739bc7e9086a61bd314a4668660"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_login_2/screen.png",
+        "bytes": 345409,
+        "sha256": "ebbe52347e680901dc9d4413cd147b66cbfc488c07ded3ecbf8cb2221c90e3b6"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_logo.jpg/screen.png",
+        "bytes": 729199,
+        "sha256": "062818ea3df64cb0272fcebfb29eee42b9a0ef67f3708f907de599ecdedb67b8"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_public_landing_page/screen.png",
+        "bytes": 451997,
+        "sha256": "39651280d8037d5527651392dafee833ff4582c52fcffadce98a7c9a7411ddc0"
+      },
+      {
+        "path": "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_sign_up_1/screen.png",
+        "bytes": 276250,
+        "sha256": "7c45ce4c025b49ee1306e84f8df30505606c9655ffcd198e3bf275b17a78d1a8"
+      }
+    ],
+    "invalidScreenshotPlaceholders": {
+      "bytesEach": 28,
+      "sha256": "6c9a02e2605929162392587c714f045251761b8a72c4bced6d4cbc2e4303ef8b",
+      "paths": [
+        "stitch/stitch_cyberawaregaza_platform_ux_design/1_8/screen.png",
+        "stitch/stitch_cyberawaregaza_platform_ux_design/assessment_scenario_1_of_8/screen.png",
+        "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_admin_dashboard/screen.png",
+        "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_assessment_result/screen.png",
+        "stitch/stitch_cyberawaregaza_platform_ux_design/cyberawaregaza_sign_up_2/screen.png"
+      ]
+    }
+  }
+}
