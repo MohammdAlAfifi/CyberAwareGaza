@@ -75,9 +75,13 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         </button>
       </div>
 
-      <dialog className="admin-drawer" ref={dialogRef}>
+      <dialog
+        aria-labelledby="admin-drawer-title"
+        className="admin-drawer"
+        ref={dialogRef}
+      >
         <div className="drawer-head">
-          <strong>{t.brandLabel}</strong>
+          <strong id="admin-drawer-title">{t.brandLabel}</strong>
           <button
             aria-label={t.closeMenu}
             className="icon-button"

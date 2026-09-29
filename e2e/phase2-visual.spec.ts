@@ -107,3 +107,39 @@ test("loading, empty, and error states remain explicitly labelled", async ({
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
 });
+
+test("forms, safety modal, and state controls expose accessible names", async ({
+  page,
+}) => {
+  await page.goto("/en/signup");
+  await expect(page.getByRole("textbox", { name: "Username" })).toBeVisible();
+  await expect(
+    page.getByRole("textbox", { name: "Display name (optional)" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Confirm password")).toBeVisible();
+
+  await page.goto("/en/anonymous");
+  const trigger = page.getByRole("button", { name: "Preview safety notice" });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", {
+    name: "Protect your real credentials",
+  });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await page.goto("/en/results/preview?state=error");
+  await expect(page.getByRole("link", { name: "Error" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+
+  await page.setViewportSize(viewports.phone);
+  await page.goto("/en/admin");
+  await page.getByRole("button", { name: "Open admin navigation" }).click();
+  await expect(
+    page.getByRole("dialog", { name: "Research administration" }),
+  ).toBeVisible();
+});

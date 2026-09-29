@@ -33,13 +33,22 @@ export default async function ResultPreviewPage({
         </header>
 
         <nav aria-label={dictionary.common.preview} className="state-switcher">
-          <Link href={`/${locale}/results/preview?state=loading`}>
+          <Link
+            aria-current={shellState === "loading" ? "page" : undefined}
+            href={`/${locale}/results/preview?state=loading`}
+          >
             {dictionary.common.loading}
           </Link>
-          <Link href={`/${locale}/results/preview`}>
+          <Link
+            aria-current={shellState === "empty" ? "page" : undefined}
+            href={`/${locale}/results/preview`}
+          >
             {dictionary.common.empty}
           </Link>
-          <Link href={`/${locale}/results/preview?state=error`}>
+          <Link
+            aria-current={shellState === "error" ? "page" : undefined}
+            href={`/${locale}/results/preview?state=error`}
+          >
             {dictionary.common.error}
           </Link>
         </nav>

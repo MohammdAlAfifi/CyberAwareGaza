@@ -1164,6 +1164,11 @@ html[dir="rtl"] .assessment-actions .button-primary .icon {
   background: var(--teal-soft);
 }
 
+.state-switcher a[aria-current="page"] {
+  color: white;
+  background: var(--navy);
+}
+
 .state-panel {
   min-height: 220px;
   padding: clamp(1.25rem, 4vw, 2rem);

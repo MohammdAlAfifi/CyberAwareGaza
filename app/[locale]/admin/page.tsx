@@ -43,9 +43,24 @@ export default async function AdminPreviewPage({
           aria-label={dictionary.common.preview}
           className="state-switcher admin-state-switcher"
         >
-          <Link href={`/${locale}/admin?state=loading`}>{t.viewLoading}</Link>
-          <Link href={`/${locale}/admin`}>{t.viewEmpty}</Link>
-          <Link href={`/${locale}/admin?state=error`}>{t.viewError}</Link>
+          <Link
+            aria-current={shellState === "loading" ? "page" : undefined}
+            href={`/${locale}/admin?state=loading`}
+          >
+            {t.viewLoading}
+          </Link>
+          <Link
+            aria-current={shellState === "empty" ? "page" : undefined}
+            href={`/${locale}/admin`}
+          >
+            {t.viewEmpty}
+          </Link>
+          <Link
+            aria-current={shellState === "error" ? "page" : undefined}
+            href={`/${locale}/admin?state=error`}
+          >
+            {t.viewError}
+          </Link>
         </nav>
 
         <aside className="preview-banner" role="note">
