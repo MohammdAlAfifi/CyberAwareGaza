@@ -9,7 +9,7 @@ const shells = [
   ["landing", ""],
   ["assessment", "/assessment/preview"],
   ["result", "/results/preview"],
-  ["admin", "/admin"],
+  ["admin-login", "/admin/login"],
 ] as const;
 
 for (const [viewportName, viewport] of Object.entries(viewports)) {
@@ -63,7 +63,7 @@ test("language switch preserves route and state for the session", async ({
   await expect(page).toHaveURL(/\/ar$/);
 });
 
-test("keyboard focus, mobile admin drawer, and reduced motion are usable", async ({
+test("keyboard focus, mobile navigation, and reduced motion are usable", async ({
   page,
 }) => {
   await page.setViewportSize(viewports.phone);
@@ -73,15 +73,10 @@ test("keyboard focus, mobile admin drawer, and reduced motion are usable", async
     page.getByRole("link", { name: "Skip to main content" }),
   ).toBeFocused();
 
-  await page.goto("/ar/admin");
-  const openMenu = page.getByRole("button", { name: "فتح تنقل الإدارة" });
-  await openMenu.focus();
-  await expect(openMenu).toBeFocused();
-  await openMenu.press("Enter");
-  const drawer = page.locator("dialog.admin-drawer");
-  await expect(drawer).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(drawer).toBeHidden();
+  await page.goto("/ar/admin/login");
+  await expect(
+    page.getByRole("heading", { name: "دخول مسؤول النظام" }),
+  ).toBeVisible();
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ar/results/preview?state=loading");
@@ -101,7 +96,7 @@ test("loading, empty, and error states remain explicitly labelled", async ({
   await expect(page.getByText("No assessment result yet")).toBeVisible();
   await expect(page.getByLabel("Not calculated")).toContainText("—");
 
-  await page.goto("/en/admin?state=error");
+  await page.goto("/en/results/preview?state=error");
   await expect(
     page.getByRole("heading", { name: "Data could not be loaded" }),
   ).toBeVisible();
@@ -137,9 +132,8 @@ test("forms, safety modal, and state controls expose accessible names", async ({
   );
 
   await page.setViewportSize(viewports.phone);
-  await page.goto("/en/admin");
-  await page.getByRole("button", { name: "Open admin navigation" }).click();
+  await page.goto("/en/admin/login");
   await expect(
-    page.getByRole("dialog", { name: "Research administration" }),
+    page.getByRole("heading", { name: "Administrator login" }),
   ).toBeVisible();
 });

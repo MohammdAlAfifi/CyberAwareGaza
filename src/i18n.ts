@@ -78,6 +78,9 @@ const dictionaries = {
     },
     auth: {
       participantLogin: "Participant login",
+      adminLogin: "Administrator login",
+      adminIntro:
+        "Use a privately provisioned administrator account. Public signup never grants administrative access.",
       loginIntro: "Sign in with the username and password you created.",
       create: "Create your account",
       createIntro:
@@ -87,19 +90,53 @@ const dictionaries = {
       password: "Password",
       confirm: "Confirm password",
       signIn: "Sign in",
+      adminSignIn: "Sign in to administration",
       submitCreate: "Create account",
+      submitting: "Please wait…",
+      signOut: "Sign out",
+      signingOut: "Signing out…",
       noEmail:
         "We never ask for email, phone number, or institutional credentials.",
       anonymous: "Continue anonymously",
       anonTitle: "Temporary anonymous session",
       anonIntro:
-        "Your result is available only in this browser session. Ending the session revokes access; it cannot be recovered later.",
+        "This temporary session cannot be recovered after logout or server expiry. Some browsers can restore session cookies, but the server-side maximum still applies.",
       warningTitle: "Before you continue",
       warning:
         "Never enter real passwords, one-time codes, university credentials, or sensitive personal information anywhere in this assessment.",
       acknowledge: "I understand — continue",
-      unavailable:
-        "Visual preview only. Account and session actions are implemented in Phase 3.",
+      validation: {
+        username: "Use 3–40 letters, numbers, dots, underscores, or hyphens.",
+        displayName: "Use no more than 120 characters.",
+        password: "Use a password between 12 and 128 characters.",
+        confirm: "Enter the same password again.",
+      },
+      errors: {
+        invalid_input: "Check the highlighted fields and try again.",
+        invalid_credentials: "The username or password is incorrect.",
+        signup_unavailable:
+          "An account could not be created with those details.",
+        rate_limited: "Too many attempts. Please wait and try again.",
+        forbidden: "This request could not be verified. Refresh and try again.",
+        session_required: "Please sign in to continue.",
+        server_error: "The request could not be completed. Please try again.",
+      },
+    },
+    home: {
+      eyebrow: "Participant area",
+      welcome: "Welcome, {name}",
+      intro:
+        "Your identity and secure session are active. Consent and assessment entry will be added in Phase 4.",
+      participantId: "Participant ID",
+      sessionType: "Session type",
+      registered: "Registered participant",
+      anonymous: "Anonymous participant",
+      anonymousWarningTitle: "Temporary access",
+      anonymousWarning:
+        "This session cannot be recovered after logout or expiry. Closing a tab does not reliably end a browser session, so use Sign out on a shared device.",
+      assessmentTitle: "Assessment not started",
+      assessmentPending:
+        "Warning acknowledgement, consent, and the eight scenarios belong to Phase 4 and are not active yet.",
     },
     assessment: {
       eyebrow: "Assessment shell",
@@ -145,12 +182,17 @@ const dictionaries = {
       scenarios: "Scenario analytics",
       imports: "Imports and exports",
       settings: "Settings",
-      dashboard: "Dashboard preview",
+      dashboard: "Administration dashboard",
       dashboardIntro:
         "A source-aware administration shell with no connected research records or invented statistics.",
       previewNotice: "Preview data is intentionally empty",
       previewText:
         "Counts and charts stay blank until authorized queries and denominator rules are implemented in later phases.",
+      signedInAs: "Signed in securely as {name}.",
+      secureSession: "Administrator session",
+      emptyNotice: "Research data remains intentionally unavailable",
+      emptyText:
+        "This Phase 3 route now enforces administrator authorization. Participant data and analytics are implemented in later phases.",
       kpis: [
         "Eligible participants",
         "Completed assessments",
@@ -259,6 +301,9 @@ const dictionaries = {
     },
     auth: {
       participantLogin: "دخول المشارك",
+      adminLogin: "دخول مسؤول النظام",
+      adminIntro:
+        "استخدم حساب مسؤول تم إنشاؤه بصورة خاصة. لا يمنح التسجيل العام صلاحية الإدارة مطلقًا.",
       loginIntro: "سجّل الدخول باسم المستخدم وكلمة المرور اللذين أنشأتهما.",
       create: "أنشئ حسابك",
       createIntro: "يتيح لك الحساب العودة إلى نتائج تقييماتك المكتملة.",
@@ -267,18 +312,52 @@ const dictionaries = {
       password: "كلمة المرور",
       confirm: "تأكيد كلمة المرور",
       signIn: "تسجيل الدخول",
+      adminSignIn: "الدخول إلى الإدارة",
       submitCreate: "إنشاء الحساب",
+      submitting: "يرجى الانتظار…",
+      signOut: "تسجيل الخروج",
+      signingOut: "جارٍ تسجيل الخروج…",
       noEmail: "لن نطلب بريدًا إلكترونيًا أو رقم هاتف أو بيانات اعتماد مؤسسية.",
       anonymous: "المتابعة دون حساب",
       anonTitle: "جلسة مؤقتة مجهولة الهوية",
       anonIntro:
-        "تظل نتيجتك متاحة في جلسة المتصفح هذه فقط. إنهاء الجلسة يلغي الوصول ولا يمكن استعادتها لاحقًا.",
+        "لا يمكن استعادة هذه الجلسة المؤقتة بعد تسجيل الخروج أو انتهاء صلاحيتها على الخادم. قد تستعيد بعض المتصفحات ملفات جلسة الارتباط، لكن الحد الأقصى على الخادم يظل نافذًا.",
       warningTitle: "قبل المتابعة",
       warning:
         "لا تدخل أبدًا كلمات مرور حقيقية أو رموز تحقق أو بيانات اعتماد جامعية أو معلومات شخصية حساسة في أي جزء من هذا التقييم.",
       acknowledge: "فهمت — متابعة",
-      unavailable:
-        "هذه معاينة مرئية فقط. تُنفّذ إجراءات الحساب والجلسة في المرحلة الثالثة.",
+      validation: {
+        username:
+          "استخدم من 3 إلى 40 حرفًا أو رقمًا أو نقطة أو شرطة سفلية أو واصلة.",
+        displayName: "استخدم 120 حرفًا كحد أقصى.",
+        password: "استخدم كلمة مرور طولها من 12 إلى 128 حرفًا.",
+        confirm: "أدخل كلمة المرور نفسها مرة أخرى.",
+      },
+      errors: {
+        invalid_input: "تحقق من الحقول المحددة ثم حاول مرة أخرى.",
+        invalid_credentials: "اسم المستخدم أو كلمة المرور غير صحيح.",
+        signup_unavailable: "تعذر إنشاء حساب بهذه البيانات.",
+        rate_limited: "محاولات كثيرة جدًا. انتظر ثم حاول مرة أخرى.",
+        forbidden: "تعذر التحقق من الطلب. حدّث الصفحة ثم حاول مرة أخرى.",
+        session_required: "سجّل الدخول للمتابعة.",
+        server_error: "تعذر إكمال الطلب. يرجى المحاولة مرة أخرى.",
+      },
+    },
+    home: {
+      eyebrow: "منطقة المشارك",
+      welcome: "مرحبًا، {name}",
+      intro:
+        "هويتك وجلستك الآمنة فعالتان. ستُضاف الموافقة والدخول إلى التقييم في المرحلة الرابعة.",
+      participantId: "معرّف المشارك",
+      sessionType: "نوع الجلسة",
+      registered: "مشارك مسجل",
+      anonymous: "مشارك مجهول الهوية",
+      anonymousWarningTitle: "وصول مؤقت",
+      anonymousWarning:
+        "لا يمكن استعادة هذه الجلسة بعد تسجيل الخروج أو انتهاء الصلاحية. إغلاق علامة التبويب لا ينهي جلسة المتصفح بصورة موثوقة، لذا استخدم تسجيل الخروج على الجهاز المشترك.",
+      assessmentTitle: "لم يبدأ التقييم",
+      assessmentPending:
+        "الإقرار بالتحذير والموافقة والسيناريوهات الثمانية تخص المرحلة الرابعة وليست مفعلة بعد.",
     },
     assessment: {
       eyebrow: "نموذج التقييم",
@@ -324,12 +403,17 @@ const dictionaries = {
       scenarios: "تحليلات السيناريوهات",
       imports: "الاستيراد والتصدير",
       settings: "الإعدادات",
-      dashboard: "معاينة لوحة التحكم",
+      dashboard: "لوحة تحكم الإدارة",
       dashboardIntro:
         "نموذج إدارة يراعي مصدر البيانات دون سجلات بحثية متصلة أو إحصاءات مختلقة.",
       previewNotice: "بيانات المعاينة فارغة عمدًا",
       previewText:
         "تبقى الأعداد والرسوم فارغة حتى تنفيذ الاستعلامات المصرح بها وقواعد المقام في المراحل اللاحقة.",
+      signedInAs: "تم تسجيل الدخول بأمان باسم {name}.",
+      secureSession: "جلسة مسؤول النظام",
+      emptyNotice: "بيانات البحث غير متاحة عمدًا",
+      emptyText:
+        "يفرض مسار المرحلة الثالثة الآن صلاحية مسؤول النظام. تُنفذ بيانات المشاركين والتحليلات في مراحل لاحقة.",
       kpis: [
         "المشاركون المؤهلون",
         "التقييمات المكتملة",

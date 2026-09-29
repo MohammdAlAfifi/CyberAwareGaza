@@ -16,40 +16,46 @@ type ParticipantCreation =
   | { type: "anonymous" }
   | { type: "imported"; sourceParticipantKey: string };
 
+type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
 export async function createParticipantRecord(input: ParticipantCreation) {
-  return db.transaction(async (transaction) => {
-    const publicOrdinal = await nextCounterValue(
-      transaction,
-      counterKeys.participant,
-    );
-    const anonymousOrdinal =
-      input.type === "anonymous"
-        ? await nextCounterValue(transaction, counterKeys.anonymous)
-        : null;
-
-    const [participant] = await transaction
-      .insert(participants)
-      .values({
-        publicCode: formatParticipantCode(publicOrdinal),
-        type: input.type,
-        source: input.type === "imported" ? "google_form" : "web",
-        accountId: input.type === "registered" ? input.accountId : null,
-        anonymousOrdinal,
-        sourceParticipantKey:
-          input.type === "imported" ? input.sourceParticipantKey : null,
-      })
-      .returning();
-
-    if (!participant)
-      throw new Error("Participant creation returned no record");
-    return participant;
-  });
+  return db.transaction((transaction) =>
+    createParticipantRecordInTransaction(transaction, input),
+  );
 }
 
-type CounterTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+export async function createParticipantRecordInTransaction(
+  transaction: DatabaseTransaction,
+  input: ParticipantCreation,
+) {
+  const publicOrdinal = await nextCounterValue(
+    transaction,
+    counterKeys.participant,
+  );
+  const anonymousOrdinal =
+    input.type === "anonymous"
+      ? await nextCounterValue(transaction, counterKeys.anonymous)
+      : null;
+
+  const [participant] = await transaction
+    .insert(participants)
+    .values({
+      publicCode: formatParticipantCode(publicOrdinal),
+      type: input.type,
+      source: input.type === "imported" ? "google_form" : "web",
+      accountId: input.type === "registered" ? input.accountId : null,
+      anonymousOrdinal,
+      sourceParticipantKey:
+        input.type === "imported" ? input.sourceParticipantKey : null,
+    })
+    .returning();
+
+  if (!participant) throw new Error("Participant creation returned no record");
+  return participant;
+}
 
 async function nextCounterValue(
-  transaction: CounterTransaction,
+  transaction: DatabaseTransaction,
   key: string,
 ): Promise<number> {
   const [counter] = await transaction

@@ -4,7 +4,10 @@ Production-oriented foundation for a bilingual cybersecurity awareness and risk-
 
 ## Current status
 
-Phases 0 and 1 are complete, including the live Supabase migration/seed/integration exit check. Phase 2 now provides the reusable English/Arabic visual system, responsive participant shells, source-safe assessment/result previews, and an empty-data admin dashboard with desktop sidebar and mobile drawer. Authentication and all data-changing behavior remain intentionally deferred to later phases.
+Phases 0–3 are complete. The application now includes the bilingual visual
+system plus real registered-participant, anonymous, and privately provisioned
+administrator sessions. Warning acknowledgement, consent, assessment content,
+submission, and scoring remain intentionally deferred to Phase 4 and later.
 
 Section 7, “Exact Assessment Content,” of the supplied design specification is authoritative for the exact bilingual S1-S8 question and option wording. Assessment content belongs to Phase 4 and is not seeded by the Phase 1 foundation. Scoring weights remain blocked on the legacy Python source.
 
@@ -39,6 +42,7 @@ pnpm db:generate
 pnpm db:migrate
 pnpm db:seed
 pnpm db:check
+pnpm db:provision-admin
 ```
 
 - `db:generate` is offline and does not require credentials.
@@ -47,7 +51,10 @@ pnpm db:check
 - The seed inserts only the two allocation counters; it never inserts questionnaire, rubric, or respondent data.
 - Runtime server queries use `DATABASE_URL`. Browser code never receives either database URL.
 
-See `docs/supabase-setup.md` for the full local/Supabase workflow and `docs/deployment-and-recovery.md` for deployment separation and recovery planning.
+See `docs/supabase-setup.md` for the full local/Supabase workflow and
+`docs/deployment-and-recovery.md` for deployment separation and recovery
+planning. See `docs/authentication.md` for session behavior and the private,
+password-safe administrator provisioning procedure.
 
 ## Reference material
 

@@ -22,6 +22,7 @@ export const expectedTables = [
   "import_rows",
   "options",
   "participants",
+  "rate_limits",
   "responses",
   "rubric_entries",
   "rubric_versions",

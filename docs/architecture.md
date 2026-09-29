@@ -22,7 +22,7 @@ The initial foundation used Postgres.js. Supabase now documents that its default
 
 Public registration accepts normalized username, optional display name, and password; it always creates a participant role. Passwords use Argon2id. Admin accounts are provisioned by a private CLI command and cannot be registered publicly.
 
-Login creates a random opaque token; only its SHA-256 hash is stored. Cookies are HttpOnly, Secure in production, SameSite=Lax, path-scoped, and rotated after authentication. Cookie-authenticated mutations enforce same-origin checks and server-side authorization. Anonymous entry creates a separate expiring session and participant record. Logout or explicit session end revokes it. Initial policy: registered sessions expire after 30 days of inactivity; anonymous sessions after 24 hours and are not recoverable. These values are configurable and documented to users.
+Login creates a random opaque token; only its keyed SHA-256 hash is stored. Cookies are HttpOnly, Secure in production, SameSite=Lax, path-scoped, and rotated after authentication. Cookie-authenticated mutations enforce exact trusted-origin checks and server-side authorization. Anonymous entry creates a separate expiring session and participant record. Logout or explicit session end revokes it. Initial policy: registered sessions have a fixed 30-day lifetime from login; anonymous sessions have a fixed 24-hour server maximum and are not recoverable. These values are configurable and documented to users. Session expiry and revocation use the PostgreSQL clock so application-instance clock skew cannot extend access or violate revocation constraints.
 
 Atomic PostgreSQL upserts allocate `CAG-0001` and `Anonymous 1` inside the same transaction that inserts the participant record. Counter increments roll back if participant creation fails. Public codes are display identifiers, never credentials.
 
@@ -41,11 +41,25 @@ Atomic PostgreSQL upserts allocate `CAG-0001` and `Anonymous 1` inside the same 
 | `/[locale]/admin/login`           | Separate admin entry       | Admin credential form                                                 |
 | `/[locale]/admin/*`               | Protected administration   | Sidebar/drawer, dashboard, tables, analytics, import/export, settings |
 
-The current source-independent slice implements the reusable bilingual visual system, public and three-entry shells, a disabled source-safe question layout at `/[locale]/assessment/preview`, a no-result layout at `/[locale]/results/preview`, and an empty-data administration layout at `/[locale]/admin`. Preview routes label their status explicitly and contain no Stitch scenario wording, scores, identities, totals, percentages, or research findings. Authentication, submission, scoring, and authorized data queries remain deferred to their functional phases.
+The current slice implements the reusable bilingual visual system, public entry,
+real participant signup/login/anonymous entry, protected participant home,
+separate administrator login, and server-protected empty administration
+dashboard. The source-safe question and result previews remain nonfunctional by
+design. Consent, assessment submission, scoring, and research-data queries stay
+deferred to their functional phases.
 
 ## Data model
 
-Drizzle schema and SQL migrations define accounts, participants, consents, assessment attempts, responses, content/rubric versions, scenarios/options, sessions, counters, import batches/rows, and admin audit. Database constraints cover normalized-username uniqueness, participant/source shapes, one account per registered participant, one response per attempt/scenario, content-option references, completed-attempt shape, unique source submissions, import counts, session/token shapes, and server-assigned roles. RLS is enabled on every application table with no browser policies, so direct Data API roles are deny-by-default; the server's controlled database role remains the only application data path.
+Drizzle schema and SQL migrations define accounts, participants, consents,
+assessment attempts, responses, content/rubric versions, scenarios/options,
+sessions, counters, database-backed rate limits, import batches/rows, and admin
+audit. Database constraints cover normalized-username uniqueness,
+participant/source shapes, one account per registered participant, one response
+per attempt/scenario, content-option references, completed-attempt shape, unique
+source submissions, import counts, session/token shapes, and server-assigned
+roles. RLS is enabled on every application table with no browser policies, so
+direct Data API roles are deny-by-default; the server's controlled database role
+remains the only application data path.
 
 Timestamps are stored in UTC. UI/export presentation uses an explicit timezone, defaulting to `Asia/Hebron`. Declined consent is retained only as minimized audit evidence and is excluded from scoring and research aggregates.
 

@@ -74,7 +74,11 @@ The app and every database command read that same setting, parse it as an X.509 
    pnpm db:check
    ```
 
-The check requires both database URLs and verifies that they identify the same Supabase project. It verifies TLS on both live connections, a runtime transaction-pooler query, all 15 application tables through the migration connection, RLS enablement, both seed counters, and 12 concurrent atomic allocations using an isolated temporary counter key that is deleted afterward.
+The check requires both database URLs and verifies that they identify the same Supabase project. It verifies TLS on both live connections, a runtime transaction-pooler query, all 16 application tables through the migration connection, RLS enablement, both seed counters, and 12 concurrent atomic allocations using an isolated temporary counter key that is deleted afterward.
+
+Migration `0003` adds the PostgreSQL-backed authentication rate-limit table.
+It is shared by all Vercel instances and contains only keyed hashes of limiter
+identifiers, never plaintext usernames, IP addresses, or passwords.
 
 ## Fresh-environment exit check
 
@@ -94,6 +98,12 @@ Configure these as server-side Vercel variables, separated by environment:
 - `REGISTERED_SESSION_DAYS`
 
 Do not give Preview deployments the production database URL. `DIRECT_DATABASE_URL` is not needed by the running web app and should be available only to the controlled migration/backup workflow. Environment changes apply only to new deployments.
+
+`APP_ORIGINS` must list every exact origin that is allowed to submit
+cookie-authenticated mutations. Configure the production domain and each
+authorized preview domain explicitly; do not use wildcards. Local browser tests
+using `http://127.0.0.1:3000` require that exact origin for the test process even
+when normal development uses `http://localhost:3000`.
 
 `SUPABASE_CA_CERT_PATH` is intended for a local filesystem certificate. Do not copy a Windows path into Vercel. Leave it unset when the deployment platform already trusts the Supabase CA; if a future hosting environment needs a custom CA, provision the certificate as a secure deployment file and set an environment-specific path.
 

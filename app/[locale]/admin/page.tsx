@@ -6,9 +6,10 @@ import { AdminNavigation } from "@/components/admin-navigation";
 import { Icon } from "@/components/icon";
 import { Panel } from "@/components/ui/panel";
 import { StatePanel } from "@/components/ui/state-panel";
+import { requireAdmin } from "@/src/auth/authorization";
 import { getDictionary, isLocale } from "@/src/i18n";
 
-export const metadata: Metadata = { title: "Admin dashboard shell preview" };
+export const metadata: Metadata = { title: "Admin dashboard" };
 
 export default async function AdminPreviewPage({
   params,
@@ -20,6 +21,7 @@ export default async function AdminPreviewPage({
   const { locale } = await params;
   const { state } = await searchParams;
   if (!isLocale(locale)) notFound();
+  const actor = await requireAdmin(locale);
   const dictionary = getDictionary(locale);
   const t = dictionary.admin;
   const shellState = state === "loading" || state === "error" ? state : "empty";
@@ -30,13 +32,11 @@ export default async function AdminPreviewPage({
       <section className="admin-content">
         <header className="admin-heading">
           <div>
-            <p className="eyebrow">{dictionary.common.preview}</p>
+            <p className="eyebrow">{t.brandLabel}</p>
             <h1>{t.dashboard}</h1>
-            <p>{t.dashboardIntro}</p>
+            <p>{t.signedInAs.replace("{name}", actor.displayName)}</p>
           </div>
-          <span className="status-chip status-preview">
-            {dictionary.common.preview}
-          </span>
+          <span className="status-chip">{t.secureSession}</span>
         </header>
 
         <nav
@@ -66,8 +66,8 @@ export default async function AdminPreviewPage({
         <aside className="preview-banner" role="note">
           <Icon name="shield" />
           <div>
-            <strong>{t.previewNotice}</strong>
-            <p>{t.previewText}</p>
+            <strong>{t.emptyNotice}</strong>
+            <p>{t.emptyText}</p>
           </div>
         </aside>
 

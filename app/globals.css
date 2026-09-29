@@ -836,6 +836,80 @@ html[lang="ar"] h2 {
   border-radius: 0.6rem;
 }
 
+.form-status:empty {
+  display: none;
+}
+
+.field-error,
+.form-error {
+  color: #9f2f2f;
+}
+
+.form-field input[aria-invalid="true"] {
+  border-color: #b94a48;
+}
+
+.participant-home {
+  align-items: flex-start;
+  padding-block: clamp(2rem, 7vw, 5rem);
+}
+
+.participant-card {
+  width: min(100%, 760px);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.participant-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.participant-heading h1 {
+  margin-block: 0.3rem 0.5rem;
+}
+
+.identity-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.identity-list > div {
+  padding: 1rem;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+}
+
+.identity-list dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.identity-list dd {
+  margin: 0.3rem 0 0;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.phase-notice {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 1rem;
+  color: var(--navy);
+  background: var(--teal-soft);
+  border-radius: 0.8rem;
+}
+
+.phase-notice p {
+  margin: 0.25rem 0 0;
+}
+
 .auth-divider {
   margin: 1.3rem 0;
   display: flex;
@@ -1423,6 +1497,10 @@ body:has(.admin-shell) > .site-footer {
   justify-content: flex-start;
 }
 
+.admin-sidebar > .button {
+  width: 100%;
+}
+
 .admin-mobile-bar {
   display: none;
 }
@@ -1712,6 +1790,14 @@ body:has(.admin-shell) > .site-footer {
 
   .center-page {
     padding-block: 3rem;
+  }
+
+  .participant-heading {
+    flex-direction: column;
+  }
+
+  .identity-list {
+    grid-template-columns: 1fr;
   }
 
   .entry-card {

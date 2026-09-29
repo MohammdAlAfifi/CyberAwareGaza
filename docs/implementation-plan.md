@@ -35,6 +35,32 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
 - Verified English and Arabic shells at 1440px desktop and 390px phone widths. Sixteen Playwright screenshots showed no horizontal overflow; keyboard focus, drawer operation, route/query-preserving language switching, long Arabic wrapping, loading/empty/error states, and reduced motion passed browser checks.
 - The official public logo file remains byte-for-byte identical to the approved source. Five available Stitch PNGs were used for visual comparison; the missing/invalid assessment, result, admin, mobile, and RTL reference screenshots remain a comparison-coverage limitation recorded in `docs/source-map.md`.
 
+## Phase 3 status: complete
+
+- Added participant signup and returning login with normalized unique usernames,
+  optional display names, Argon2id password hashes, generic credential errors,
+  and public-signup role rejection.
+- Added opaque keyed-hash database sessions, fixed registered and anonymous
+  expirations, database-clock validation, login rotation, logout revocation,
+  secure cookie attributes, and server-only actor resolution.
+- Added transactional registered/anonymous participant creation using the Phase
+  1 counters, stable `Anonymous X` labels, unique CAG IDs, and no historical
+  respondent session path.
+- Added a separate admin login and server-side route/API role boundaries. Private
+  provisioning reads its password from the invoking shell, refuses participant
+  promotion, revokes older sessions, and writes an admin audit record.
+- Added exact-origin CSRF checks, strict server validation, participant ownership
+  enforcement, and PostgreSQL-backed login/signup/anonymous/admin rate limits
+  shared across Vercel instances.
+- Applied migration `0003_mushy_spencer_smythe.sql`. Live Supabase checks verified
+  four migration ledger entries, 16 RLS-enabled tables, both pooler modes over
+  authorized TLS, and atomic counters.
+- The live browser security gate passed registered signup/login/logout/token
+  rotation, mobile Arabic signup, anonymous creation/logout/forced expiry,
+  participant-to-participant and anonymous ownership denial, public role
+  injection rejection, participant/admin separation, private admin provisioning,
+  and the mobile admin drawer. Temporary test identities were deleted afterward.
+
 ## Blocked source-dependent work
 
 - Transcribe and seed the source-approved Section 7 bilingual scenarios in Phase 4; approved consent wording is still missing.
@@ -47,7 +73,8 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
 1. Add missing inputs under `reference/research/`, `reference/legacy/`, `reference/stitch/`, and `reference/` and update the source map.
 2. Reconcile and approve one canonical content/rubric version.
 3. Re-run the verified migration/check workflow before future schema releases and seed only approved reference content.
-4. Finish authentication/session services, consent, assessment transaction, scoring parity, result/history, and authorization integration tests.
+4. Implement warning acknowledgement, approved consent, and the exact eight
+   scenarios in Phase 4 after the remaining consent source is supplied.
 5. Add admin reporting, analytics, import/export, accessibility/browser checks, and performance/security verification.
 6. Configure isolated Vercel/Supabase environments, preview smoke test, backup/restore drill, then production release with user authorization.
 

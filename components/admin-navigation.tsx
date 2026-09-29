@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { Icon, type IconName } from "@/components/icon";
 import { LanguageSwitch } from "@/components/language-switch";
 import { Logo } from "@/components/logo";
+import { LogoutButton } from "@/components/logout-button";
 import { getDictionary, type Locale } from "@/src/i18n";
 
 function NavigationLinks({
@@ -55,6 +56,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         <p>{t.brandLabel}</p>
         <NavigationLinks items={items} locale={locale} />
         <LanguageSwitch locale={locale} />
+        <LogoutButton locale={locale} />
       </aside>
 
       <div className="admin-mobile-bar">
@@ -93,6 +95,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         </div>
         <NavigationLinks items={items} locale={locale} />
         <LanguageSwitch locale={locale} />
+        <LogoutButton locale={locale} />
       </dialog>
     </>
   );

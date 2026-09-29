@@ -510,6 +510,36 @@ export const counters = pgTable(
   ],
 ).enableRLS();
 
+export const rateLimits = pgTable(
+  "rate_limits",
+  {
+    bucket: varchar("bucket", { length: 40 }).notNull(),
+    keyHash: varchar("key_hash", { length: 64 }).notNull(),
+    windowStartedAt: timestamp("window_started_at", {
+      withTimezone: true,
+    }).notNull(),
+    attempts: integer("attempts").notNull().default(1),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.bucket, table.keyHash] }),
+    index("rate_limits_expiry_idx").on(table.expiresAt),
+    check(
+      "rate_limits_bucket_check",
+      sql`char_length(btrim(${table.bucket})) > 0`,
+    ),
+    check(
+      "rate_limits_key_hash_check",
+      sql`${table.keyHash} ~ '^[0-9a-f]{64}$'`,
+    ),
+    check("rate_limits_attempts_check", sql`${table.attempts} > 0`),
+    check(
+      "rate_limits_expiry_check",
+      sql`${table.expiresAt} > ${table.windowStartedAt}`,
+    ),
+  ],
+).enableRLS();
+
 export const importBatches = pgTable(
   "import_batches",
   {

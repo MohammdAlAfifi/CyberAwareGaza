@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AnonymousEntry } from "@/components/anonymous-entry";
 import { SourceGate } from "@/components/source-gate";
 import { Modal } from "@/components/ui/modal";
 import { getDictionary, isLocale } from "@/src/i18n";
@@ -26,13 +27,7 @@ export default async function AnonymousPage({
           <strong>{t.warningTitle}</strong>
           <p>{t.warning}</p>
         </div>
-        <button
-          className="button button-primary button-large full"
-          type="button"
-          disabled
-        >
-          {t.acknowledge}
-        </button>
+        <AnonymousEntry locale={locale} />
         <Modal
           closeLabel={modal.close}
           eyebrow={modal.eyebrow}
