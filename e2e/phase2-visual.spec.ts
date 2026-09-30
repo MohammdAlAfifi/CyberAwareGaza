@@ -7,6 +7,7 @@ const viewports = {
 
 const shells = [
   ["landing", ""],
+  ["temporary-session", "/anonymous"],
   ["assessment", "/assessment/preview"],
   ["result", "/results/preview"],
   ["admin-login", "/admin/login"],
@@ -49,7 +50,14 @@ test("language switch preserves route and state for the session", async ({
   page,
 }) => {
   await page.goto("/en/results/preview?state=error");
-  await page.getByRole("button", { name: "Switch to Arabic" }).click();
+  const languageToggle = page.getByRole("group", {
+    name: "Choose interface language",
+  });
+  await expect(languageToggle.getByText("English")).toHaveAttribute(
+    "aria-current",
+    "true",
+  );
+  await languageToggle.getByRole("button", { name: "العربية" }).click();
 
   await expect(page).toHaveURL(/\/ar\/results\/preview\?state=error$/);
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
@@ -111,10 +119,35 @@ test("forms, safety modal, and state controls expose accessible names", async ({
   await expect(
     page.getByRole("textbox", { name: "Display name (optional)" }),
   ).toBeVisible();
-  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
-  await expect(page.getByLabel("Confirm password")).toBeVisible();
+  const password = page.getByLabel("Password", { exact: true });
+  const confirmation = page.getByLabel("Confirm password");
+  await expect(password).toHaveAttribute("minlength", "8");
+  await expect(confirmation).toHaveAttribute("minlength", "8");
+  await password.fill("1234567");
+  expect(
+    await password.evaluate((input) =>
+      (input as HTMLInputElement).checkValidity(),
+    ),
+  ).toBe(false);
+  const showButtons = page.getByRole("button", { name: "Show password" });
+  await expect(showButtons).toHaveCount(2);
+  const englishInputBox = await password.boundingBox();
+  const englishToggleBox = await showButtons.first().boundingBox();
+  expect(englishInputBox).not.toBeNull();
+  expect(englishToggleBox).not.toBeNull();
+  expect(englishToggleBox!.x).toBeGreaterThan(
+    englishInputBox!.x + englishInputBox!.width / 2,
+  );
+  await showButtons.first().click();
+  await expect(password).toHaveAttribute("type", "text");
+  await expect(
+    page.getByRole("button", { name: "Hide password" }),
+  ).toBeVisible();
 
   await page.goto("/en/anonymous");
+  await expect(
+    page.getByRole("img", { name: "Temporary session warning and expiry" }),
+  ).toBeVisible();
   const trigger = page.getByRole("button", { name: "Preview safety notice" });
   await trigger.click();
   const dialog = page.getByRole("dialog", {
@@ -124,6 +157,19 @@ test("forms, safety modal, and state controls expose accessible names", async ({
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(trigger).toBeFocused();
+
+  await page.goto("/ar/login");
+  const arabicPassword = page.getByLabel("كلمة المرور", { exact: true });
+  const arabicToggle = page.getByRole("button", {
+    name: "إظهار كلمة المرور",
+  });
+  const arabicInputBox = await arabicPassword.boundingBox();
+  const arabicToggleBox = await arabicToggle.boundingBox();
+  expect(arabicInputBox).not.toBeNull();
+  expect(arabicToggleBox).not.toBeNull();
+  expect(arabicToggleBox!.x).toBeLessThan(
+    arabicInputBox!.x + arabicInputBox!.width / 2,
+  );
 
   await page.goto("/en/results/preview?state=error");
   await expect(page.getByRole("link", { name: "Error" })).toHaveAttribute(
@@ -136,4 +182,19 @@ test("forms, safety modal, and state controls expose accessible names", async ({
   await expect(
     page.getByRole("heading", { name: "Administrator login" }),
   ).toBeVisible();
+  await expect(page.getByAltText("CyberAwareGaza").first()).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Show password" }),
+  ).toBeVisible();
+});
+
+test("Arabic desktop header mirrors without overlap", async ({ page }) => {
+  await page.setViewportSize(viewports.desktop);
+  await page.goto("/ar");
+  const logo = await page.locator(".logo-link").boundingBox();
+  const actions = await page.locator(".header-actions").boundingBox();
+  expect(logo).not.toBeNull();
+  expect(actions).not.toBeNull();
+  expect(logo!.x).toBeGreaterThan(actions!.x);
+  expect(actions!.x + actions!.width).toBeLessThanOrEqual(logo!.x);
 });

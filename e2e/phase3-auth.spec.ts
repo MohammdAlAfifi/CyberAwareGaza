@@ -10,16 +10,15 @@ test.describe.configure({ mode: "serial" });
 const runId = `${Date.now()}${Math.floor(Math.random() * 10_000)}`;
 const participantA = `phase3_a_${runId}`;
 const participantB = `phase3_b_${runId}`;
-const passwordA = `Phase3-A-${runId}-secure!`;
-const passwordB = `Phase3-B-${runId}-secure!`;
+const passwordA = "Abcd123!";
+const passwordB = "Efgh456!";
 const adminUsername = process.env.PHASE3_ADMIN_USERNAME;
 const adminPassword = process.env.PHASE3_ADMIN_PASSWORD;
 const databaseUrl = process.env.DIRECT_DATABASE_URL;
 const sessionSecret = process.env.SESSION_SECRET;
-
-test.skip(
-  !adminUsername || !adminPassword || !databaseUrl || !sessionSecret,
-  "Live Phase 3 credentials are required",
+const participantChecksConfigured = Boolean(databaseUrl && sessionSecret);
+const adminCheckConfigured = Boolean(
+  participantChecksConfigured && adminUsername && adminPassword,
 );
 
 const pool = databaseUrl
@@ -154,7 +153,11 @@ test.afterAll(async () => {
 
 test("registered signup, rotation, returning login, ownership, and role isolation", async ({
   browser,
-}) => {
+}, testInfo) => {
+  test.skip(
+    !participantChecksConfigured,
+    "Database and session configuration are required",
+  );
   const contextA = await browser.newContext();
   const pageA = await contextA.newPage();
   const codeA = await signUp(pageA, "en", participantA, passwordA);
@@ -169,7 +172,7 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   await expect(pageA).toHaveURL(/\/en$/);
   await pageA.goto("/en/login");
   await pageA.getByLabel("Username").fill(participantA);
-  await pageA.getByLabel("Password").fill(passwordA);
+  await pageA.getByLabel("Password", { exact: true }).fill(passwordA);
   const loginResponse = pageA.waitForResponse((response) =>
     response.url().endsWith("/api/auth/login"),
   );
@@ -178,6 +181,17 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   expect(returnedLogin.ok(), await returnedLogin.text()).toBe(true);
   await expect(pageA).toHaveURL(/\/en\/home$/);
   expect(await participantCode(pageA)).toBe(codeA);
+  await expect(pageA.getByText("Server session expiry")).toBeVisible();
+  expect(
+    await pageA.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await pageA.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: testInfo.outputPath("registered-en-desktop.png"),
+  });
   const rotatedToken = (await contextA.cookies()).find(
     (cookie) => cookie.name === "cag_session",
   )?.value;
@@ -188,6 +202,23 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   const pageB = await contextB.newPage();
   await pageB.setViewportSize({ width: 390, height: 844 });
   const codeB = await signUp(pageB, "ar", participantB, passwordB);
+  await expect(pageB.getByText("انتهاء الجلسة على الخادم")).toBeVisible();
+  expect(
+    await pageB.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await pageB.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: testInfo.outputPath("registered-ar-phone.png"),
+  });
+  await pageB
+    .getByRole("group", { name: "اختر لغة الواجهة" })
+    .getByRole("button", { name: "English" })
+    .click();
+  await expect(pageB).toHaveURL(/\/en\/home$/);
+  expect(await participantCode(pageB)).toBe(codeB);
   const forbidden = await pageA.request.get(`/api/participants/${codeB}`);
   expect(forbidden.status()).toBe(403);
   const own = await pageA.request.get(`/api/participants/${codeA}`);
@@ -237,7 +268,11 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
 
 test("anonymous access is isolated, revocable, and expires server-side", async ({
   browser,
-}) => {
+}, testInfo) => {
+  test.skip(
+    !participantChecksConfigured,
+    "Database and session configuration are required",
+  );
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.setViewportSize({ width: 390, height: 844 });
@@ -246,6 +281,11 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
   await expect(page).toHaveURL(/\/ar\/home$/);
   await participantCode(page);
   await expect(page.getByText("مشارك مجهول الهوية")).toBeVisible();
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: testInfo.outputPath("anonymous-ar-phone.png"),
+  });
   const anonymousCookie = (await context.cookies()).find(
     (cookie) => cookie.name === "cag_session",
   );
@@ -270,6 +310,12 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
     .click();
   await expect(expiryPage).toHaveURL(/\/en\/home$/);
   await participantCode(expiryPage);
+  await expiryPage.setViewportSize({ width: 1440, height: 1000 });
+  await expiryPage.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: testInfo.outputPath("anonymous-en-desktop.png"),
+  });
   const token = (await expiryContext.cookies()).find(
     (cookie) => cookie.name === "cag_session",
   )?.value;
@@ -290,6 +336,10 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
 test("private admin credentials cross only the admin boundary", async ({
   browser,
 }) => {
+  test.skip(
+    !adminCheckConfigured,
+    "Private admin test credentials are required",
+  );
   const context = await browser.newContext();
   const page = await context.newPage();
   for (let attempt = 0; attempt < 6; attempt += 1) {
@@ -305,7 +355,7 @@ test("private admin credentials cross only the admin boundary", async ({
   }
   await page.goto("/en/admin/login");
   await page.getByLabel("Username").fill(adminUsername!);
-  await page.getByLabel("Password").fill(adminPassword!);
+  await page.getByLabel("Password", { exact: true }).fill(adminPassword!);
   await page.getByRole("button", { name: "Sign in to administration" }).click();
   await expect(page).toHaveURL(/\/en\/admin$/);
   await expect(

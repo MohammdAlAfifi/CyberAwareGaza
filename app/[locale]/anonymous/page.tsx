@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AnonymousEntry } from "@/components/anonymous-entry";
 import { SourceGate } from "@/components/source-gate";
 import { Modal } from "@/components/ui/modal";
+import { TemporarySessionIcon } from "@/components/temporary-session-icon";
 import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = { title: "Anonymous session" };
@@ -18,9 +19,7 @@ export default async function AnonymousPage({
   return (
     <main id="main" className="center-page auth-page">
       <section className="auth-card anonymous-card">
-        <span className="large-symbol" aria-hidden="true">
-          ◌
-        </span>
+        <TemporarySessionIcon title={t.temporaryIconLabel} />
         <h1>{t.anonTitle}</h1>
         <p className="auth-intro">{t.anonIntro}</p>
         <div className="warning-box">

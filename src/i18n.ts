@@ -10,8 +10,11 @@ const dictionaries = {
     skip: "Skip to main content",
     language: "العربية",
     languageAria: "Switch to Arabic",
+    languageToggle: "Choose interface language",
     common: {
       preview: "Interface preview",
+      home: "CyberAwareGaza home",
+      primaryNavigation: "Primary navigation",
       menu: "Menu",
       close: "Close",
       back: "Back",
@@ -89,6 +92,8 @@ const dictionaries = {
       displayName: "Display name (optional)",
       password: "Password",
       confirm: "Confirm password",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
       signIn: "Sign in",
       adminSignIn: "Sign in to administration",
       submitCreate: "Create account",
@@ -105,10 +110,11 @@ const dictionaries = {
       warning:
         "Never enter real passwords, one-time codes, university credentials, or sensitive personal information anywhere in this assessment.",
       acknowledge: "I understand — continue",
+      temporaryIconLabel: "Temporary session warning and expiry",
       validation: {
         username: "Use 3–40 letters, numbers, dots, underscores, or hyphens.",
         displayName: "Use no more than 120 characters.",
-        password: "Use a password between 12 and 128 characters.",
+        password: "Use a password between 8 and 128 characters.",
         confirm: "Enter the same password again.",
       },
       errors: {
@@ -125,10 +131,15 @@ const dictionaries = {
     home: {
       eyebrow: "Participant area",
       welcome: "Welcome, {name}",
-      intro:
-        "Your identity and secure session are active. Consent and assessment entry will be added in Phase 4.",
+      registeredIntro:
+        "Your participant profile is active. Completed results will be available here after the assessment is implemented.",
+      anonymousIntro:
+        "Your temporary participant profile is active for this browser session, up to the server expiry shown below.",
+      registeredStatus: "Registered session active",
+      anonymousStatus: "Temporary session active",
       participantId: "Participant ID",
       sessionType: "Session type",
+      sessionExpiry: "Server session expiry",
       registered: "Registered participant",
       anonymous: "Anonymous participant",
       anonymousWarningTitle: "Temporary access",
@@ -137,6 +148,16 @@ const dictionaries = {
       assessmentTitle: "Assessment not started",
       assessmentPending:
         "Warning acknowledgement, consent, and the eight scenarios belong to Phase 4 and are not active yet.",
+      assessmentAction: "Assessment coming in Phase 4",
+      assessmentDetails:
+        "The assessment area will contain the eight approved scenarios after consent is implemented.",
+      historyTitle: "Result history",
+      historyRegistered:
+        "Your completed assessment results will appear here. No result has been recorded yet.",
+      historyAnonymous:
+        "A completed result will be visible only while this temporary session remains active.",
+      noHistory: "No results yet",
+      sessionLimitTitle: "About this temporary session",
     },
     assessment: {
       eyebrow: "Assessment shell",
@@ -237,8 +258,11 @@ const dictionaries = {
     skip: "انتقل إلى المحتوى الرئيسي",
     language: "English",
     languageAria: "التبديل إلى الإنجليزية",
+    languageToggle: "اختر لغة الواجهة",
     common: {
       preview: "معاينة الواجهة",
+      home: "الصفحة الرئيسية لمنصة CyberAwareGaza",
+      primaryNavigation: "التنقل الرئيسي",
       menu: "القائمة",
       close: "إغلاق",
       back: "رجوع",
@@ -311,6 +335,8 @@ const dictionaries = {
       displayName: "الاسم الظاهر (اختياري)",
       password: "كلمة المرور",
       confirm: "تأكيد كلمة المرور",
+      showPassword: "إظهار كلمة المرور",
+      hidePassword: "إخفاء كلمة المرور",
       signIn: "تسجيل الدخول",
       adminSignIn: "الدخول إلى الإدارة",
       submitCreate: "إنشاء الحساب",
@@ -326,11 +352,12 @@ const dictionaries = {
       warning:
         "لا تدخل أبدًا كلمات مرور حقيقية أو رموز تحقق أو بيانات اعتماد جامعية أو معلومات شخصية حساسة في أي جزء من هذا التقييم.",
       acknowledge: "فهمت — متابعة",
+      temporaryIconLabel: "تنبيه الجلسة المؤقتة وانتهاء صلاحيتها",
       validation: {
         username:
           "استخدم من 3 إلى 40 حرفًا أو رقمًا أو نقطة أو شرطة سفلية أو واصلة.",
         displayName: "استخدم 120 حرفًا كحد أقصى.",
-        password: "استخدم كلمة مرور طولها من 12 إلى 128 حرفًا.",
+        password: "استخدم كلمة مرور طولها من 8 إلى 128 حرفًا.",
         confirm: "أدخل كلمة المرور نفسها مرة أخرى.",
       },
       errors: {
@@ -346,10 +373,15 @@ const dictionaries = {
     home: {
       eyebrow: "منطقة المشارك",
       welcome: "مرحبًا، {name}",
-      intro:
-        "هويتك وجلستك الآمنة فعالتان. ستُضاف الموافقة والدخول إلى التقييم في المرحلة الرابعة.",
+      registeredIntro:
+        "ملف المشارك الخاص بك فعّال. ستتوفر نتائجك المكتملة هنا بعد تنفيذ التقييم.",
+      anonymousIntro:
+        "ملف المشارك المؤقت فعّال في جلسة المتصفح هذه حتى موعد انتهاء الصلاحية الموضح أدناه.",
+      registeredStatus: "جلسة مسجلة فعّالة",
+      anonymousStatus: "جلسة مؤقتة فعّالة",
       participantId: "معرّف المشارك",
       sessionType: "نوع الجلسة",
+      sessionExpiry: "انتهاء الجلسة على الخادم",
       registered: "مشارك مسجل",
       anonymous: "مشارك مجهول الهوية",
       anonymousWarningTitle: "وصول مؤقت",
@@ -358,6 +390,16 @@ const dictionaries = {
       assessmentTitle: "لم يبدأ التقييم",
       assessmentPending:
         "الإقرار بالتحذير والموافقة والسيناريوهات الثمانية تخص المرحلة الرابعة وليست مفعلة بعد.",
+      assessmentAction: "التقييم قادم في المرحلة الرابعة",
+      assessmentDetails:
+        "ستحتوي منطقة التقييم على السيناريوهات الثمانية المعتمدة بعد تنفيذ الموافقة.",
+      historyTitle: "سجل النتائج",
+      historyRegistered:
+        "ستظهر نتائج تقييماتك المكتملة هنا. لم تُسجل أي نتيجة بعد.",
+      historyAnonymous:
+        "ستبقى النتيجة المكتملة متاحة فقط ما دامت هذه الجلسة المؤقتة فعّالة.",
+      noHistory: "لا توجد نتائج بعد",
+      sessionLimitTitle: "حول هذه الجلسة المؤقتة",
     },
     assessment: {
       eyebrow: "نموذج التقييم",

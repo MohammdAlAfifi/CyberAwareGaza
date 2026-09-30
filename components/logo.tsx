@@ -5,8 +5,8 @@ export function Logo({ priority = false }: { priority?: boolean }) {
     <Image
       src="/CyberAwareGaza_Logo.jpg"
       alt="CyberAwareGaza"
-      width={270}
-      height={82}
+      width={1448}
+      height={1086}
       sizes="(max-width: 640px) 152px, 192px"
       priority={priority}
       className="brand-logo"

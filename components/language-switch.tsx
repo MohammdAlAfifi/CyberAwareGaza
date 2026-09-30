@@ -3,7 +3,6 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { Icon } from "@/components/icon";
 import { getDictionary, type Locale } from "@/src/i18n";
 
 const LOCALE_COOKIE_AGE = 60 * 60 * 24 * 30;
@@ -29,14 +28,22 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
   }
 
   return (
-    <button
-      aria-label={t.languageAria}
-      className="language-switch"
-      onClick={switchLanguage}
-      type="button"
-    >
-      <Icon name="globe" size={18} />
-      <span>{t.language}</span>
-    </button>
+    <div className="language-switch" aria-label={t.languageToggle} role="group">
+      {locale === "en" ? (
+        <>
+          <span aria-current="true">English</span>
+          <button onClick={switchLanguage} type="button">
+            العربية
+          </button>
+        </>
+      ) : (
+        <>
+          <button onClick={switchLanguage} type="button">
+            English
+          </button>
+          <span aria-current="true">العربية</span>
+        </>
+      )}
+    </div>
   );
 }

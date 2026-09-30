@@ -13,11 +13,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <Link
           className="logo-link"
           href={`/${locale}`}
-          aria-label="CyberAwareGaza home"
+          aria-label={t.common.home}
         >
           <Logo priority />
         </Link>
-        <nav className="primary-nav" aria-label="Primary navigation">
+        <nav className="primary-nav" aria-label={t.common.primaryNavigation}>
           <Link href={`/${locale}#about`}>{t.nav.about}</Link>
           <Link href={`/${locale}#how`}>{t.nav.how}</Link>
         </nav>
@@ -40,6 +40,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
               <Link href={`/${locale}#about`}>{t.nav.about}</Link>
               <Link href={`/${locale}#how`}>{t.nav.how}</Link>
               <Link href={`/${locale}/login`}>{t.nav.login}</Link>
+              <Link href={`/${locale}/start`}>{t.nav.start}</Link>
             </nav>
           </details>
         </div>

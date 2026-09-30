@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { usernameSchema } from "@/src/lib/username";
 
-const passwordSchema = z.string().min(12).max(128);
+const passwordSchema = z.string().min(8).max(128);
 const localeSchema = z.enum(["en", "ar"]);
 
 export const loginInputSchema = z

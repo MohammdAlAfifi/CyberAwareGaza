@@ -47,8 +47,15 @@ describe("authentication security primitives", () => {
     expect(
       loginInputSchema.safeParse({
         locale: "en",
-        username: "ab",
-        password: "short",
+        username: "student.two",
+        password: "12345678",
+      }).success,
+    ).toBe(true);
+    expect(
+      loginInputSchema.safeParse({
+        locale: "en",
+        username: "student.two",
+        password: "1234567",
       }).success,
     ).toBe(false);
   });

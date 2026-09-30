@@ -110,9 +110,12 @@ export function AuthCard({
           autoComplete={signup ? "new-password" : "current-password"}
           error={fieldError("password", t.validation.password)}
           label={t.password}
-          minLength={12}
+          hidePasswordLabel={t.hidePassword}
+          minLength={8}
           name="password"
+          note={signup ? t.validation.password : undefined}
           required
+          showPasswordLabel={t.showPassword}
           type="password"
         />
         {signup && (
@@ -120,9 +123,11 @@ export function AuthCard({
             autoComplete="new-password"
             error={fieldError("confirmPassword", t.validation.confirm)}
             label={t.confirm}
-            minLength={12}
+            hidePasswordLabel={t.hidePassword}
+            minLength={8}
             name="confirmPassword"
             required
+            showPasswordLabel={t.showPassword}
             type="password"
           />
         )}
