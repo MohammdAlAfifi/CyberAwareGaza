@@ -11,6 +11,11 @@ test("English landing route exposes the product shell", async ({ page }) => {
     .first();
   await expect(startLink).toBeVisible();
   await expect(startLink).toHaveAttribute("href", "/en/start");
+  await expect(page.getByRole("link", { name: "Log in" })).toHaveAttribute(
+    "href",
+    "/en/start",
+  );
+  await expect(page.getByRole("button", { name: "Sign out" })).toHaveCount(0);
 });
 
 test("Arabic landing route sets the RTL document boundary", async ({
@@ -20,4 +25,10 @@ test("Arabic landing route sets the RTL document boundary", async ({
 
   await expect(page.locator("html")).toHaveAttribute("lang", "ar");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(
+    page.getByRole("link", { name: "ابدأ التقييم", exact: true }).first(),
+  ).toHaveAttribute("href", "/ar/start");
+  await expect(
+    page.getByRole("link", { name: "تسجيل الدخول" }),
+  ).toHaveAttribute("href", "/ar/start");
 });

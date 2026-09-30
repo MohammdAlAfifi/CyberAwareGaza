@@ -27,6 +27,9 @@ const pool = databaseUrl
     )
   : null;
 const createdCodes = new Set<string>();
+const createdAttemptIds = new Set<string>();
+const testContentVersion = `phase3-content-${runId}`;
+const testRubricVersion = `phase3-rubric-${runId}`;
 
 function rateHash(bucket: string, identifier: string) {
   return createHmac("sha256", sessionSecret!)
@@ -57,12 +60,62 @@ async function clearTestRateLimits() {
 }
 
 async function participantCode(page: Page) {
-  const code = (
-    await page.locator(".identity-list dd[dir='ltr']").textContent()
-  )?.trim();
-  if (!code) throw new Error("Participant code was not rendered");
+  if (!pool || !sessionSecret) throw new Error("Session lookup is unavailable");
+  const token = (await page.context().cookies()).find(
+    (cookie) => cookie.name === "cag_session",
+  )?.value;
+  if (!token) throw new Error("Participant session cookie was not set");
+  const tokenHash = createHmac("sha256", sessionSecret)
+    .update(token)
+    .digest("hex");
+  const result = await pool.query(
+    `select participants.public_code
+       from sessions
+       join participants on participants.id = sessions.participant_id
+      where sessions.token_hash = $1`,
+    [tokenHash],
+  );
+  const code = result.rows[0]?.public_code;
+  if (!code) throw new Error("Participant code was not resolved");
   createdCodes.add(code);
   return code;
+}
+
+function summaryValue(page: Page, label: string) {
+  return page
+    .locator(".identity-list > div")
+    .filter({ has: page.getByText(label, { exact: true }) })
+    .locator("dd");
+}
+
+async function createInProgressAttempt(publicCode: string) {
+  const result = await pool!.query(
+    `insert into assessment_attempts (participant_id, status, source)
+     select id, 'in_progress', 'web'
+       from participants
+      where public_code = $1
+     returning id`,
+    [publicCode],
+  );
+  const attemptId = result.rows[0]?.id;
+  if (!attemptId) throw new Error("Test attempt was not created");
+  createdAttemptIds.add(attemptId);
+  return attemptId as string;
+}
+
+async function completeAttempt(attemptId: string) {
+  await pool!.query(
+    `update assessment_attempts
+        set status = 'completed',
+            content_version_id = $2,
+            rubric_version_id = $3,
+            total_score = 25,
+            risk = 'low',
+            completed_at = now(),
+            updated_at = now()
+      where id = $1`,
+    [attemptId, testContentVersion, testRubricVersion],
+  );
 }
 
 async function signUp(
@@ -102,7 +155,20 @@ async function signUp(
   return participantCode(page);
 }
 
-test.beforeAll(clearTestRateLimits);
+test.beforeAll(async () => {
+  await clearTestRateLimits();
+  if (!pool) return;
+  await pool.query(
+    `insert into content_versions (id, label)
+     values ($1, 'Phase 3 dashboard test content')`,
+    [testContentVersion],
+  );
+  await pool.query(
+    `insert into rubric_versions (id, content_version_id, label)
+     values ($1, $2, 'Phase 3 dashboard test rubric')`,
+    [testRubricVersion, testContentVersion],
+  );
+});
 
 test.afterAll(async () => {
   if (!pool) return;
@@ -110,6 +176,12 @@ test.afterAll(async () => {
   const client = await pool.connect();
   try {
     await client.query("begin");
+    if (createdAttemptIds.size > 0) {
+      await client.query(
+        `delete from assessment_attempts where id = any($1::uuid[])`,
+        [[...createdAttemptIds]],
+      );
+    }
     const usernames = [participantA, participantB, adminUsername].filter(
       Boolean,
     );
@@ -141,6 +213,12 @@ test.afterAll(async () => {
         [[...createdCodes]],
       );
     }
+    await client.query(`delete from rubric_versions where id = $1`, [
+      testRubricVersion,
+    ]);
+    await client.query(`delete from content_versions where id = $1`, [
+      testContentVersion,
+    ]);
     await client.query("commit");
   } catch (error) {
     await client.query("rollback");
@@ -161,6 +239,22 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   const contextA = await browser.newContext();
   const pageA = await contextA.newPage();
   const codeA = await signUp(pageA, "en", participantA, passwordA);
+  await expect(summaryValue(pageA, "Assessment Status")).toHaveText(
+    "Not Started",
+  );
+  await expect(summaryValue(pageA, "Attempts")).toHaveText("0");
+  await expect(summaryValue(pageA, "Security rate")).toHaveText(
+    "Not rated yet",
+  );
+  await expect(summaryValue(pageA, "Security rate")).toHaveCSS(
+    "color",
+    "rgb(142, 153, 161)",
+  );
+  await expect(
+    pageA.getByRole("link", { name: "Start assessment", exact: true }),
+  ).toHaveAttribute("href", "/en/home");
+  await expect(pageA.getByRole("link", { name: "Log in" })).toHaveCount(0);
+  await expect(pageA.getByRole("button", { name: "Sign out" })).toHaveCount(1);
   const firstCookie = (await contextA.cookies()).find(
     (cookie) => cookie.name === "cag_session",
   );
@@ -181,7 +275,9 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   expect(returnedLogin.ok(), await returnedLogin.text()).toBe(true);
   await expect(pageA).toHaveURL(/\/en\/home$/);
   expect(await participantCode(pageA)).toBe(codeA);
-  await expect(pageA.getByText("Server session expiry")).toBeVisible();
+  await expect(summaryValue(pageA, "Security rate")).toHaveText(
+    "Not rated yet",
+  );
   expect(
     await pageA.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -202,7 +298,27 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   const pageB = await contextB.newPage();
   await pageB.setViewportSize({ width: 390, height: 844 });
   const codeB = await signUp(pageB, "ar", participantB, passwordB);
-  await expect(pageB.getByText("انتهاء الجلسة على الخادم")).toBeVisible();
+  await expect(summaryValue(pageB, "حالة التقييم")).toHaveText("لم يبدأ");
+  await expect(summaryValue(pageB, "المحاولات")).toHaveText(/[٠0]/);
+  await expect(summaryValue(pageB, "معدل الأمان")).toHaveText("لم يُقيَّم بعد");
+  const attemptB = await createInProgressAttempt(codeB);
+  await pageB.reload();
+  await expect(summaryValue(pageB, "حالة التقييم")).toHaveText("قيد التقدم");
+  await expect(summaryValue(pageB, "المحاولات")).toHaveText(/[١1]/);
+  await pageA.reload();
+  await expect(summaryValue(pageA, "Assessment Status")).toHaveText(
+    "Not Started",
+  );
+  await expect(summaryValue(pageA, "Attempts")).toHaveText("0");
+  await completeAttempt(attemptB);
+  await pageB.reload();
+  await expect(summaryValue(pageB, "حالة التقييم")).toHaveText("مكتمل");
+  await expect(summaryValue(pageB, "معدل الأمان")).toHaveText("مخاطر منخفضة");
+  await expect(summaryValue(pageB, "معدل الأمان")).toHaveClass(/--low/);
+  await expect(summaryValue(pageB, "معدل الأمان")).toHaveCSS(
+    "color",
+    "rgb(21, 128, 61)",
+  );
   expect(
     await pageB.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -280,7 +396,17 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
   await page.getByRole("button", { name: "فهمت — متابعة" }).click();
   await expect(page).toHaveURL(/\/ar\/home$/);
   await participantCode(page);
-  await expect(page.getByText("مشارك مجهول الهوية")).toBeVisible();
+  await expect(summaryValue(page, "حالة التقييم")).toHaveText("لم يبدأ");
+  await expect(summaryValue(page, "المحاولات")).toHaveText(/[٠0]/);
+  await expect(summaryValue(page, "معدل الأمان")).toHaveText("لم يُقيَّم بعد");
+  await page.locator("summary[aria-label='القائمة']").click();
+  await expect(
+    page.getByRole("link", { name: "ابدأ التقييم", exact: true }),
+  ).toHaveAttribute("href", "/ar/home");
+  await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "تسجيل الخروج" }),
+  ).toBeVisible();
   await page.screenshot({
     animations: "disabled",
     fullPage: true,
@@ -297,6 +423,7 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
   const other = await page.request.get("/api/participants/CAG-999999999");
   expect(other.status()).toBe(403);
   await page.goto("/ar/home");
+  await page.locator("summary[aria-label='القائمة']").click();
   await page.getByRole("button", { name: "تسجيل الخروج" }).click();
   await page.goto("/ar/home");
   await expect(page).toHaveURL(/\/ar\/login$/);
@@ -370,5 +497,6 @@ test("private admin credentials cross only the admin boundary", async ({
   await expect(
     page.getByRole("dialog", { name: "Research administration" }),
   ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
   await context.close();
 });

@@ -255,18 +255,33 @@ label {
   box-shadow: var(--shadow-raised);
 }
 
-.mobile-menu-panel a {
+.mobile-menu-panel a,
+.mobile-menu-action {
   min-height: 44px;
   padding: 0.7rem 0.8rem;
   display: flex;
   align-items: center;
+  border: 0;
   border-radius: 0.6rem;
   color: var(--navy);
+  background: transparent;
   font-weight: 650;
+  text-align: start;
 }
 
-.mobile-menu-panel a:hover {
+.mobile-menu-panel a:hover,
+.mobile-menu-action:hover:not(:disabled) {
   background: var(--teal-soft);
+}
+
+.mobile-menu-action {
+  width: 100%;
+  cursor: pointer;
+}
+
+.mobile-menu-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .button,
@@ -1023,6 +1038,37 @@ html[lang="ar"] .identity-list dt {
   color: var(--navy);
   font-weight: 700;
   overflow-wrap: anywhere;
+}
+
+.security-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.security-rate::before {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.identity-list .security-rate--unrated {
+  color: #8e99a1;
+}
+
+.identity-list .security-rate--low {
+  color: #15803d;
+}
+
+.identity-list .security-rate--medium {
+  color: #b45309;
+}
+
+.identity-list .security-rate--high {
+  color: #b42318;
 }
 
 .phase-notice {

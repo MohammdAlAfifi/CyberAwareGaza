@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Icon } from "@/components/icon";
-import { LogoutButton } from "@/components/logout-button";
 import { Panel } from "@/components/ui/panel";
 import { requireParticipant } from "@/src/auth/authorization";
 import { getDictionary, isLocale } from "@/src/i18n";
-import { env } from "@/src/lib/env";
+import { getParticipantAssessmentSummary } from "@/src/participants/dashboard";
 
 export const metadata: Metadata = { title: "Participant home" };
 
@@ -18,13 +17,23 @@ export default async function ParticipantHome({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const actor = await requireParticipant(locale);
+  const assessmentSummary = await getParticipantAssessmentSummary(
+    actor.participantId,
+  );
   const t = getDictionary(locale).home;
   const anonymous = actor.kind === "anonymous";
-  const expiresAt = new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: env.APP_TIMEZONE,
-  }).format(actor.expiresAt);
+  const assessmentStatus = {
+    not_started: t.notStarted,
+    in_progress: t.inProgress,
+    completed: t.completed,
+  }[assessmentSummary.status];
+  const securityRate = assessmentSummary.latestRisk
+    ? {
+        low: t.lowRisk,
+        medium: t.mediumRisk,
+        high: t.highRisk,
+      }[assessmentSummary.latestRisk]
+    : t.notRatedYet;
 
   return (
     <main id="main" className="participant-home">
@@ -41,21 +50,28 @@ export default async function ParticipantHome({
                 {anonymous ? t.anonymousIntro : t.registeredIntro}
               </p>
             </div>
-            <LogoutButton locale={locale} />
           </div>
 
           <dl className="identity-list">
             <div>
-              <dt>{t.participantId}</dt>
-              <dd dir="ltr">{actor.publicCode}</dd>
+              <dt>{t.assessmentStatus}</dt>
+              <dd>{assessmentStatus}</dd>
             </div>
             <div>
-              <dt>{t.sessionType}</dt>
-              <dd>{anonymous ? t.anonymous : t.registered}</dd>
+              <dt>{t.attempts}</dt>
+              <dd>
+                {new Intl.NumberFormat(locale).format(
+                  assessmentSummary.attemptCount,
+                )}
+              </dd>
             </div>
             <div>
-              <dt>{t.sessionExpiry}</dt>
-              <dd>{expiresAt}</dd>
+              <dt>{t.securityRate}</dt>
+              <dd
+                className={`security-rate security-rate--${assessmentSummary.latestRisk ?? "unrated"}`}
+              >
+                {securityRate}
+              </dd>
             </div>
           </dl>
         </Panel>

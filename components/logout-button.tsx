@@ -5,7 +5,13 @@ import { useState } from "react";
 
 import { getDictionary, type Locale } from "@/src/i18n";
 
-export function LogoutButton({ locale }: { locale: Locale }) {
+export function LogoutButton({
+  className = "button button-ghost",
+  locale,
+}: {
+  className?: string;
+  locale: Locale;
+}) {
   const t = getDictionary(locale).auth;
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -22,7 +28,7 @@ export function LogoutButton({ locale }: { locale: Locale }) {
 
   return (
     <button
-      className="button button-ghost"
+      className={className}
       disabled={pending}
       onClick={logout}
       type="button"

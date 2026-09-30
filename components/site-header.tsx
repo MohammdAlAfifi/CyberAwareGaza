@@ -2,10 +2,18 @@ import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { LanguageSwitch } from "@/components/language-switch";
 import { Logo } from "@/components/logo";
+import { LogoutButton } from "@/components/logout-button";
+import { getCurrentSession } from "@/src/auth/sessions";
 import { getDictionary, type Locale } from "@/src/i18n";
 
-export function SiteHeader({ locale }: { locale: Locale }) {
+export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = getDictionary(locale);
+  const actor = await getCurrentSession();
+  const participantActive =
+    actor?.kind === "registered" || actor?.kind === "anonymous";
+  const assessmentHref = participantActive
+    ? `/${locale}/home`
+    : `/${locale}/start`;
 
   return (
     <header className="site-header">
@@ -23,13 +31,20 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         </nav>
         <div className="header-actions">
           <LanguageSwitch locale={locale} />
-          <Link
-            className="button button-ghost desktop-action"
-            href={`/${locale}/login`}
-          >
-            {t.nav.login}
-          </Link>
-          <Link className="button button-primary" href={`/${locale}/start`}>
+          {participantActive ? (
+            <LogoutButton
+              className="button button-ghost desktop-action"
+              locale={locale}
+            />
+          ) : (
+            <Link
+              className="button button-ghost desktop-action"
+              href={`/${locale}/start`}
+            >
+              {t.nav.login}
+            </Link>
+          )}
+          <Link className="button button-primary" href={assessmentHref}>
             {t.nav.start}
           </Link>
           <details className="mobile-menu">
@@ -39,8 +54,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
             <nav aria-label={t.common.menu} className="mobile-menu-panel">
               <Link href={`/${locale}#about`}>{t.nav.about}</Link>
               <Link href={`/${locale}#how`}>{t.nav.how}</Link>
-              <Link href={`/${locale}/login`}>{t.nav.login}</Link>
-              <Link href={`/${locale}/start`}>{t.nav.start}</Link>
+              {participantActive ? (
+                <LogoutButton className="mobile-menu-action" locale={locale} />
+              ) : (
+                <Link href={`/${locale}/start`}>{t.nav.login}</Link>
+              )}
+              <Link href={assessmentHref}>{t.nav.start}</Link>
             </nav>
           </details>
         </div>
