@@ -20,10 +20,15 @@ import {
   contentVersions,
   options,
   responses,
-  rubricEntries,
   rubricVersions,
 } from "@/src/db/schema";
 import { calculateAssessmentScore } from "@/src/scoring/risk";
+import {
+  feedbackKeyFor,
+  MAXIMUM_SCORE,
+  MINIMUM_SCORE,
+  RUBRIC_VERSION,
+} from "@/src/scoring/rubric";
 
 export type AssessmentJourney = {
   attemptId: string | null;
@@ -263,6 +268,9 @@ export async function finalizeAssessment(input: {
       .select({
         status: assessmentAttempts.status,
         contentVersionId: assessmentAttempts.contentVersionId,
+        rubricVersionId: assessmentAttempts.rubricVersionId,
+        totalScore: assessmentAttempts.totalScore,
+        risk: assessmentAttempts.risk,
       })
       .from(assessmentAttempts)
       .innerJoin(
@@ -285,7 +293,19 @@ export async function finalizeAssessment(input: {
       throw new AssessmentError("consent_required", 403);
     }
     if (attempt.status === "completed") {
-      return { completed: true as const, attemptId: input.attemptId };
+      if (
+        attempt.rubricVersionId !== RUBRIC_VERSION ||
+        attempt.totalScore === null ||
+        attempt.risk === null
+      ) {
+        throw new AssessmentError("scoring_unavailable", 503);
+      }
+      return {
+        completed: true as const,
+        attemptId: input.attemptId,
+        totalScore: attempt.totalScore,
+        risk: attempt.risk,
+      };
     }
     if (attempt.status !== "in_progress") {
       throw new AssessmentError("attempt_not_found", 404);
@@ -315,6 +335,7 @@ export async function finalizeAssessment(input: {
       .from(rubricVersions)
       .where(
         and(
+          eq(rubricVersions.id, RUBRIC_VERSION),
           eq(rubricVersions.contentVersionId, attempt.contentVersionId),
           eq(rubricVersions.isActive, true),
         ),
@@ -322,31 +343,15 @@ export async function finalizeAssessment(input: {
       .limit(1);
     if (
       !rubricVersion ||
-      rubricVersion.minimumScore === null ||
-      rubricVersion.maximumScore === null
+      rubricVersion.minimumScore !== MINIMUM_SCORE ||
+      rubricVersion.maximumScore !== MAXIMUM_SCORE
     ) {
       throw new AssessmentError("scoring_unavailable", 503);
     }
 
-    const rubric = await transaction
-      .select({
-        scenarioKey: rubricEntries.scenarioKey,
-        optionId: rubricEntries.optionId,
-        contribution: rubricEntries.contribution,
-      })
-      .from(rubricEntries)
-      .where(eq(rubricEntries.rubricVersionId, rubricVersion.id));
-
     let score;
     try {
-      score = calculateAssessmentScore(
-        answers,
-        rubric as Array<{
-          scenarioKey: ScenarioKey;
-          optionId: string;
-          contribution: number;
-        }>,
-      );
+      score = calculateAssessmentScore(answers);
     } catch {
       throw new AssessmentError("scoring_unavailable", 503);
     }
@@ -364,6 +369,7 @@ export async function finalizeAssessment(input: {
         scenarioKey: answer.scenarioKey,
         selectedOptionId: answer.optionId,
         contribution: score.contributions.get(answer.scenarioKey)!,
+        feedbackKey: feedbackKeyFor(score.rules.get(answer.scenarioKey)!),
       })),
     );
 
@@ -382,6 +388,11 @@ export async function finalizeAssessment(input: {
       .delete(assessmentDraftAnswers)
       .where(eq(assessmentDraftAnswers.attemptId, input.attemptId));
 
-    return { completed: true as const, attemptId: input.attemptId };
+    return {
+      completed: true as const,
+      attemptId: input.attemptId,
+      totalScore: score.totalScore,
+      risk: score.risk,
+    };
   });
 }

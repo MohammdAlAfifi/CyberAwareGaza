@@ -35,6 +35,13 @@ export default async function ParticipantHome({
         high: t.highRisk,
       }[assessmentSummary.latestRisk]
     : t.notRatedYet;
+  const riskLabel = (risk: "low" | "medium" | "high") =>
+    ({ low: t.lowRisk, medium: t.mediumRisk, high: t.highRisk })[risk];
+  const dateTime = new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Hebron",
+  });
   const assessmentAction =
     assessmentSummary.status === "in_progress"
       ? t.resumeAssessment
@@ -102,14 +109,48 @@ export default async function ParticipantHome({
         </Panel>
 
         <div className="participant-support-grid">
-          <Panel className="participant-empty-card">
+          <Panel className="participant-empty-card result-history-card">
             <span className="section-icon" aria-hidden="true">
               <Icon name="chart" />
             </span>
             <div>
               <h2>{t.historyTitle}</h2>
-              <span className="status-chip">{t.noHistory}</span>
-              <p>{anonymous ? t.historyAnonymous : t.historyRegistered}</p>
+              {assessmentSummary.history.length === 0 ? (
+                <>
+                  <span className="status-chip">{t.noHistory}</span>
+                  <p>{anonymous ? t.historyAnonymous : t.historyRegistered}</p>
+                </>
+              ) : (
+                <ol className="result-history-list">
+                  {assessmentSummary.history.map((result, index) => (
+                    <li key={result.attemptId}>
+                      <div>
+                        <strong>
+                          {t.resultNumber.replace(
+                            "{number}",
+                            new Intl.NumberFormat(locale).format(
+                              assessmentSummary.history.length - index,
+                            ),
+                          )}
+                        </strong>
+                        <span>{dateTime.format(result.completedAt)}</span>
+                        <span
+                          className={`risk-badge risk-badge--${result.risk}`}
+                        >
+                          {riskLabel(result.risk)} · {t.rawScoreShort}{" "}
+                          <bdi dir="ltr">{result.totalScore}</bdi>
+                        </span>
+                      </div>
+                      <Link
+                        className="button button-secondary"
+                        href={`/${locale}/results/${result.attemptId}`}
+                      >
+                        {t.viewResult}
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           </Panel>
 

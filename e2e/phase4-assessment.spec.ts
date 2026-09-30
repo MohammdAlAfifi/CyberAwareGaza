@@ -21,6 +21,7 @@ const pool = databaseUrl
     )
   : null;
 const participantCodes = new Set<string>();
+let registeredAttemptId = "";
 
 function rateHash(bucket: string, identifier: string) {
   return createHmac("sha256", sessionSecret!)
@@ -148,7 +149,7 @@ test("registered participant resumes answers and keeps scenario through language
   const signup = await signupResponse;
   expect(signup.ok(), await signup.text()).toBe(true);
   await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
-  await participantCode(page);
+  const registeredCode = await participantCode(page);
 
   await page.goto("http://localhost:3000/en/start");
   await expect(page).toHaveURL(/\/en\/home$/);
@@ -306,13 +307,106 @@ test("registered participant resumes answers and keeps scenario through language
     response.url().endsWith("/api/assessment/submit"),
   );
   await page.getByRole("button", { name: "Submit Assessment" }).click();
-  await submitResponse;
-  await expect(page.getByText(/final scoring is unavailable/)).toBeVisible();
-  await page.goto("http://localhost:3000/en/home");
+  const submitted = await submitResponse;
+  const submission = (await submitted.json()) as {
+    attemptId: string;
+    totalScore: number;
+    risk: string;
+  };
+  expect(submitted.ok(), JSON.stringify(submission)).toBe(true);
+  registeredAttemptId = submission.attemptId;
+  expect(submission).toMatchObject({ totalScore: 2, risk: "high" });
+  await expect(
+    page.getByRole("heading", { name: "Assessment submitted" }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   await expect(page.locator(".identity-list dd").nth(0)).toHaveText(
-    "In Progress",
+    "Completed",
   );
   await expect(page.locator(".identity-list dd").nth(1)).toHaveText("1");
+  await expect(page.locator(".identity-list dd").nth(2)).toHaveText(
+    "High Risk",
+  );
+  await expect(
+    page.getByRole("link", { name: "View your result" }),
+  ).toHaveAttribute("href", `/en/results/${registeredAttemptId}`);
+
+  await page.getByRole("link", { name: "View your result" }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`/en/results/${registeredAttemptId}$`),
+  );
+  await expect(
+    page.getByRole("heading", { name: "Your assessment result" }),
+  ).toBeVisible();
+  await expect(page.locator(".score-ring-copy strong")).toHaveText("+2");
+  await expect(page.locator(".risk-text--high")).toHaveText("High Risk");
+  await expect(page.locator(".answer-review-card")).toHaveCount(8);
+  await expect(
+    page.locator(".answer-review-card").first().getByText(firstOption),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "tmp/phase5-result-en.png",
+    fullPage: true,
+  });
+
+  const englishRingX = await page
+    .locator(".result-score-block")
+    .evaluate((element) => element.getBoundingClientRect().x);
+  await page
+    .getByRole("group", { name: "Choose interface language" })
+    .getByRole("button", { name: "العربية" })
+    .click();
+  await expect(page).toHaveURL(
+    new RegExp(`/ar/results/${registeredAttemptId}$`),
+  );
+  await expect(
+    page.getByText("Resilience Score", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator(".answer-review-card")
+      .first()
+      .getByText(assessmentScenarios[0].options[0].ar),
+  ).toBeVisible();
+  await page.screenshot({
+    path: "tmp/phase5-result-ar.png",
+    fullPage: true,
+  });
+  const arabicRingX = await page
+    .locator(".result-score-block")
+    .evaluate((element) => element.getBoundingClientRect().x);
+  expect(Math.abs(englishRingX - arabicRingX)).toBeLessThanOrEqual(2);
+
+  const retries = await page.evaluate(async (attemptId) => {
+    const submitAgain = async () => {
+      const response = await fetch("/api/assessment/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId }),
+      });
+      return { status: response.status, body: await response.json() };
+    };
+    return Promise.all([submitAgain(), submitAgain()]);
+  }, registeredAttemptId);
+  expect(retries).toHaveLength(2);
+  for (const retry of retries) {
+    expect(retry).toMatchObject({
+      status: 200,
+      body: { ok: true, completed: true, totalScore: 2, risk: "high" },
+    });
+  }
+
+  const persisted = await pool!.query(
+    `select
+       count(distinct a.id)::integer as attempts,
+       count(r.scenario_key)::integer as responses
+     from assessment_attempts a
+     join participants p on p.id = a.participant_id
+     left join responses r on r.attempt_id = a.id
+     where p.public_code = $1 and a.status = 'completed'`,
+    [registeredCode],
+  );
+  expect(persisted.rows[0]).toMatchObject({ attempts: 1, responses: 8 });
 });
 
 test("anonymous participant who declines cannot start an attempt", async ({
@@ -350,4 +444,63 @@ test("anonymous participant who declines cannot start an attempt", async ({
     [code],
   );
   expect(attempts.rows[0].count).toBe(0);
+});
+
+test("anonymous results require the owning active anonymous session", async ({
+  page,
+}) => {
+  test.skip(!configured, "Database and session configuration are required");
+  test.skip(!registeredAttemptId, "Registered result fixture is required");
+
+  await page.goto("http://localhost:3000/en/anonymous");
+  const anonymousResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/anonymous"),
+  );
+  await page.getByRole("button", { name: "I understand — continue" }).click();
+  expect((await anonymousResponse).ok()).toBe(true);
+  await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
+  await participantCode(page);
+
+  const denied = await page.goto(
+    `http://localhost:3000/en/results/${registeredAttemptId}`,
+  );
+  expect(denied?.status()).toBe(404);
+
+  await page.goto("http://localhost:3000/en/home");
+  await page.getByRole("link", { name: "Start assessment" }).click();
+  await page.getByRole("radio", { name: "Yes, I agree." }).check();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Begin Scenario 1" }).click();
+
+  for (let index = 0; index < assessmentScenarios.length; index += 1) {
+    const scenario = assessmentScenarios[index];
+    const selected = scenario.options[scenario.options.length - 1].en;
+    const savedResponse = page.waitForResponse((response) =>
+      response.url().endsWith("/api/assessment/progress"),
+    );
+    await page.getByRole("radio", { name: selected }).check();
+    expect((await savedResponse).ok()).toBe(true);
+    if (index < assessmentScenarios.length - 1) {
+      await page.getByRole("button", { name: "Next scenario" }).click();
+    }
+  }
+
+  const submitResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/assessment/submit"),
+  );
+  await page.getByRole("button", { name: "Submit Assessment" }).click();
+  const submitted = await submitResponse;
+  const submission = (await submitted.json()) as { attemptId: string };
+  expect(submitted.ok(), JSON.stringify(submission)).toBe(true);
+  await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
+  await page.getByRole("link", { name: "View your result" }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`/en/results/${submission.attemptId}$`),
+  );
+  await expect(page.locator(".answer-review-card")).toHaveCount(8);
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await page.goto(`http://localhost:3000/en/results/${submission.attemptId}`);
+  await expect(page).toHaveURL(/\/en\/login$/);
 });

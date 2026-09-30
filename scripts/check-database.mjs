@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import {
   assertDatabaseTargetsMatch,
@@ -8,6 +9,13 @@ import {
   formatVerifiedTarget,
   verifyDatabaseConnection,
 } from "./database-utils.mjs";
+
+const rubric = JSON.parse(
+  readFileSync(
+    new URL("../src/scoring/rubric-v1.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 const missingVariables = ["DIRECT_DATABASE_URL", "DATABASE_URL"].filter(
   (name) => !process.env[name],
@@ -92,6 +100,41 @@ try {
     );
   }
 
+  const rubricResult = await pool.query(
+    `select rv.id, rv.minimum_score, rv.maximum_score,
+            re.scenario_key, re.option_id, re.contribution
+       from rubric_versions rv
+       join rubric_entries re on re.rubric_version_id = rv.id
+      where rv.id = $1 and rv.is_active = true
+      order by re.scenario_key, re.option_id`,
+    [rubric.id],
+  );
+  if (
+    rubricResult.rows.length !== rubric.entries.length ||
+    rubricResult.rows[0]?.minimum_score !== rubric.minimumScore ||
+    rubricResult.rows[0]?.maximum_score !== rubric.maximumScore
+  ) {
+    throw new Error(
+      `Phase 5 rubric must contain ${rubric.entries.length} rules and the ${rubric.minimumScore} to ${rubric.maximumScore} raw range`,
+    );
+  }
+  const storedContributions = new Map(
+    rubricResult.rows.map((row) => [
+      `${row.scenario_key}:${row.option_id}`,
+      row.contribution,
+    ]),
+  );
+  for (const entry of rubric.entries) {
+    if (
+      storedContributions.get(`${entry.scenarioKey}:${entry.optionId}`) !==
+      entry.contribution
+    ) {
+      throw new Error(
+        `Phase 5 rubric contribution mismatch for ${entry.scenarioKey}:${entry.optionId}`,
+      );
+    }
+  }
+
   const allocations = await Promise.all(
     Array.from({ length: 12 }, async () => {
       const result = await pool.query(
@@ -113,7 +156,7 @@ try {
   }
 
   console.log(
-    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, foundation seed present, and 12 atomic counter allocations.`,
+    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, ${rubric.entries.length} Phase 5 scoring rules present, foundation seed present, and 12 atomic counter allocations.`,
   );
 } finally {
   await pool

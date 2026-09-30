@@ -1,0 +1,341 @@
+{
+  "id": "chapter-3-section-3.4-s4-revision-v1",
+  "contentVersionId": "pdf-section-7-v1",
+  "label": "Chapter 3 Section 3.4 with approved S4 choice revision",
+  "minimumScore": -76,
+  "maximumScore": 80,
+  "entries": [
+    {
+      "scenarioKey": "S1",
+      "optionId": "S1O1",
+      "contribution": -10,
+      "explanation": {
+        "en": "The message uses urgency and a login button, both common phishing signals. Clicking may send credentials to an attacker.",
+        "ar": "تستخدم الرسالة الاستعجال وزر تسجيل الدخول، وهما من إشارات التصيد الشائعة. قد يؤدي الضغط إلى إرسال بيانات الدخول إلى مهاجم."
+      },
+      "guidance": {
+        "en": "Open the official Moodle address yourself, check notifications there, and report the suspicious message.",
+        "ar": "افتح عنوان مودل الرسمي بنفسك، وتحقق من الإشعارات هناك، وأبلغ عن الرسالة المشبوهة."
+      }
+    },
+    {
+      "scenarioKey": "S1",
+      "optionId": "S1O2",
+      "contribution": 10,
+      "explanation": {
+        "en": "Using the official site independently avoids trusting the link in an urgent message.",
+        "ar": "يؤدي استخدام الموقع الرسمي بصورة مستقلة إلى تجنب الثقة بالرابط الموجود في رسالة عاجلة."
+      },
+      "guidance": {
+        "en": "Continue to access important services through saved or manually entered official addresses and report suspicious messages.",
+        "ar": "استمر في الوصول إلى الخدمات المهمة عبر العناوين الرسمية المحفوظة أو المكتوبة يدويًا، وأبلغ عن الرسائل المشبوهة."
+      }
+    },
+    {
+      "scenarioKey": "S1",
+      "optionId": "S1O3",
+      "contribution": 2,
+      "explanation": {
+        "en": "Ignoring avoids the immediate click, but the threat remains unreported and could affect others.",
+        "ar": "يمنع التجاهل الضغط الفوري على الرابط، لكن التهديد يبقى دون إبلاغ وقد يؤثر في الآخرين."
+      },
+      "guidance": {
+        "en": "Do not click; verify through the official service and report the message to the appropriate support team.",
+        "ar": "لا تضغط على الرابط؛ تحقق عبر الخدمة الرسمية وأبلغ فريق الدعم المختص عن الرسالة."
+      }
+    },
+
+    {
+      "scenarioKey": "S2",
+      "optionId": "S2O1",
+      "contribution": -8,
+      "explanation": {
+        "en": "A shortened link hides its destination, and urgency is used to discourage verification.",
+        "ar": "يُخفي الرابط المختصر وجهته، ويُستخدم الاستعجال لتقليل فرصة التحقق."
+      },
+      "guidance": {
+        "en": "Avoid the shortened link and open the official learning system directly.",
+        "ar": "تجنب الرابط المختصر وافتح نظام إدارة التعلم الرسمي مباشرة."
+      }
+    },
+    {
+      "scenarioKey": "S2",
+      "optionId": "S2O2",
+      "contribution": 10,
+      "explanation": {
+        "en": "Direct access to the official LMS removes the unverified link from the decision.",
+        "ar": "يستبعد الدخول المباشر إلى نظام إدارة التعلم الرسمي الرابط غير الموثوق من القرار."
+      },
+      "guidance": {
+        "en": "Use a known official address or bookmark when checking course resources.",
+        "ar": "استخدم عنوانًا رسميًا معروفًا أو إشارة مرجعية عند التحقق من مصادر المقرر."
+      }
+    },
+    {
+      "scenarioKey": "S2",
+      "optionId": "S2O3",
+      "contribution": 8,
+      "explanation": {
+        "en": "Requesting an official LMS link adds verification, although a compromised sender could still reply.",
+        "ar": "يضيف طلب رابط نظام إدارة التعلم الرسمي خطوة تحقق، رغم أن حساب المرسل قد يكون مخترقًا ويستطيع الرد."
+      },
+      "guidance": {
+        "en": "Prefer opening the official LMS directly; if you ask, confirm through a trusted channel.",
+        "ar": "يفضل فتح نظام إدارة التعلم الرسمي مباشرة؛ وإذا سألت، فتحقق عبر قناة موثوقة."
+      }
+    },
+
+    {
+      "scenarioKey": "S3",
+      "optionId": "S3O1",
+      "contribution": -10,
+      "explanation": {
+        "en": "An unexpected attachment asking for identity and password changes may contain malware or a credential trap.",
+        "ar": "قد يحتوي المرفق غير المتوقع الذي يطلب بيانات الهوية وتغيير كلمة المرور على برمجية خبيثة أو فخ لسرقة بيانات الدخول."
+      },
+      "guidance": {
+        "en": "Do not open the attachment. Contact the instructor or department through an official channel.",
+        "ar": "لا تفتح المرفق. تواصل مع المدرس أو القسم عبر قناة رسمية."
+      }
+    },
+    {
+      "scenarioKey": "S3",
+      "optionId": "S3O2",
+      "contribution": 10,
+      "explanation": {
+        "en": "Independent verification prevents an attacker in the same email conversation from defining what is trusted.",
+        "ar": "يمنع التحقق المستقل المهاجم الموجود في محادثة البريد نفسها من تحديد ما هو موثوق."
+      },
+      "guidance": {
+        "en": "Use the official Moodle page, directory, or a known department contact before acting.",
+        "ar": "استخدم صفحة مودل الرسمية أو دليل الاتصال أو وسيلة تواصل معروفة للقسم قبل اتخاذ أي إجراء."
+      }
+    },
+    {
+      "scenarioKey": "S3",
+      "optionId": "S3O3",
+      "contribution": 2,
+      "explanation": {
+        "en": "A reply stays inside the possibly compromised conversation, so it does not independently verify the request.",
+        "ar": "يبقى الرد داخل المحادثة التي قد تكون مخترقة، لذلك لا يحقق تحققًا مستقلًا من الطلب."
+      },
+      "guidance": {
+        "en": "Start a new contact through an official directory or speak to the department directly.",
+        "ar": "ابدأ تواصلًا جديدًا عبر دليل رسمي أو تواصل مباشرة مع القسم."
+      }
+    },
+
+    {
+      "scenarioKey": "S4",
+      "optionId": "S4O1",
+      "contribution": 10,
+      "explanation": {
+        "en": "Under the approved questionnaire mapping, this choice receives the strongest protective contribution.",
+        "ar": "وفق التعيين المعتمد للاستبيان، يحصل هذا الخيار على أعلى مساهمة وقائية."
+      },
+      "guidance": {
+        "en": "For real accounts, use a long unique password or passphrase and avoid personal names or predictable local references.",
+        "ar": "للحسابات الحقيقية، استخدم كلمة مرور أو عبارة مرور طويلة وفريدة، وتجنب الأسماء الشخصية أو الإشارات المحلية المتوقعة."
+      }
+    },
+    {
+      "scenarioKey": "S4",
+      "optionId": "S4O2",
+      "contribution": 10,
+      "explanation": {
+        "en": "Under the approved questionnaire mapping, this choice receives the strongest protective contribution.",
+        "ar": "وفق التعيين المعتمد للاستبيان، يحصل هذا الخيار على أعلى مساهمة وقائية."
+      },
+      "guidance": {
+        "en": "For real accounts, prefer a password manager-generated value or a long unique passphrase without names or predictable years.",
+        "ar": "للحسابات الحقيقية، يفضل استخدام قيمة مولدة من مدير كلمات المرور أو عبارة مرور طويلة وفريدة بلا أسماء أو سنوات متوقعة."
+      }
+    },
+    {
+      "scenarioKey": "S4",
+      "optionId": "S4O3",
+      "contribution": -10,
+      "explanation": {
+        "en": "A long sequence made only of consecutive digits is highly predictable and unsafe.",
+        "ar": "السلسلة الطويلة المكونة من أرقام متتابعة فقط قابلة للتوقع بدرجة كبيرة وغير آمنة."
+      },
+      "guidance": {
+        "en": "Use a unique password or passphrase with unpredictable content; length helps only when the value is not easily guessed.",
+        "ar": "استخدم كلمة مرور أو عبارة مرور فريدة بمحتوى غير متوقع؛ يفيد الطول فقط عندما لا تكون القيمة سهلة التخمين."
+      }
+    },
+    {
+      "scenarioKey": "S4",
+      "optionId": "S4O4",
+      "contribution": 2,
+      "explanation": {
+        "en": "The length offers some protection, but a common name followed by a simple number pattern remains predictable.",
+        "ar": "يوفر الطول بعض الحماية، لكن الاسم الشائع المتبوع بنمط رقمي بسيط يبقى قابلًا للتوقع."
+      },
+      "guidance": {
+        "en": "Replace names and sequences with a unique passphrase or a password manager-generated value.",
+        "ar": "استبدل الأسماء والتسلسلات بعبارة مرور فريدة أو بقيمة مولدة من مدير كلمات المرور."
+      }
+    },
+
+    {
+      "scenarioKey": "S5",
+      "optionId": "S5O1",
+      "contribution": 10,
+      "explanation": {
+        "en": "Typing the official address manually avoids the login link embedded in the message.",
+        "ar": "تجنب كتابة العنوان الرسمي يدويًا رابط تسجيل الدخول المضمن في الرسالة."
+      },
+      "guidance": {
+        "en": "Keep using known official portals for grades and other sensitive records.",
+        "ar": "استمر في استخدام البوابات الرسمية المعروفة للدرجات والسجلات الحساسة الأخرى."
+      }
+    },
+    {
+      "scenarioKey": "S5",
+      "optionId": "S5O2",
+      "contribution": -8,
+      "explanation": {
+        "en": "The importance of grades is being used to prompt an unsafe click and login.",
+        "ar": "تُستخدم أهمية الدرجات لدفعك إلى الضغط وتسجيل الدخول بطريقة غير آمنة."
+      },
+      "guidance": {
+        "en": "Do not use the message button. Navigate to the official university portal yourself.",
+        "ar": "لا تستخدم زر الرسالة. انتقل بنفسك إلى بوابة الجامعة الرسمية."
+      }
+    },
+    {
+      "scenarioKey": "S5",
+      "optionId": "S5O3",
+      "contribution": 2,
+      "explanation": {
+        "en": "Forwarding a suspicious message may amplify a malicious campaign even when the intention is to warn others.",
+        "ar": "قد تؤدي إعادة توجيه رسالة مشبوهة إلى توسيع حملة خبيثة حتى لو كان القصد تحذير الآخرين."
+      },
+      "guidance": {
+        "en": "Report the message through an official channel and warn others without forwarding the live link.",
+        "ar": "أبلغ عن الرسالة عبر قناة رسمية، وحذر الآخرين دون إعادة توجيه الرابط الفعلي."
+      }
+    },
+
+    {
+      "scenarioKey": "S6",
+      "optionId": "S6O1",
+      "contribution": 10,
+      "explanation": {
+        "en": "Reporting the disguised executable without opening it protects the device and helps others respond.",
+        "ar": "يحمي الإبلاغ عن الملف التنفيذي المتنكر دون فتحه الجهاز ويساعد الآخرين على الاستجابة."
+      },
+      "guidance": {
+        "en": "Keep file extensions visible, do not execute suspicious attachments, and report them to IT or security.",
+        "ar": "أبق امتدادات الملفات ظاهرة، ولا تشغل المرفقات المشبوهة، وأبلغ تقنية المعلومات أو الأمن عنها."
+      }
+    },
+    {
+      "scenarioKey": "S6",
+      "optionId": "S6O2",
+      "contribution": -10,
+      "explanation": {
+        "en": "The final .exe extension identifies an executable that can run malicious code despite the .pdf text.",
+        "ar": "يشير الامتداد النهائي ‎.exe إلى ملف تنفيذي يمكنه تشغيل شيفرة خبيثة رغم وجود نص ‎.pdf في الاسم."
+      },
+      "guidance": {
+        "en": "Never open an unexpected executable attachment; report it through the official security channel.",
+        "ar": "لا تفتح أبدًا مرفقًا تنفيذيًا غير متوقع؛ أبلغ عنه عبر قناة الأمن الرسمية."
+      }
+    },
+    {
+      "scenarioKey": "S6",
+      "optionId": "S6O3",
+      "contribution": 4,
+      "explanation": {
+        "en": "Deleting avoids execution, but reporting would also help contain the threat and protect other recipients.",
+        "ar": "يمنع الحذف تشغيل الملف، لكن الإبلاغ يساعد أيضًا على احتواء التهديد وحماية المستلمين الآخرين."
+      },
+      "guidance": {
+        "en": "Do not open the file; report it before deleting when your organization provides a reporting channel.",
+        "ar": "لا تفتح الملف؛ أبلغ عنه قبل الحذف عندما توفر مؤسستك قناة للإبلاغ."
+      }
+    },
+
+    {
+      "scenarioKey": "S7",
+      "optionId": "S7O1",
+      "contribution": 10,
+      "explanation": {
+        "en": "Disconnecting and verifying with official staff checks both the network name and the login portal independently.",
+        "ar": "يتحقق قطع الاتصال والسؤال لدى موظف رسمي بصورة مستقلة من اسم الشبكة وبوابة تسجيل الدخول."
+      },
+      "guidance": {
+        "en": "Confirm campus Wi-Fi details through official signage, IT staff, or published university guidance.",
+        "ar": "تحقق من تفاصيل شبكة الجامعة عبر اللافتات الرسمية أو موظفي تقنية المعلومات أو إرشادات الجامعة المنشورة."
+      }
+    },
+    {
+      "scenarioKey": "S7",
+      "optionId": "S7O2",
+      "contribution": -10,
+      "explanation": {
+        "en": "Entering credentials into an unfamiliar portal can expose the university account to a rogue access point.",
+        "ar": "قد يؤدي إدخال بيانات الدخول في بوابة غير مألوفة إلى كشف الحساب الجامعي لنقطة وصول مزيفة."
+      },
+      "guidance": {
+        "en": "Disconnect immediately and verify the correct network and portal before entering any credentials.",
+        "ar": "اقطع الاتصال فورًا وتحقق من الشبكة والبوابة الصحيحتين قبل إدخال أي بيانات دخول."
+      }
+    },
+    {
+      "scenarioKey": "S7",
+      "optionId": "S7O3",
+      "contribution": 6,
+      "explanation": {
+        "en": "A mobile hotspot avoids the suspicious portal, but it does not verify or report the possibly rogue campus network.",
+        "ar": "تتجنب نقطة اتصال الهاتف البوابة المشبوهة، لكنها لا تتحقق من شبكة الجامعة التي قد تكون مزيفة ولا تبلغ عنها."
+      },
+      "guidance": {
+        "en": "Use the trusted alternative temporarily, then report and verify the suspicious network with official staff.",
+        "ar": "استخدم البديل الموثوق مؤقتًا، ثم أبلغ عن الشبكة المشبوهة وتحقق منها لدى الموظفين الرسميين."
+      }
+    },
+
+    {
+      "scenarioKey": "S8",
+      "optionId": "S8O1",
+      "contribution": -10,
+      "explanation": {
+        "en": "A verification code authorizes access and should never be shared with someone requesting it.",
+        "ar": "يمنح رمز التحقق صلاحية الوصول ويجب ألا يُشارك أبدًا مع شخص يطلبه."
+      },
+      "guidance": {
+        "en": "Do not share the code. Review the account through the official site and secure it if the request was not yours.",
+        "ar": "لا تشارك الرمز. راجع الحساب عبر الموقع الرسمي وأمّنه إذا لم يكن الطلب صادرًا منك."
+      }
+    },
+    {
+      "scenarioKey": "S8",
+      "optionId": "S8O2",
+      "contribution": 10,
+      "explanation": {
+        "en": "Refusing to share the code and reviewing the official account directly protects against account takeover.",
+        "ar": "يحمي رفض مشاركة الرمز ومراجعة الحساب الرسمي مباشرة من الاستيلاء على الحساب."
+      },
+      "guidance": {
+        "en": "Continue treating verification codes as secrets and review unexpected events only through the official service.",
+        "ar": "استمر في التعامل مع رموز التحقق كأسرار، وراجع الأحداث غير المتوقعة عبر الخدمة الرسمية فقط."
+      }
+    },
+    {
+      "scenarioKey": "S8",
+      "optionId": "S8O3",
+      "contribution": 4,
+      "explanation": {
+        "en": "Ignoring avoids sharing the code, but delaying the account review may leave an active attack unaddressed.",
+        "ar": "يمنع التجاهل مشاركة الرمز، لكن تأخير مراجعة الحساب قد يترك هجومًا نشطًا دون معالجة."
+      },
+      "guidance": {
+        "en": "Do not share the code; review sign-in activity and security settings on the official site immediately.",
+        "ar": "لا تشارك الرمز؛ راجع نشاط تسجيل الدخول وإعدادات الأمان على الموقع الرسمي فورًا."
+      }
+    }
+  ]
+}

@@ -10,19 +10,30 @@ export type ParticipantAssessmentSummary = {
   /** Counts every persisted attempt, including an in-progress attempt. */
   attemptCount: number;
   latestRisk: "low" | "medium" | "high" | null;
+  history: Array<{
+    attemptId: string;
+    totalScore: number;
+    risk: "low" | "medium" | "high";
+    completedAt: Date;
+  }>;
 };
 
 export async function getParticipantAssessmentSummary(
   participantId: string,
 ): Promise<ParticipantAssessmentSummary> {
-  const [statusCounts, latestCompleted] = await Promise.all([
+  const [statusCounts, completedAttempts] = await Promise.all([
     db
       .select({ status: assessmentAttempts.status, count: count() })
       .from(assessmentAttempts)
       .where(eq(assessmentAttempts.participantId, participantId))
       .groupBy(assessmentAttempts.status),
     db
-      .select({ risk: assessmentAttempts.risk })
+      .select({
+        attemptId: assessmentAttempts.id,
+        totalScore: assessmentAttempts.totalScore,
+        risk: assessmentAttempts.risk,
+        completedAt: assessmentAttempts.completedAt,
+      })
       .from(assessmentAttempts)
       .where(
         and(
@@ -34,9 +45,23 @@ export async function getParticipantAssessmentSummary(
         desc(assessmentAttempts.completedAt),
         desc(assessmentAttempts.updatedAt),
         desc(assessmentAttempts.id),
-      )
-      .limit(1),
+      ),
   ]);
+
+  const history = completedAttempts.flatMap((attempt) =>
+    attempt.totalScore === null ||
+    attempt.risk === null ||
+    attempt.completedAt === null
+      ? []
+      : [
+          {
+            attemptId: attempt.attemptId,
+            totalScore: attempt.totalScore,
+            risk: attempt.risk,
+            completedAt: attempt.completedAt,
+          },
+        ],
+  );
 
   const attemptCount = statusCounts.reduce(
     (total, status) => total + status.count,
@@ -58,6 +83,7 @@ export async function getParticipantAssessmentSummary(
         ? "completed"
         : "not_started",
     attemptCount,
-    latestRisk: latestCompleted[0]?.risk ?? null,
+    latestRisk: history[0]?.risk ?? null,
+    history,
   };
 }

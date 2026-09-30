@@ -154,7 +154,8 @@ export function AssessmentFlow({
         return;
       }
       setStage("submitted");
-      router.replace(`/${locale}/assessment`, { scroll: false });
+      await new Promise((resolve) => window.setTimeout(resolve, 650));
+      router.replace(`/${locale}/home`, { scroll: false });
       router.refresh();
     } catch {
       setMessage(t.errors.server_error);
@@ -184,17 +185,9 @@ export function AssessmentFlow({
   if (stage === "submitted") {
     return (
       <Panel className="assessment-card assessment-gate-card">
-        <span className="section-icon" aria-hidden="true">
-          <Icon name="assessment" />
-        </span>
+        <span className="spinner" aria-hidden="true" />
         <h1>{t.submittedTitle}</h1>
         <p>{t.submittedText}</p>
-        <Link
-          className="button button-primary button-large"
-          href={`/${locale}/home`}
-        >
-          {t.returnHome}
-        </Link>
       </Panel>
     );
   }
@@ -321,7 +314,13 @@ export function AssessmentFlow({
           }
           type="button"
         >
-          {pending ? t.saving : lastScenario ? t.submit : t.next}
+          {pending
+            ? lastScenario
+              ? t.submitting
+              : t.saving
+            : lastScenario
+              ? t.submit
+              : t.next}
           {!lastScenario && <Icon name="arrow" size={18} />}
         </button>
       </div>

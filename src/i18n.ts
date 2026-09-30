@@ -189,6 +189,9 @@ const dictionaries = {
       historyAnonymous:
         "A completed result will be visible only while this temporary session remains active.",
       noHistory: "No results yet",
+      resultNumber: "Assessment {number}",
+      rawScoreShort: "Raw score",
+      viewResult: "View your result",
       sessionLimitTitle: "About this temporary session",
     },
     assessment: {
@@ -237,7 +240,7 @@ const dictionaries = {
       leave: "Leave assessment",
       submittedTitle: "Assessment submitted",
       submittedText:
-        "Your eight answers were recorded securely. Detailed results and answer review are provided by the next implementation phase.",
+        "Your eight answers were scored and recorded securely. Preparing your dashboard…",
       errors: {
         invalid_input: "Choose a valid answer and try again.",
         forbidden: "This assessment does not belong to your session.",
@@ -257,6 +260,8 @@ const dictionaries = {
     result: {
       eyebrow: "Result shell",
       title: "Your assessment result",
+      subtitle:
+        "A traceable summary of your eight cybersecurity awareness decisions.",
       previewBadge: "Preview — no calculated result",
       emptyTitle: "No assessment result yet",
       emptyText:
@@ -271,6 +276,37 @@ const dictionaries = {
       reviewText:
         "Completed scenario responses will be listed here without revealing correctness before submission.",
       start: "Return to entry options",
+      submittedAt: "Submitted",
+      completion: "Completion",
+      eightOfEight: "8/8 scenarios",
+      retake: "Take assessment again",
+      returnHome: "Return Home",
+      lowRisk: "Low Risk",
+      mediumRisk: "Medium Risk",
+      highRisk: "High Risk",
+      lowInterpretation:
+        "Your choices were predominantly protective across this scenario set. Keep verifying requests independently and continue using official channels.",
+      mediumInterpretation:
+        "Your choices mixed protective and risk-exposing decisions. Review the scenario guidance below and reinforce the habits that reduce exposure.",
+      highInterpretation:
+        "Your choices showed a stronger concentration of risk-exposing decisions. Work through the safer actions below and practice verification before acting.",
+      rawScore: "Raw cumulative score",
+      rawCumulative: "Raw cumulative score",
+      possibleRange: "Possible raw range:",
+      visualScale: "Visual position: {position}% of the possible raw range",
+      visualScaleAria:
+        "Raw score position is {position} percent along the possible range from {minimum} to {maximum}.",
+      rawScoreNote:
+        "This is a raw cumulative score from −76 to 80. It is not a percentage or a 0–100 grade.",
+      interpretationTitle: "What this risk level means",
+      reviewIntro:
+        "Review the exact answer you selected, its score contribution, and a safer action for every scenario.",
+      eightScenarios: "8 completed scenarios",
+      scenario: "Scenario {number}",
+      selectedAnswer: "Your selected answer",
+      scoreContribution: "Score contribution shown for this decision",
+      whyItMatters: "Why this matters",
+      saferAction: "Educational guidance and safer action",
     },
     admin: {
       brandLabel: "Research administration",
@@ -510,6 +546,9 @@ const dictionaries = {
       historyAnonymous:
         "ستبقى النتيجة المكتملة متاحة فقط ما دامت هذه الجلسة المؤقتة فعّالة.",
       noHistory: "لا توجد نتائج بعد",
+      resultNumber: "التقييم {number}",
+      rawScoreShort: "الدرجة الخام",
+      viewResult: "عرض نتيجتك",
       sessionLimitTitle: "حول هذه الجلسة المؤقتة",
     },
     assessment: {
@@ -552,7 +591,7 @@ const dictionaries = {
       leave: "مغادرة التقييم",
       submittedTitle: "تم إرسال التقييم",
       submittedText:
-        "تم تسجيل إجاباتك الثمانية بأمان. ستوفر مرحلة التنفيذ التالية النتائج التفصيلية ومراجعة الإجابات.",
+        "تم احتساب درجات إجاباتك الثمانية وتسجيلها بأمان. جارٍ تجهيز لوحة المشارك…",
       errors: {
         invalid_input: "اختر إجابة صالحة ثم حاول مرة أخرى.",
         forbidden: "هذا التقييم لا يتبع جلستك.",
@@ -570,6 +609,7 @@ const dictionaries = {
     result: {
       eyebrow: "نموذج النتيجة",
       title: "نتيجة تقييمك",
+      subtitle: "ملخص قابل للتتبع لقراراتك الثمانية في الوعي بالأمن السيبراني.",
       previewBadge: "معاينة — لا توجد نتيجة محسوبة",
       emptyTitle: "لا توجد نتيجة تقييم بعد",
       emptyText:
@@ -584,6 +624,37 @@ const dictionaries = {
       reviewText:
         "ستُعرض إجابات السيناريوهات المكتملة هنا دون كشف صحة الإجابة قبل الإرسال.",
       start: "العودة إلى خيارات الدخول",
+      submittedAt: "وقت الإرسال",
+      completion: "الإكمال",
+      eightOfEight: "8/8 سيناريوهات",
+      retake: "إجراء التقييم مرة أخرى",
+      returnHome: "العودة إلى الصفحة الرئيسية",
+      lowRisk: "مخاطر منخفضة",
+      mediumRisk: "مخاطر متوسطة",
+      highRisk: "مخاطر مرتفعة",
+      lowInterpretation:
+        "كانت اختياراتك وقائية في الغالب ضمن هذه السيناريوهات. واصل التحقق المستقل من الطلبات واستخدام القنوات الرسمية.",
+      mediumInterpretation:
+        "جمعت اختياراتك بين قرارات وقائية وأخرى تعرضك للمخاطر. راجع إرشادات السيناريوهات أدناه وعزز العادات التي تقلل التعرض.",
+      highInterpretation:
+        "أظهرت اختياراتك تركيزًا أكبر من القرارات التي تعرضك للمخاطر. طبّق الإجراءات الأكثر أمانًا أدناه وتدرّب على التحقق قبل التصرف.",
+      rawScore: "الدرجة التراكمية الخام",
+      rawCumulative: "الدرجة التراكمية الخام",
+      possibleRange: "النطاق الخام الممكن:",
+      visualScale: "الموضع البصري: {position}% من النطاق الخام الممكن",
+      visualScaleAria:
+        "موضع الدرجة الخام هو {position} بالمئة ضمن النطاق الممكن من {minimum} إلى {maximum}.",
+      rawScoreNote:
+        "هذه درجة تراكمية خام من −76 إلى 80، وليست نسبة مئوية ولا درجة من 0 إلى 100.",
+      interpretationTitle: "ماذا يعني مستوى المخاطر هذا؟",
+      reviewIntro:
+        "راجع الإجابة التي اخترتها بالضبط، ومساهمتها في الدرجة، وإجراءً أكثر أمانًا لكل سيناريو.",
+      eightScenarios: "8 سيناريوهات مكتملة",
+      scenario: "السيناريو {number}",
+      selectedAnswer: "إجابتك المختارة",
+      scoreContribution: "مساهمة هذا القرار في الدرجة",
+      whyItMatters: "لماذا يهم هذا؟",
+      saferAction: "إرشاد تعليمي وإجراء أكثر أمانًا",
     },
     admin: {
       brandLabel: "إدارة البحث",
