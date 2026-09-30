@@ -20,7 +20,6 @@ The machine-readable inventory in `reference/source-manifest.json` records the b
 
 | Required source                    | Exact unresolved dependency                                                                                      | Dependent work blocked                                                                       |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Approved bilingual consent wording | Exact voluntary consent question, Yes/No labels if governed, consent version                                     | Consent decision screen and production consent records                                       |
 | Legacy Python/Tkinter project      | Per-option values, special rules, possible minimum/maximum, feedback mapping, representative output and fixtures | Final score computation, normalized result visualization, imported-row scoring, parity tests |
 | Historical Google Forms CSV        | Headers, encoding, timestamps, consent values, source keys, eight answers, and actual 93/91/2 verification       | CSV mapping/import, historical metrics, import fixtures                                      |
 | Original Stitch ZIP                | Original archive and any assets omitted from extracted folders                                                   | Reproducible export provenance and asset completeness check                                  |
@@ -52,16 +51,16 @@ The Stitch copy is not canonical. It includes invented or conflicting claims and
 
 ## Canonical mapping status
 
-| Domain                      | Canonical source                                                      | Status                                                                                         |
-| --------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Product behavior and roles  | PRD v2.0                                                              | Approved                                                                                       |
-| Visual tokens/layout        | PRD v2.0, then Stitch `DESIGN.md` and valid screenshots               | Approved with precedence noted                                                                 |
-| Brand                       | Supplied full JPG                                                     | Approved for full-logo placements only                                                         |
-| Scenario and option strings | Design specification PDF, Section 7, plus explicit user clarification | Approved as the exact wording/order source; transcription and versioned seed belong to Phase 4 |
-| Consent text                | Approved questionnaire/research source                                | **Blocked — PDF candidate exists, approved consent version absent**                            |
-| Option weights and feedback | Legacy Python project                                                 | **Blocked — absent**                                                                           |
-| Risk thresholds             | PRD: Low `>= 25`, Medium `10-24`, High `< 10`                         | Approved; score range still unknown                                                            |
-| Historical records          | Original Google Forms CSV                                             | **Blocked — absent**                                                                           |
+| Domain                      | Canonical source                                                         | Status                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Product behavior and roles  | PRD v2.0                                                                 | Approved                                                                                       |
+| Visual tokens/layout        | PRD v2.0, then Stitch `DESIGN.md` and valid screenshots                  | Approved with precedence noted                                                                 |
+| Brand                       | Supplied full JPG                                                        | Approved for full-logo placements only                                                         |
+| Scenario and option strings | Design specification PDF, Section 7, plus explicit user clarification    | Approved as the exact wording/order source; transcription and versioned seed belong to Phase 4 |
+| Consent text                | Design specification PDF, Section 6.3, plus explicit Phase 4 instruction | Approved; versioned as `pdf-section-6.3-v1`                                                    |
+| Option weights and feedback | Legacy Python project                                                    | **Blocked — absent**                                                                           |
+| Risk thresholds             | PRD: Low `>= 25`, Medium `10-24`, High `< 10`                            | Approved; score range still unknown                                                            |
+| Historical records          | Original Google Forms CSV                                                | **Blocked — absent**                                                                           |
 
 ## Approval needed when sources arrive
 
@@ -69,4 +68,4 @@ In Phase 4, create a versioned canonical content artifact by transcribing Sectio
 
 ## Phase 0 gate decision
 
-Phase 0 inspection and architecture documentation are complete. Scenario and option wording is now source-approved for later Phase 4 transcription. Consent, scoring, feedback, and historical-response work remains gated by the missing authoritative inputs above. Phase 1 foundation work may proceed without seeding assessment content or inventing rubric values.
+Phase 0 inspection and architecture documentation are complete. Scenario, option, and consent wording are source-approved and transcribed in Phase 4. Scoring contributions, feedback, and historical-response work remain gated by the missing authoritative inputs above; no rubric values are invented.

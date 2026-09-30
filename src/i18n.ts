@@ -132,7 +132,7 @@ const dictionaries = {
       eyebrow: "Participant area",
       welcome: "Welcome, {name}",
       registeredIntro:
-        "Your participant profile is active. Completed results will be available here after the assessment is implemented.",
+        "Your participant profile is active. You can start or resume the assessment below.",
       anonymousIntro:
         "Your temporary participant profile is active for this browser session, subject to its server-enforced expiry.",
       registeredStatus: "Registered session active",
@@ -150,12 +150,14 @@ const dictionaries = {
       anonymousWarningTitle: "Temporary access",
       anonymousWarning:
         "This session cannot be recovered after logout or expiry. Closing a tab does not reliably end a browser session, so use Sign out on a shared device.",
-      assessmentTitle: "Assessment not started",
+      assessmentTitle: "Cybersecurity awareness assessment",
       assessmentPending:
-        "Warning acknowledgement, consent, and the eight scenarios belong to Phase 4 and are not active yet.",
-      assessmentAction: "Assessment coming in Phase 4",
+        "Your answers are saved securely as you move through the eight scenarios.",
+      startAssessment: "Start assessment",
+      resumeAssessment: "Resume assessment",
+      retakeAssessment: "Take assessment again",
       assessmentDetails:
-        "The assessment area will contain the eight approved scenarios after consent is implemented.",
+        "Review the consent information, read the instructions, then answer one scenario at a time.",
       historyTitle: "Result history",
       historyRegistered:
         "Your completed assessment results will appear here. No result has been recorded yet.",
@@ -165,20 +167,61 @@ const dictionaries = {
       sessionLimitTitle: "About this temporary session",
     },
     assessment: {
-      eyebrow: "Assessment shell",
-      title: "Scenario layout preview",
+      eyebrow: "Participant assessment",
+      title: "Cybersecurity Awareness Assessment",
       intro:
-        "This screen establishes the one-question layout without publishing or paraphrasing assessment content.",
-      progressLabel: "Assessment progress",
-      progressText: "Scenario 1 of 8",
-      questionLabel: "Scenario content placeholder",
+        "This preview remains available for visual regression coverage of the disabled question state.",
       questionText:
-        "The exact approved scenario wording will appear here when Phase 4 content is transcribed and verified.",
-      optionPlaceholder: "Approved response option will appear here",
+        "Assessment content is available in the authorized participant flow.",
+      optionPlaceholder: "Disabled preview answer",
+      sourceNote:
+        "This preview does not create or submit an assessment attempt.",
+      consentTitle: "Voluntary participation",
+      consentQuestion:
+        "Do you voluntarily agree to participate in this research questionnaire?",
+      consentLegend: "Choose one consent option",
+      agree: "Yes, I agree.",
+      decline: "No, I do not agree.",
+      continue: "Continue",
+      declinedTitle: "Your choice has been respected",
+      declinedText:
+        "The assessment has not started and no answers were submitted.",
+      returnHome: "Return Home",
+      instructionsTitle: "Cybersecurity Awareness Assessment",
+      instructionsIntro:
+        "You will review eight scenarios. For each one, choose what you would most likely do in real life.",
+      instructionsSafety:
+        "Do not enter any real password, verification code, university credentials, or other sensitive information.",
+      instructionsPrivacy:
+        "Your progress is saved to this authorized participant session.",
+      begin: "Begin Scenario 1",
+      progressLabel: "Assessment progress",
+      progressText: "Scenario {current} of 8",
+      questionLabel: "Choose one answer",
       previous: "Previous scenario",
       next: "Next scenario",
-      sourceNote:
-        "Question and answer controls are intentionally disabled in this Phase 2 preview.",
+      submit: "Submit Assessment",
+      saving: "Saving answer…",
+      submitting: "Submitting assessment…",
+      saved: "Answer saved",
+      submittedTitle: "Assessment submitted",
+      submittedText:
+        "Your eight answers were recorded securely. Detailed results and answer review are provided by the next implementation phase.",
+      errors: {
+        invalid_input: "Choose a valid answer and try again.",
+        forbidden: "This assessment does not belong to your session.",
+        session_required: "Your session ended. Sign in again to continue.",
+        content_unavailable:
+          "The approved assessment content is temporarily unavailable.",
+        consent_required:
+          "Consent is required before the assessment can start.",
+        attempt_not_found: "This assessment could not be resumed.",
+        attempt_completed: "This assessment has already been submitted.",
+        incomplete_answers: "Answer all eight scenarios before submitting.",
+        scoring_unavailable:
+          "Your eight answers are saved, but final scoring is unavailable until the approved rubric is installed. Nothing has been scored or submitted as complete.",
+        server_error: "The request could not be completed. Please try again.",
+      },
     },
     result: {
       eyebrow: "Result shell",
@@ -379,7 +422,7 @@ const dictionaries = {
       eyebrow: "منطقة المشارك",
       welcome: "مرحبًا، {name}",
       registeredIntro:
-        "ملف المشارك الخاص بك فعّال. ستتوفر نتائجك المكتملة هنا بعد تنفيذ التقييم.",
+        "ملف المشارك الخاص بك فعّال. يمكنك بدء التقييم أو متابعته أدناه.",
       anonymousIntro:
         "ملف المشارك المؤقت فعّال في جلسة المتصفح هذه ويخضع لانتهاء الصلاحية المفروض من الخادم.",
       registeredStatus: "جلسة مسجلة فعّالة",
@@ -397,12 +440,14 @@ const dictionaries = {
       anonymousWarningTitle: "وصول مؤقت",
       anonymousWarning:
         "لا يمكن استعادة هذه الجلسة بعد تسجيل الخروج أو انتهاء الصلاحية. إغلاق علامة التبويب لا ينهي جلسة المتصفح بصورة موثوقة، لذا استخدم تسجيل الخروج على الجهاز المشترك.",
-      assessmentTitle: "لم يبدأ التقييم",
+      assessmentTitle: "تقييم الوعي بالأمن السيبراني",
       assessmentPending:
-        "الإقرار بالتحذير والموافقة والسيناريوهات الثمانية تخص المرحلة الرابعة وليست مفعلة بعد.",
-      assessmentAction: "التقييم قادم في المرحلة الرابعة",
+        "تُحفظ إجاباتك بأمان أثناء انتقالك بين السيناريوهات الثمانية.",
+      startAssessment: "ابدأ التقييم",
+      resumeAssessment: "متابعة التقييم",
+      retakeAssessment: "إجراء التقييم مرة أخرى",
       assessmentDetails:
-        "ستحتوي منطقة التقييم على السيناريوهات الثمانية المعتمدة بعد تنفيذ الموافقة.",
+        "راجع معلومات الموافقة واقرأ التعليمات، ثم أجب عن سيناريو واحد في كل شاشة.",
       historyTitle: "سجل النتائج",
       historyRegistered:
         "ستظهر نتائج تقييماتك المكتملة هنا. لم تُسجل أي نتيجة بعد.",
@@ -412,20 +457,53 @@ const dictionaries = {
       sessionLimitTitle: "حول هذه الجلسة المؤقتة",
     },
     assessment: {
-      eyebrow: "نموذج التقييم",
-      title: "معاينة تخطيط السيناريو",
-      intro:
-        "تحدد هذه الشاشة تخطيط السؤال الواحد دون نشر محتوى التقييم أو إعادة صياغته.",
+      eyebrow: "تقييم المشارك",
+      title: "تقييم الوعي بالأمن السيبراني",
+      intro: "تبقى هذه المعاينة متاحة لاختبار الحالة المرئية للسؤال المعطل.",
+      questionText: "يتوفر محتوى التقييم في مسار المشارك المصرح به.",
+      optionPlaceholder: "إجابة معاينة معطلة",
+      sourceNote: "لا تنشئ هذه المعاينة محاولة تقييم ولا ترسلها.",
+      consentTitle: "المشاركة الطوعية",
+      consentQuestion: "هل توافق طوعًا على المشاركة في هذا الاستبيان البحثي؟",
+      consentLegend: "اختر أحد خياري الموافقة",
+      agree: "نعم، أوافق.",
+      decline: "لا، لا أوافق.",
+      continue: "متابعة",
+      declinedTitle: "تم احترام اختيارك",
+      declinedText: "لم يبدأ التقييم ولم يتم إرسال أي إجابات.",
+      returnHome: "العودة إلى الصفحة الرئيسية",
+      instructionsTitle: "تقييم الوعي بالأمن السيبراني",
+      instructionsIntro:
+        "ستراجع ثمانية سيناريوهات. اختر في كل منها ما يُرجح أن تفعله في الحياة الواقعية.",
+      instructionsSafety:
+        "لا تُدخل أي كلمة مرور حقيقية أو رمز تحقق أو بيانات اعتماد جامعية أو معلومات حساسة أخرى.",
+      instructionsPrivacy: "يُحفظ تقدمك في جلسة المشارك المصرح بها.",
+      begin: "ابدأ السيناريو 1",
       progressLabel: "تقدم التقييم",
-      progressText: "السيناريو 1 من 8",
-      questionLabel: "موضع محتوى السيناريو",
-      questionText:
-        "سيظهر هنا نص السيناريو المعتمد حرفيًا بعد نسخه والتحقق منه في المرحلة الرابعة.",
-      optionPlaceholder: "سيظهر هنا خيار الإجابة المعتمد",
+      progressText: "السيناريو {current} من 8",
+      questionLabel: "اختر إجابة واحدة",
       previous: "السيناريو السابق",
       next: "السيناريو التالي",
-      sourceNote:
-        "عناصر السؤال والإجابة معطلة عمدًا في معاينة المرحلة الثانية.",
+      submit: "إرسال التقييم",
+      saving: "جارٍ حفظ الإجابة…",
+      submitting: "جارٍ إرسال التقييم…",
+      saved: "تم حفظ الإجابة",
+      submittedTitle: "تم إرسال التقييم",
+      submittedText:
+        "تم تسجيل إجاباتك الثمانية بأمان. ستوفر مرحلة التنفيذ التالية النتائج التفصيلية ومراجعة الإجابات.",
+      errors: {
+        invalid_input: "اختر إجابة صالحة ثم حاول مرة أخرى.",
+        forbidden: "هذا التقييم لا يتبع جلستك.",
+        session_required: "انتهت جلستك. سجّل الدخول مجددًا للمتابعة.",
+        content_unavailable: "محتوى التقييم المعتمد غير متاح مؤقتًا.",
+        consent_required: "الموافقة مطلوبة قبل بدء التقييم.",
+        attempt_not_found: "تعذر استئناف هذا التقييم.",
+        attempt_completed: "تم إرسال هذا التقييم مسبقًا.",
+        incomplete_answers: "أجب عن السيناريوهات الثمانية قبل الإرسال.",
+        scoring_unavailable:
+          "تم حفظ إجاباتك الثمانية، لكن التقييم النهائي غير متاح حتى تثبيت معيار الدرجات المعتمد. لم تُحسب درجة ولم يُسجّل التقييم كمكتمل.",
+        server_error: "تعذر إكمال الطلب. يرجى المحاولة مرة أخرى.",
+      },
     },
     result: {
       eyebrow: "نموذج النتيجة",

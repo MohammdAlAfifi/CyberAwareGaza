@@ -252,7 +252,7 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
   );
   await expect(
     pageA.getByRole("link", { name: "Start assessment", exact: true }),
-  ).toHaveAttribute("href", "/en/home");
+  ).toHaveAttribute("href", "/en/assessment");
   await expect(pageA.getByRole("link", { name: "Log in" })).toHaveCount(0);
   await expect(pageA.getByRole("button", { name: "Sign out" })).toHaveCount(1);
   const firstCookie = (await contextA.cookies()).find(
@@ -402,7 +402,7 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
   await page.locator("summary[aria-label='القائمة']").click();
   await expect(
     page.getByRole("link", { name: "ابدأ التقييم", exact: true }),
-  ).toHaveAttribute("href", "/ar/home");
+  ).toHaveAttribute("href", "/ar/assessment");
   await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "تسجيل الخروج" }),

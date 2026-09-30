@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:auth": "node --env-file-if-exists=.env.local node_modules/@playwright/test/cli.js test e2e/phase3-auth.spec.ts",
+    "test:e2e:assessment": "node --env-file-if-exists=.env.local node_modules/@playwright/test/cli.js test e2e/phase4-assessment.spec.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.mjs",
     "db:seed": "node --env-file-if-exists=.env.local scripts/seed-foundation.mjs",

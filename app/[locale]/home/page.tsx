@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Icon } from "@/components/icon";
@@ -34,6 +35,12 @@ export default async function ParticipantHome({
         high: t.highRisk,
       }[assessmentSummary.latestRisk]
     : t.notRatedYet;
+  const assessmentAction =
+    assessmentSummary.status === "in_progress"
+      ? t.resumeAssessment
+      : assessmentSummary.status === "completed"
+        ? t.retakeAssessment
+        : t.startAssessment;
 
   return (
     <main id="main" className="participant-home">
@@ -86,14 +93,12 @@ export default async function ParticipantHome({
               <p>{t.assessmentPending}</p>
             </div>
           </div>
-          <button
-            aria-disabled="true"
+          <Link
             className="button button-primary button-large"
-            disabled
-            type="button"
+            href={`/${locale}/assessment`}
           >
-            {t.assessmentAction}
-          </button>
+            {assessmentAction}
+          </Link>
         </Panel>
 
         <div className="participant-support-grid">

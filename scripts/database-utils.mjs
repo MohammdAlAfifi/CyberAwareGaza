@@ -15,6 +15,7 @@ export const expectedTables = [
   "accounts",
   "admin_audit",
   "assessment_attempts",
+  "assessment_draft_answers",
   "consents",
   "content_versions",
   "counters",

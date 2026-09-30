@@ -1362,6 +1362,37 @@ html[dir="rtl"] .mirrored-icon {
   padding: clamp(1.25rem, 4vw, 2.5rem);
 }
 
+.assessment-gate-card {
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.assessment-gate-card h1 {
+  margin-block: 0.55rem 1rem;
+  font-size: clamp(1.8rem, 4vw, 2.65rem);
+}
+
+.assessment-gate-card > .button {
+  margin-top: 1.5rem;
+}
+
+.consent-question {
+  margin-bottom: 1.4rem;
+  color: var(--text);
+  font-size: clamp(1.08rem, 2vw, 1.25rem);
+  font-weight: 700;
+}
+
+.instruction-list {
+  margin: 1.4rem 0 0;
+  padding-inline-start: 1.3rem;
+  color: var(--muted);
+}
+
+.instruction-list li + li {
+  margin-top: 0.9rem;
+}
+
 .progress-group {
   margin-bottom: 2.2rem;
 }
@@ -1423,10 +1454,15 @@ html[dir="rtl"] .mirrored-icon {
   grid-template-columns: 24px 1fr;
   gap: 0.85rem;
   align-items: center;
-  border: 1.5px dashed #cfd4d3;
+  border: 1.5px solid #cfd4d3;
   border-radius: 1rem;
-  color: var(--muted);
-  background: #fcfcfa;
+  color: var(--text);
+  background: white;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .option-card input {
@@ -1439,6 +1475,42 @@ html[dir="rtl"] .mirrored-icon {
   height: 21px;
   border: 2px solid #aab2b6;
   border-radius: 50%;
+}
+
+.option-card:hover {
+  border-color: var(--teal);
+  background: #f5fbfb;
+}
+
+.option-card:has(input:checked) {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+
+.option-card:has(input:checked) .radio-mark {
+  border-color: var(--teal-dark);
+  box-shadow: inset 0 0 0 5px white;
+  background: var(--teal-dark);
+}
+
+.option-card:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.option-list:disabled .option-card {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.scenario-question {
+  white-space: pre-line;
+  unicode-bidi: plaintext;
+}
+
+.consent-options {
+  margin-top: 0;
 }
 
 .phase-note {

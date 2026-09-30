@@ -359,6 +359,9 @@ export const assessmentAttempts = pgTable(
       table.participantId,
       table.idempotencyKey,
     ),
+    uniqueIndex("attempts_one_web_in_progress_idx")
+      .on(table.participantId)
+      .where(sql`${table.source} = 'web' and ${table.status} = 'in_progress'`),
     index("attempts_participant_completed_idx").on(
       table.participantId,
       table.completedAt,
@@ -449,6 +452,47 @@ export const responses = pgTable(
     }).onDelete("restrict"),
     check(
       "responses_scenario_key_check",
+      sql`${table.scenarioKey} in ('S1','S2','S3','S4','S5','S6','S7','S8')`,
+    ),
+  ],
+).enableRLS();
+
+export const assessmentDraftAnswers = pgTable(
+  "assessment_draft_answers",
+  {
+    attemptId: uuid("attempt_id").notNull(),
+    contentVersionId: varchar("content_version_id", { length: 64 }).notNull(),
+    scenarioKey: varchar("scenario_key", { length: 2 }).notNull(),
+    selectedOptionId: varchar("selected_option_id", { length: 48 }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.attemptId, table.scenarioKey] }),
+    foreignKey({
+      columns: [table.attemptId, table.contentVersionId],
+      foreignColumns: [
+        assessmentAttempts.id,
+        assessmentAttempts.contentVersionId,
+      ],
+      name: "draft_answers_attempt_content_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [
+        table.contentVersionId,
+        table.scenarioKey,
+        table.selectedOptionId,
+      ],
+      foreignColumns: [
+        options.contentVersionId,
+        options.scenarioKey,
+        options.id,
+      ],
+      name: "draft_answers_selected_option_fk",
+    }).onDelete("restrict"),
+    check(
+      "draft_answers_scenario_key_check",
       sql`${table.scenarioKey} in ('S1','S2','S3','S4','S5','S6','S7','S8')`,
     ),
   ],

@@ -72,6 +72,26 @@ try {
     throw new Error("Foundation counters are missing; run pnpm db:seed");
   }
 
+  const contentResult = await pool.query(
+    `select cv.id,
+            count(distinct s.key)::integer as scenario_count,
+            count(o.id)::integer as option_count
+       from content_versions cv
+       left join scenarios s on s.content_version_id = cv.id
+       left join options o
+         on o.content_version_id = s.content_version_id
+        and o.scenario_key = s.key
+      where cv.id = 'pdf-section-7-v1'
+        and cv.is_active = true
+      group by cv.id`,
+  );
+  const content = contentResult.rows[0];
+  if (!content || content.scenario_count !== 8 || content.option_count !== 25) {
+    throw new Error(
+      "Phase 4 content seed must contain 8 scenarios and 25 options",
+    );
+  }
+
   const allocations = await Promise.all(
     Array.from({ length: 12 }, async () => {
       const result = await pool.query(
@@ -93,7 +113,7 @@ try {
   }
 
   console.log(
-    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${expectedTables.length} tables, RLS enabled, seed present, and 12 atomic counter allocations.`,
+    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, foundation seed present, and 12 atomic counter allocations.`,
   );
 } finally {
   await pool

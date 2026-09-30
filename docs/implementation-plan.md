@@ -61,9 +61,25 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
   injection rejection, participant/admin separation, private admin provisioning,
   and the mobile admin drawer. Temporary test identities were deleted afterward.
 
+## Phase 4 status: in progress
+
+- Transcribed and versioned the exact eight English/Arabic scenarios and answer
+  options from rendered PDF Section 7 pages, with stable S1-S8 and option IDs.
+- Implemented explicit versioned consent from PDF Section 6.3, instructions,
+  one-scenario navigation, bilingual route-preserving progress, and persisted
+  draft answers for registered and anonymous authorized sessions.
+- Added idempotent attempt creation, one active web attempt per participant,
+  ownership-checked draft writes, exact-eight submission validation, and a
+  locked server transaction that calls the single scoring service.
+- Connected participant dashboard status and attempt counts to the persisted
+  assessment journey.
+- Final completion remains deliberately unavailable until an approved active
+  legacy rubric supplies all per-option contributions and score bounds. All
+  eight draft answers remain saved; no score, risk, or fabricated result is
+  produced while that source is missing.
+
 ## Blocked source-dependent work
 
-- Transcribe and seed the source-approved Section 7 bilingual scenarios in Phase 4; approved consent wording is still missing.
 - Implement option validation, contributions, feedback, score range, normalization, and Python parity fixtures.
 - Import and verify the historical CSV (including 93/91/2).
 - Produce content-complete result review and scenario analytics.
@@ -73,8 +89,8 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
 1. Add missing inputs under `reference/research/`, `reference/legacy/`, `reference/stitch/`, and `reference/` and update the source map.
 2. Reconcile and approve one canonical content/rubric version.
 3. Re-run the verified migration/check workflow before future schema releases and seed only approved reference content.
-4. Implement warning acknowledgement, approved consent, and the exact eight
-   scenarios in Phase 4 after the remaining consent source is supplied.
+4. Supply and reconcile the legacy scoring source, activate its versioned
+   rubric, and complete the existing Phase 4 secure submission transaction.
 5. Add admin reporting, analytics, import/export, accessibility/browser checks, and performance/security verification.
 6. Configure isolated Vercel/Supabase environments, preview smoke test, backup/restore drill, then production release with user authorization.
 
