@@ -1,15 +1,17 @@
-import type { ElementType, ReactNode } from "react";
+import type { ElementType, HTMLAttributes, ReactNode } from "react";
 
 export function Panel({
   as: Component = "section",
   children,
   className = "",
-}: {
+  ...props
+}: HTMLAttributes<HTMLElement> & {
   as?: ElementType;
   children: ReactNode;
-  className?: string;
 }) {
   return (
-    <Component className={`panel ${className}`.trim()}>{children}</Component>
+    <Component className={`panel ${className}`.trim()} {...props}>
+      {children}
+    </Component>
   );
 }

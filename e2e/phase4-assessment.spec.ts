@@ -150,6 +150,23 @@ test("registered participant resumes answers and keeps scenario through language
   await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   await participantCode(page);
 
+  await page.goto("http://localhost:3000/en/start");
+  await expect(page).toHaveURL(/\/en\/home$/);
+  await page.goto("http://localhost:3000/ar/start");
+  await expect(page).toHaveURL(/\/ar\/home$/);
+  await page.goto("http://localhost:3000/en");
+  await expect(
+    page.locator("main").getByRole("link", {
+      name: "Start assessment",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/en/home");
+  await expect(page.locator(".participant-button")).toHaveAttribute(
+    "href",
+    "/en/home",
+  );
+  await page.goto("http://localhost:3000/en/home");
+
   await page
     .locator("main")
     .getByRole("link", { name: "Start assessment" })
@@ -162,8 +179,50 @@ test("registered participant resumes answers and keeps scenario through language
   await page.getByRole("button", { name: "Begin Scenario 1" }).click();
 
   const firstOption = assessmentScenarios[0].options[0].en;
+  const firstSaveResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/assessment/progress"),
+  );
   await page.getByRole("radio", { name: firstOption }).check();
-  await expect(page.getByText("Answer saved")).toBeVisible();
+  expect((await firstSaveResponse).ok()).toBe(true);
+  await expect(page.getByText("Answer saved", { exact: true })).toBeVisible({
+    timeout: 15_000,
+  });
+
+  await page.getByRole("link", { name: "CyberAwareGaza home" }).click();
+  const leaveDialogElement = page.locator(".leave-assessment-dialog");
+  const leaveDialog = page.getByRole("dialog", {
+    name: "Your assessment is still in progress",
+  });
+  await expect(leaveDialog).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Stay on assessment" }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(leaveDialog).toBeHidden();
+  await expect(page.getByRole("radio", { name: firstOption })).toBeChecked();
+
+  await page.getByRole("link", { name: "CyberAwareGaza home" }).click();
+  await page.getByRole("button", { name: "Stay on assessment" }).click();
+  await expect(leaveDialog).toBeHidden();
+  await expect(page).toHaveURL(/\/en\/assessment\?scenario=1$/);
+  await expect(page.getByRole("radio", { name: firstOption })).toBeChecked();
+
+  await page.getByRole("link", { name: "CyberAwareGaza home" }).click();
+  await page.getByRole("link", { name: "Leave assessment" }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(leaveDialogElement).toBeHidden();
+  await expect(leaveDialogElement).not.toHaveAttribute("open", "");
+  await expect(
+    page.locator("main").getByRole("link", {
+      name: "Start assessment",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/en/home");
+  await page.reload();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(leaveDialogElement).toBeHidden();
+  await expect(leaveDialogElement).not.toHaveAttribute("open", "");
+  await page.goto("http://localhost:3000/en/assessment?scenario=1");
   await page.reload();
   await expect(page).toHaveURL(/\/en\/assessment\?scenario=1$/);
   await expect(page.getByRole("radio", { name: firstOption })).toBeChecked();
@@ -173,6 +232,51 @@ test("registered participant resumes answers and keeps scenario through language
     .getByRole("button", { name: "العربية" })
     .click();
   await expect(page).toHaveURL(/\/ar\/assessment\?scenario=1$/);
+  await expect(
+    page.getByRole("radio", { name: assessmentScenarios[0].options[0].ar }),
+  ).toBeChecked();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const arabicQuestion = page.locator(".scenario-question");
+  const arabicQuestionStyle = await arabicQuestion.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      fontSize: Number.parseFloat(style.fontSize),
+      lineHeight: Number.parseFloat(style.lineHeight),
+    };
+  });
+  expect(arabicQuestionStyle.fontSize).toBeLessThanOrEqual(27);
+  expect(arabicQuestionStyle.lineHeight).toBeGreaterThan(
+    arabicQuestionStyle.fontSize,
+  );
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await page
+    .getByRole("link", { name: "الصفحة الرئيسية لمنصة CyberAwareGaza" })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "لا يزال تقييمك قيد التقدم" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "البقاء في التقييم" }).click();
+  await expect(leaveDialogElement).toBeHidden();
+  await expect(page).toHaveURL(/\/ar\/assessment\?scenario=1$/);
+  await expect(
+    page.getByRole("radio", { name: assessmentScenarios[0].options[0].ar }),
+  ).toBeChecked();
+  await page
+    .getByRole("link", { name: "الصفحة الرئيسية لمنصة CyberAwareGaza" })
+    .click();
+  await page.getByRole("link", { name: "مغادرة التقييم" }).click();
+  await expect(page).toHaveURL(/\/ar$/);
+  await expect(leaveDialogElement).toBeHidden();
+  await expect(leaveDialogElement).not.toHaveAttribute("open", "");
+  await page.reload();
+  await expect(page).toHaveURL(/\/ar$/);
+  await expect(leaveDialogElement).toBeHidden();
+  await expect(leaveDialogElement).not.toHaveAttribute("open", "");
+  await page.goto("http://localhost:3000/ar/assessment?scenario=1");
   await expect(
     page.getByRole("radio", { name: assessmentScenarios[0].options[0].ar }),
   ).toBeChecked();
@@ -186,13 +290,23 @@ test("registered participant resumes answers and keeps scenario through language
     await expect(page).toHaveURL(
       new RegExp(`/en/assessment\\?scenario=${index + 1}$`),
     );
+    const saveResponse = page.waitForResponse((response) =>
+      response.url().endsWith("/api/assessment/progress"),
+    );
     await page
       .getByRole("radio", { name: assessmentScenarios[index].options[0].en })
       .check();
-    await expect(page.getByText("Answer saved")).toBeVisible();
+    expect((await saveResponse).ok()).toBe(true);
+    await expect(page.getByText("Answer saved", { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
   }
 
+  const submitResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/assessment/submit"),
+  );
   await page.getByRole("button", { name: "Submit Assessment" }).click();
+  await submitResponse;
   await expect(page.getByText(/final scoring is unavailable/)).toBeVisible();
   await page.goto("http://localhost:3000/en/home");
   await expect(page.locator(".identity-list dd").nth(0)).toHaveText(
@@ -206,9 +320,18 @@ test("anonymous participant who declines cannot start an attempt", async ({
 }) => {
   test.skip(!configured, "Database and session configuration are required");
   await page.goto("http://localhost:3000/en/anonymous");
+  const anonymousResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/anonymous"),
+  );
   await page.getByRole("button", { name: "I understand — continue" }).click();
-  await expect(page).toHaveURL(/\/en\/home$/);
+  expect((await anonymousResponse).ok()).toBe(true);
+  await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   const code = await participantCode(page);
+  await page.goto("http://localhost:3000/en/start");
+  await expect(page).toHaveURL(/\/en\/home$/);
+  await page.goto("http://localhost:3000/ar/start");
+  await expect(page).toHaveURL(/\/ar\/home$/);
+  await page.goto("http://localhost:3000/en/home");
   await page
     .locator("main")
     .getByRole("link", { name: "Start assessment" })

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Icon, type IconName } from "@/components/icon";
+import { getCurrentSession } from "@/src/auth/sessions";
 import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = { title: "Start assessment" };
@@ -13,6 +14,10 @@ export default async function StartPage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  const actor = await getCurrentSession();
+  if (actor?.kind === "registered" || actor?.kind === "anonymous") {
+    redirect(`/${locale}/home`);
+  }
   const t = getDictionary(locale).start;
   const cards: ReadonlyArray<readonly [IconName, string, string, string]> = [
     ["login", t.loginTitle, t.loginText, `/${locale}/login`],

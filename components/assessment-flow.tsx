@@ -265,7 +265,7 @@ export function AssessmentFlow({
   const lastScenario = scenarioIndex === assessmentScenarios.length - 1;
 
   return (
-    <Panel className="assessment-card">
+    <Panel className="assessment-card" data-assessment-active="true">
       <ProgressBar
         label={t.progressLabel}
         text={t.progressText.replace("{current}", String(scenario.order))}

@@ -29,6 +29,8 @@ const dictionaries = {
       login: "Log in",
       signup: "Create account",
       start: "Start assessment",
+      participantDashboard: "Participant dashboard",
+      participantAccess: "Participant access",
       assessmentPreview: "Question preview",
       resultPreview: "Result preview",
       adminPreview: "Admin preview",
@@ -64,6 +66,29 @@ const dictionaries = {
       shellsText:
         "These source-safe shells demonstrate layout and accessibility only. They do not submit answers, calculate scores, or expose research analytics.",
       scenarioLabel: "scenarios",
+      highlightsLabel: "Assessment highlights",
+      highlights: [
+        {
+          badge: "8 questions",
+          title: "8 Scenarios",
+          text: "Eight scenario questions cover realistic cybersecurity decisions in academic and everyday settings.",
+        },
+        {
+          badge: "At your pace",
+          title: "About 5 Minutes",
+          text: "A focused eight-question flow designed to be brief. Completion time varies by participant.",
+        },
+        {
+          badge: "Risk level",
+          title: "Personalized Result",
+          text: "Completed assessments use the installed scoring rubric to show the resulting risk level on the participant dashboard.",
+        },
+        {
+          badge: "Consent-led",
+          title: "Educational & Research",
+          text: "An educational assessment with voluntary consent controls for using eligible responses in research analysis.",
+        },
+      ],
     },
     start: {
       eyebrow: "Choose your path",
@@ -204,6 +229,12 @@ const dictionaries = {
       saving: "Saving answer…",
       submitting: "Submitting assessment…",
       saved: "Answer saved",
+      leaveEyebrow: "Leave assessment?",
+      leaveTitle: "Your assessment is still in progress",
+      leaveText:
+        "You are about to return to the landing page. Answers that finished saving can be resumed while this participant session remains active. A choice that is still saving may not be stored.",
+      stay: "Stay on assessment",
+      leave: "Leave assessment",
       submittedTitle: "Assessment submitted",
       submittedText:
         "Your eight answers were recorded securely. Detailed results and answer review are provided by the next implementation phase.",
@@ -325,6 +356,8 @@ const dictionaries = {
       login: "تسجيل الدخول",
       signup: "إنشاء حساب",
       start: "ابدأ التقييم",
+      participantDashboard: "لوحة المشارك",
+      participantAccess: "دخول المشارك",
       assessmentPreview: "معاينة السؤال",
       resultPreview: "معاينة النتيجة",
       adminPreview: "معاينة الإدارة",
@@ -357,6 +390,29 @@ const dictionaries = {
       shellsText:
         "توضح هذه النماذج الآمنة تخطيط الواجهة وإتاحتها فقط، ولا ترسل إجابات أو تحسب درجات أو تعرض تحليلات بحثية.",
       scenarioLabel: "سيناريوهات",
+      highlightsLabel: "مزايا التقييم",
+      highlights: [
+        {
+          badge: "8 أسئلة",
+          title: "8 سيناريوهات",
+          text: "ثمانية أسئلة مبنية على سيناريوهات واقعية لاتخاذ قرارات الأمن السيبراني في البيئات الأكاديمية والحياة اليومية.",
+        },
+        {
+          badge: "وفق سرعتك",
+          title: "نحو 5 دقائق",
+          text: "مسار مركز من ثمانية أسئلة صُمم ليكون موجزًا، بينما يختلف وقت الإكمال من مشارك إلى آخر.",
+        },
+        {
+          badge: "مستوى المخاطر",
+          title: "نتيجة مخصصة",
+          text: "تستخدم التقييمات المكتملة معيار الدرجات المثبت لعرض مستوى المخاطر الناتج في لوحة المشارك.",
+        },
+        {
+          badge: "بموافقة طوعية",
+          title: "تعليمي وبحثي",
+          text: "تقييم تعليمي يطبق ضوابط الموافقة الطوعية عند استخدام الاستجابات المؤهلة في التحليل البحثي.",
+        },
+      ],
     },
     start: {
       eyebrow: "اختر مسارك",
@@ -488,6 +544,12 @@ const dictionaries = {
       saving: "جارٍ حفظ الإجابة…",
       submitting: "جارٍ إرسال التقييم…",
       saved: "تم حفظ الإجابة",
+      leaveEyebrow: "مغادرة التقييم؟",
+      leaveTitle: "لا يزال تقييمك قيد التقدم",
+      leaveText:
+        "أنت على وشك العودة إلى الصفحة الرئيسية. يمكن استئناف الإجابات التي ظهرت بجانبها عبارة «تم حفظ الإجابة» ما دامت جلسة المشارك هذه فعّالة. قد لا يُحفظ الخيار الذي لا يزال قيد الحفظ.",
+      stay: "البقاء في التقييم",
+      leave: "مغادرة التقييم",
       submittedTitle: "تم إرسال التقييم",
       submittedText:
         "تم تسجيل إجاباتك الثمانية بأمان. ستوفر مرحلة التنفيذ التالية النتائج التفصيلية ومراجعة الإجابات.",

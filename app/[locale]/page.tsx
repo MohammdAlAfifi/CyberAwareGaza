@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SourceGate } from "@/components/source-gate";
+import { Icon, type IconName } from "@/components/icon";
+import { getCurrentSession } from "@/src/auth/sessions";
 import { getDictionary, isLocale } from "@/src/i18n";
 
 export const metadata: Metadata = {
@@ -16,6 +17,18 @@ export default async function LandingPage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getDictionary(locale);
+  const actor = await getCurrentSession();
+  const participantActive =
+    actor?.kind === "registered" || actor?.kind === "anonymous";
+  const assessmentHref = participantActive
+    ? `/${locale}/home`
+    : `/${locale}/start`;
+  const highlightIcons: readonly IconName[] = [
+    "assessment",
+    "clock",
+    "chart",
+    "shield",
+  ];
 
   return (
     <main id="main">
@@ -29,7 +42,7 @@ export default async function LandingPage({
           <div className="hero-actions">
             <Link
               className="button button-primary button-large"
-              href={`/${locale}/start`}
+              href={assessmentHref}
             >
               {t.nav.start}{" "}
               <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
@@ -60,9 +73,25 @@ export default async function LandingPage({
         </div>
       </section>
 
-      <div className="page-width">
-        <SourceGate locale={locale} />
-      </div>
+      <section
+        className="highlight-section page-width"
+        aria-label={t.landing.highlightsLabel}
+      >
+        <div className="highlight-grid">
+          {t.landing.highlights.map((highlight, index) => (
+            <article className="highlight-card" key={highlight.title}>
+              <div className="highlight-card-top">
+                <span className="highlight-icon" aria-hidden="true">
+                  <Icon name={highlightIcons[index]} size={22} />
+                </span>
+                <span className="highlight-badge">{highlight.badge}</span>
+              </div>
+              <h2>{highlight.title}</h2>
+              <p>{highlight.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="how-section" id="how">
         <div className="section-heading">

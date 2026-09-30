@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import { buildRuntimePoolConfig } from "@/src/db/pool-config";
 
 test.describe.configure({ mode: "serial" });
+test.setTimeout(120_000);
 
 const runId = `${Date.now()}${Math.floor(Math.random() * 10_000)}`;
 const participantA = `phase3_a_${runId}`;
@@ -250,6 +251,24 @@ test("registered signup, rotation, returning login, ownership, and role isolatio
     "color",
     "rgb(142, 153, 161)",
   );
+  await pageA.goto("/en/start");
+  await expect(pageA).toHaveURL(/\/en\/home$/);
+  await pageA.goto("/en");
+  await expect(
+    pageA.locator("main").getByRole("link", {
+      name: "Start assessment",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/en/home");
+  await expect(pageA.locator(".participant-button")).toHaveAttribute(
+    "aria-label",
+    "Participant dashboard",
+  );
+  await expect(pageA.locator(".participant-button")).toHaveAttribute(
+    "href",
+    "/en/home",
+  );
+  await pageA.goto("/en/home");
   await expect(
     pageA.getByRole("link", { name: "Start assessment", exact: true }),
   ).toHaveAttribute("href", "/en/assessment");
@@ -393,16 +412,36 @@ test("anonymous access is isolated, revocable, and expires server-side", async (
   const page = await context.newPage();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/ar/anonymous");
+  const anonymousResponse = page.waitForResponse((response) =>
+    response.url().endsWith("/api/auth/anonymous"),
+  );
   await page.getByRole("button", { name: "فهمت — متابعة" }).click();
-  await expect(page).toHaveURL(/\/ar\/home$/);
+  expect((await anonymousResponse).ok()).toBe(true);
+  await expect(page).toHaveURL(/\/ar\/home$/, { timeout: 15_000 });
   await participantCode(page);
   await expect(summaryValue(page, "حالة التقييم")).toHaveText("لم يبدأ");
   await expect(summaryValue(page, "المحاولات")).toHaveText(/[٠0]/);
   await expect(summaryValue(page, "معدل الأمان")).toHaveText("لم يُقيَّم بعد");
+  await page.goto("/ar/start");
+  await expect(page).toHaveURL(/\/ar\/home$/);
+  await page.goto("/ar");
+  await expect(
+    page.locator("main").getByRole("link", {
+      name: "ابدأ التقييم",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/ar/home");
+  await expect(page.locator(".participant-button")).toHaveAttribute(
+    "aria-label",
+    "لوحة المشارك",
+  );
+  await page.goto("/ar/home");
   await page.locator("summary[aria-label='القائمة']").click();
   await expect(
-    page.getByRole("link", { name: "ابدأ التقييم", exact: true }),
-  ).toHaveAttribute("href", "/ar/assessment");
+    page
+      .locator(".mobile-menu-panel")
+      .getByRole("link", { name: "لوحة المشارك", exact: true }),
+  ).toHaveAttribute("href", "/ar/home");
   await expect(page.getByRole("link", { name: "تسجيل الدخول" })).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "تسجيل الخروج" }),

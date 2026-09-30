@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { HeaderLogoLink } from "@/components/header-logo-link";
 import { Icon } from "@/components/icon";
 import { LanguageSwitch } from "@/components/language-switch";
-import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/logout-button";
 import { getCurrentSession } from "@/src/auth/sessions";
 import { getDictionary, type Locale } from "@/src/i18n";
@@ -18,13 +18,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <Link
-          className="logo-link"
-          href={`/${locale}`}
-          aria-label={t.common.home}
-        >
-          <Logo priority />
-        </Link>
+        <HeaderLogoLink locale={locale} />
         <nav className="primary-nav" aria-label={t.common.primaryNavigation}>
           <Link href={`/${locale}#about`}>{t.nav.about}</Link>
           <Link href={`/${locale}#how`}>{t.nav.how}</Link>
@@ -44,8 +38,21 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               {t.nav.login}
             </Link>
           )}
-          <Link className="button button-primary" href={assessmentHref}>
-            {t.nav.start}
+          <Link
+            className="icon-button participant-button"
+            href={assessmentHref}
+            aria-label={
+              participantActive
+                ? t.nav.participantDashboard
+                : t.nav.participantAccess
+            }
+            title={
+              participantActive
+                ? t.nav.participantDashboard
+                : t.nav.participantAccess
+            }
+          >
+            <Icon name="user" size={21} />
           </Link>
           <details className="mobile-menu">
             <summary className="icon-button" aria-label={t.common.menu}>
@@ -59,7 +66,11 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               ) : (
                 <Link href={`/${locale}/start`}>{t.nav.login}</Link>
               )}
-              <Link href={assessmentHref}>{t.nav.start}</Link>
+              <Link href={assessmentHref}>
+                {participantActive
+                  ? t.nav.participantDashboard
+                  : t.nav.participantAccess}
+              </Link>
             </nav>
           </details>
         </div>
