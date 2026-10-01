@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
@@ -8,6 +9,7 @@ import { LanguageSwitch } from "@/components/language-switch";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/logout-button";
 import { getDictionary, type Locale } from "@/src/i18n";
+import { getAdminCopy } from "@/src/admin/copy";
 
 function NavigationLinks({
   items,
@@ -16,17 +18,28 @@ function NavigationLinks({
   items: ReadonlyArray<readonly [IconName, string, string]>;
   locale: Locale;
 }) {
+  const pathname = usePathname();
   return (
     <nav
       aria-label={getDictionary(locale).admin.brandLabel}
       className="admin-nav"
     >
-      {items.map(([icon, label, href], index) => (
-        <Link className={index === 0 ? "active" : ""} href={href} key={label}>
-          <Icon name={icon} />
-          <span>{label}</span>
-        </Link>
-      ))}
+      {items.map(([icon, label, href]) => {
+        const active =
+          pathname === href ||
+          (href !== `/${locale}/admin` && pathname.startsWith(`${href}/`));
+        return (
+          <Link
+            aria-current={active ? "page" : undefined}
+            className={active ? "active" : ""}
+            href={href}
+            key={label}
+          >
+            <Icon name={icon} />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -34,13 +47,14 @@ function NavigationLinks({
 export function AdminNavigation({ locale }: { locale: Locale }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const t = getDictionary(locale).admin;
+  const admin = getAdminCopy(locale);
   const items: ReadonlyArray<readonly [IconName, string, string]> = [
-    ["home", t.overview, `/${locale}/admin`],
-    ["users", t.participants, `/${locale}/admin#participants`],
-    ["assessment", t.assessments, `/${locale}/admin#assessments`],
-    ["chart", t.scenarios, `/${locale}/admin#scenarios`],
-    ["upload", t.imports, `/${locale}/admin#imports`],
-    ["settings", t.settings, `/${locale}/admin#settings`],
+    ["home", admin.dashboard, `/${locale}/admin`],
+    ["users", admin.participants, `/${locale}/admin/participants`],
+    ["assessment", admin.assessments, `/${locale}/admin/assessments`],
+    ["chart", admin.analytics, `/${locale}/admin/scenario-analytics`],
+    ["upload", admin.importExport, `/${locale}/admin/import-export`],
+    ["settings", admin.settings, `/${locale}/admin/settings`],
   ];
 
   return (
@@ -56,7 +70,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         <p>{t.brandLabel}</p>
         <NavigationLinks items={items} locale={locale} />
         <LanguageSwitch locale={locale} />
-        <LogoutButton locale={locale} />
+        <LogoutButton label={admin.logout} locale={locale} />
       </aside>
 
       <div className="admin-mobile-bar">
@@ -95,7 +109,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         </div>
         <NavigationLinks items={items} locale={locale} />
         <LanguageSwitch locale={locale} />
-        <LogoutButton locale={locale} />
+        <LogoutButton label={admin.logout} locale={locale} />
       </dialog>
     </>
   );

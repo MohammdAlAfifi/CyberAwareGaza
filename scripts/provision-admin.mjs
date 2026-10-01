@@ -6,25 +6,51 @@ import {
   verifyDatabaseConnection,
 } from "./database-utils.mjs";
 
-const username = process.env.ADMIN_USERNAME?.trim().normalize("NFKC");
-const password = process.env.ADMIN_PASSWORD;
-const displayName = process.env.ADMIN_DISPLAY_NAME?.trim() || null;
+const username = "admin";
+const displayName = "Administrator";
 
-if (
-  !username ||
-  username.length < 3 ||
-  username.length > 40 ||
-  !/^[\p{L}\p{N}._-]+$/u.test(username)
-) {
-  throw new Error(
-    "ADMIN_USERNAME must be 3-40 letters, numbers, dots, underscores, or hyphens",
-  );
+function readHidden(prompt) {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    throw new Error(
+      "Administrator provisioning requires an interactive terminal",
+    );
+  }
+  return new Promise((resolve, reject) => {
+    let value = "";
+    const input = process.stdin;
+    const finish = (error) => {
+      input.off("data", onData);
+      input.setRawMode(false);
+      input.pause();
+      process.stdout.write("\n");
+      if (error) reject(error);
+      else resolve(value);
+    };
+    const onData = (chunk) => {
+      const text = chunk.toString("utf8");
+      for (const character of text) {
+        if (character === "\u0003")
+          return finish(new Error("Provisioning cancelled"));
+        if (character === "\r" || character === "\n") return finish();
+        if (character === "\u007f" || character === "\b")
+          value = value.slice(0, -1);
+        else if (character >= " ") value += character;
+      }
+    };
+    process.stdout.write(prompt);
+    input.setRawMode(true);
+    input.resume();
+    input.on("data", onData);
+  });
 }
-if (!password || password.length < 12 || password.length > 128) {
-  throw new Error("ADMIN_PASSWORD must be 12-128 characters");
-}
-if (displayName && displayName.length > 120) {
-  throw new Error("ADMIN_DISPLAY_NAME must be at most 120 characters");
+
+const password = await readHidden("New password for admin: ");
+const confirmation = await readHidden("Confirm password: ");
+if (password !== confirmation) throw new Error("Passwords do not match");
+const mustChangePassword = true;
+
+if (!password || password.length < 8 || password.length > 128) {
+  throw new Error("Password must be 8-128 characters");
 }
 
 const normalizedUsername = username.toLocaleLowerCase("en-US");
@@ -65,18 +91,26 @@ try {
                 display_name = $3,
                 password_hash = $4,
                 password_changed_at = now(),
+                must_change_password = $5,
                 updated_at = now()
           where id = $1`,
-        [accountId, username, displayName, passwordHash],
+        [accountId, username, displayName, passwordHash, mustChangePassword],
       );
       action = "admin.credentials_rotated";
     } else {
       const inserted = await client.query(
         `insert into accounts (
-           normalized_username, username, display_name, password_hash, role
-         ) values ($1, $2, $3, $4, 'admin')
+           normalized_username, username, display_name, password_hash, role,
+           must_change_password
+         ) values ($1, $2, $3, $4, 'admin', $5)
          returning id`,
-        [normalizedUsername, username, displayName, passwordHash],
+        [
+          normalizedUsername,
+          username,
+          displayName,
+          passwordHash,
+          mustChangePassword,
+        ],
       );
       accountId = inserted.rows[0].id;
       action = "admin.provisioned";
@@ -91,7 +125,14 @@ try {
     await client.query(
       `insert into admin_audit (actor_account_id, action, metadata)
        values ($1, $2, $3::jsonb)`,
-      [accountId, action, JSON.stringify({ method: "private_cli" })],
+      [
+        accountId,
+        action,
+        JSON.stringify({
+          method: "private_cli",
+          password_change_required: mustChangePassword,
+        }),
+      ],
     );
     await client.query("commit");
   } catch (error) {

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 
 import { AuthError } from "@/src/auth/errors";
 import { hashPassword, verifyPassword } from "@/src/auth/password";
@@ -9,7 +9,7 @@ import { createAccountSession, sessionTokenHash } from "@/src/auth/sessions";
 import { createOpaqueToken } from "@/src/auth/crypto";
 import { db } from "@/src/db";
 import { createParticipantRecordInTransaction } from "@/src/db/participant-identities";
-import { accounts, participants, sessions } from "@/src/db/schema";
+import { accounts, adminAudit, participants, sessions } from "@/src/db/schema";
 import { env } from "@/src/lib/env";
 import { normalizeUsername } from "@/src/lib/username";
 
@@ -91,6 +91,7 @@ export async function loginAccount(input: LoginInput) {
       id: accounts.id,
       passwordHash: accounts.passwordHash,
       role: accounts.role,
+      mustChangePassword: accounts.mustChangePassword,
     })
     .from(accounts)
     .where(eq(accounts.normalizedUsername, normalizedUsername))
@@ -121,10 +122,69 @@ export async function loginAccount(input: LoginInput) {
   }
 
   await clearRateLimit(bucket, identifier);
-  return createAccountSession({
+  const session = await createAccountSession({
     accountId: account.id,
     participantId,
     previousToken: input.previousToken,
+  });
+  return { ...session, mustChangePassword: account.mustChangePassword };
+}
+
+export async function changeAdminPassword(input: {
+  accountId: string;
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const [account] = await db
+    .select({ passwordHash: accounts.passwordHash, role: accounts.role })
+    .from(accounts)
+    .where(eq(accounts.id, input.accountId))
+    .limit(1);
+  if (
+    !account ||
+    account.role !== "admin" ||
+    !(await verifyPassword(account.passwordHash, input.currentPassword).catch(
+      () => false,
+    ))
+  ) {
+    throw new AuthError("invalid_credentials", 401);
+  }
+  if (
+    await verifyPassword(account.passwordHash, input.newPassword).catch(
+      () => false,
+    )
+  ) {
+    throw new AuthError("invalid_input", 400);
+  }
+  const passwordHash = await hashPassword(input.newPassword);
+  await db.transaction(async (transaction) => {
+    await transaction
+      .update(accounts)
+      .set({
+        passwordHash,
+        mustChangePassword: false,
+        passwordChangedAt: sql`now()`,
+        updatedAt: sql`now()`,
+      })
+      .where(and(eq(accounts.id, input.accountId), eq(accounts.role, "admin")));
+    await transaction
+      .update(sessions)
+      .set({ revokedAt: sql`now()` })
+      .where(
+        and(
+          eq(sessions.accountId, input.accountId),
+          isNull(sessions.revokedAt),
+        ),
+      );
+    await transaction.insert(adminAudit).values({
+      actorAccountId: input.accountId,
+      action: "admin.password_changed",
+      metadata: { method: "settings" },
+    });
+  });
+  return createAccountSession({
+    accountId: input.accountId,
+    participantId: null,
   });
 }
 

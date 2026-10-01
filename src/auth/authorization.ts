@@ -25,8 +25,14 @@ export async function requireParticipant(locale: Locale) {
   return actor;
 }
 
-export async function requireAdmin(locale: Locale) {
+export async function requireAdmin(
+  locale: Locale,
+  options: { allowPasswordChange?: boolean } = {},
+) {
   const actor = await getCurrentSession();
   if (!actor || actor.kind !== "admin") redirect(`/${locale}/admin/login`);
+  if (actor.mustChangePassword && !options.allowPasswordChange) {
+    redirect(`/${locale}/admin/settings?required=1`);
+  }
   return actor;
 }

@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
       clientAddress: requestClientAddress(request),
       previousToken: request.cookies.get(SESSION_COOKIE)?.value,
     });
-    const response = NextResponse.json({ ok: true as const });
+    const response = NextResponse.json({
+      ok: true as const,
+      mustChangePassword: session.mustChangePassword,
+    });
     response.cookies.set(
       SESSION_COOKIE,
       session.token,

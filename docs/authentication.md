@@ -29,29 +29,29 @@ provide an email address or phone number.
 
 ## Private administrator provisioning
 
-There is no public administrator signup. Run this only from a trusted terminal
-with the development or production maintenance connection intentionally loaded.
-Do not put the password in `.env.local`, shell history, a command argument, or
-the repository.
+There is no public administrator signup. Run this only from a trusted,
+interactive terminal with the intended maintenance connection loaded:
 
-```powershell
-$securePassword = Read-Host "New admin password" -AsSecureString
-$pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-try {
-  $env:ADMIN_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
-  $env:ADMIN_USERNAME = "research-admin"
-  $env:ADMIN_DISPLAY_NAME = "Research administrator"
-  pnpm.cmd run db:provision-admin
-} finally {
-  [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
-  Remove-Item Env:ADMIN_PASSWORD -ErrorAction SilentlyContinue
-  Remove-Item Env:ADMIN_USERNAME -ErrorAction SilentlyContinue
-  Remove-Item Env:ADMIN_DISPLAY_NAME -ErrorAction SilentlyContinue
-}
+```text
+pnpm run db:provision-admin
 ```
 
-The command verifies the maintenance database connection, creates or rotates an
-administrator account, revokes its prior sessions, and writes an audit record.
+On Windows, where pnpm is unavailable, use `npm run db:provision-admin`.
+The command securely prompts for `New password for admin` and then asks for the
+same password again. Type the password at each prompt and press Enter. Input is
+not echoed and is never placed in a command argument, environment variable,
+source file, migration, seed, or committed environment file. The administrator
+username is always `admin`.
+
+Every password entered through this provisioning command is treated as a
+temporary bootstrap credential. That session can reach only Settings;
+every other administration route redirects there until a new 12–128 character
+password is set after confirming the current password. The known bootstrap
+password cannot be selected as the replacement. Password changes revoke older
+sessions, rotate the current browser session, and write an audit record.
+
+The command verifies the maintenance database connection, creates or rotates the
+`admin` account, revokes its prior sessions, and writes an audit record.
 It refuses to convert an existing participant account into an administrator.
 The output never includes the password or password hash.
 

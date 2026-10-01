@@ -7,9 +7,11 @@ import { getDictionary, type Locale } from "@/src/i18n";
 
 export function LogoutButton({
   className = "button button-ghost",
+  label,
   locale,
 }: {
   className?: string;
+  label?: string;
   locale: Locale;
 }) {
   const t = getDictionary(locale).auth;
@@ -33,7 +35,7 @@ export function LogoutButton({
       onClick={logout}
       type="button"
     >
-      {pending ? t.signingOut : t.signOut}
+      {pending ? t.signingOut : (label ?? t.signOut)}
     </button>
   );
 }

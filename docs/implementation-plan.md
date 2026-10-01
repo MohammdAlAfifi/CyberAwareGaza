@@ -61,7 +61,7 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
   injection rejection, participant/admin separation, private admin provisioning,
   and the mobile admin drawer. Temporary test identities were deleted afterward.
 
-## Phase 4 status: in progress
+## Phase 4 status: complete
 
 - Transcribed and versioned the exact eight English/Arabic scenarios and answer
   options from rendered PDF Section 7 pages, with stable S1-S8 and option IDs.
@@ -77,6 +77,27 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
   legacy rubric supplies all per-option contributions and score bounds. All
   eight draft answers remain saved; no score, risk, or fabricated result is
   produced while that source is missing.
+
+## Phase 5 status: complete
+
+- Installed the approved versioned scoring rubric while preserving all eight
+  bilingual scenarios and the revised S4 multiple-choice mapping.
+- Persisted each response contribution as the scoring trace, the final raw
+  cumulative score, risk level, completion time, and participant result review.
+
+## Phase 6 status: implemented, pending operator migration/browser review
+
+- Added a responsive bilingual administration shell with live Dashboard,
+  Participants, Assessments, Settings, and read-only import-audit views.
+- Added server-backed bounded participant and attempt search, filters, sorting,
+  pagination, details, identity fallbacks, attempt histories, source labels, and
+  stored Phase 5 response traces. A participant's summary score/risk is defined
+  by the completed attempt with the latest `completed_at` timestamp.
+- Kept Scenario Analytics and CSV Import / Export explicitly unavailable until
+  Phases 7 and 8; no placeholder charts, fabricated metrics, or active transfer
+  controls are displayed.
+- Added interactive private `admin` provisioning and forced password rotation
+  for every temporary CLI bootstrap credential.
 
 ## Blocked source-dependent work
 

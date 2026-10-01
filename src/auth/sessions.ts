@@ -39,6 +39,7 @@ export type SessionActor =
       username: string;
       displayName: string;
       locale: "en" | "ar";
+      mustChangePassword: boolean;
       expiresAt: Date;
     };
 
@@ -117,6 +118,7 @@ export async function getSessionByToken(
       accountDisplayName: accounts.displayName,
       language: accounts.language,
       passwordChangedAt: accounts.passwordChangedAt,
+      mustChangePassword: accounts.mustChangePassword,
       participantId: participants.id,
       participantAccountId: participants.accountId,
       participantType: participants.type,
@@ -179,6 +181,7 @@ export async function getSessionByToken(
       username: row.username,
       displayName: row.accountDisplayName || row.username,
       locale,
+      mustChangePassword: row.mustChangePassword ?? false,
       expiresAt: row.expiresAt,
     };
   }

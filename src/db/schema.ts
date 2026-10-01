@@ -70,6 +70,9 @@ export const accounts = pgTable(
     passwordChangedAt: timestamp("password_changed_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
+    mustChangePassword: boolean("must_change_password")
+      .notNull()
+      .default(false),
     ...timestamps,
   },
   (table) => [

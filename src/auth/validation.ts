@@ -30,6 +30,19 @@ export const signupInputSchema = loginInputSchema
 
 export const anonymousInputSchema = z.object({ locale: localeSchema }).strict();
 
+export const adminPasswordChangeSchema = z
+  .object({
+    locale: localeSchema,
+    currentPassword: passwordSchema,
+    newPassword: z.string().min(12).max(128),
+    confirmPassword: z.string().min(12).max(128),
+  })
+  .strict()
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "password_mismatch",
+  });
+
 export type AuthField =
   "username" | "displayName" | "password" | "confirmPassword";
 

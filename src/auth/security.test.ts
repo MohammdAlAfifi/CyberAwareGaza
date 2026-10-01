@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { createOpaqueToken, keyedHash } from "@/src/auth/crypto";
 import { isParticipantOwner } from "@/src/auth/policy";
-import { loginInputSchema, signupInputSchema } from "@/src/auth/validation";
+import {
+  adminPasswordChangeSchema,
+  loginInputSchema,
+  signupInputSchema,
+} from "@/src/auth/validation";
 
 describe("authentication security primitives", () => {
   it("creates high-entropy opaque tokens and deterministic keyed hashes", () => {
@@ -80,5 +84,22 @@ describe("authentication security primitives", () => {
       ),
     ).toBe(false);
     expect(isParticipantOwner({ kind: "admin" }, "participant-a")).toBe(false);
+  });
+
+  it("requires a strong non-bootstrap administrator replacement password", () => {
+    const input = {
+      locale: "en",
+      currentPassword: "temporary bootstrap password",
+      newPassword: "a new private administrator password",
+      confirmPassword: "a new private administrator password",
+    };
+    expect(adminPasswordChangeSchema.safeParse(input).success).toBe(true);
+    expect(
+      adminPasswordChangeSchema.safeParse({
+        ...input,
+        newPassword: "short",
+        confirmPassword: "short",
+      }).success,
+    ).toBe(false);
   });
 });

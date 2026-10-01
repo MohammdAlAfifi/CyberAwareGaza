@@ -54,6 +54,7 @@ export function AuthCard({
       );
       const result = (await response.json()) as {
         ok: boolean;
+        mustChangePassword?: boolean;
         code?: keyof typeof t.errors;
         fields?: string[];
       };
@@ -62,7 +63,13 @@ export function AuthCard({
         setMessage(t.errors[result.code ?? "server_error"]);
         return;
       }
-      router.replace(admin ? `/${locale}/admin` : `/${locale}/home`);
+      router.replace(
+        admin
+          ? result.mustChangePassword
+            ? `/${locale}/admin/settings?required=1`
+            : `/${locale}/admin`
+          : `/${locale}/home`,
+      );
       router.refresh();
     } catch {
       setMessage(t.errors.server_error);
@@ -75,7 +82,7 @@ export function AuthCard({
     invalidFields.includes(field) ? text : undefined;
 
   return (
-    <section className="auth-card">
+    <section className={`auth-card${admin ? " admin-auth-card" : ""}`}>
       <p className="eyebrow">
         {admin ? t.adminLogin : signup ? t.create : t.participantLogin}
       </p>

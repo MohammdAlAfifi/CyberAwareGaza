@@ -4,12 +4,16 @@ Production-oriented foundation for a bilingual cybersecurity awareness and risk-
 
 ## Current status
 
-Phases 0–3 are complete. The application now includes the bilingual visual
-system plus real registered-participant, anonymous, and privately provisioned
-administrator sessions. Warning acknowledgement, consent, assessment content,
-submission, and scoring remain intentionally deferred to Phase 4 and later.
+Phases 0–5 are complete and Phase 6 administration is implemented. The
+application includes bilingual participant and administrator experiences,
+private role-separated sessions, the approved eight-scenario assessment,
+persisted Phase 5 scoring traces, and bounded administration records. Scenario
+analytics remain Phase 7 work and CSV import/export remains Phase 8 work.
 
-Section 7, “Exact Assessment Content,” of the supplied design specification is authoritative for the exact bilingual S1-S8 question and option wording. Assessment content belongs to Phase 4 and is not seeded by the Phase 1 foundation. Scoring weights remain blocked on the legacy Python source.
+Section 7, “Exact Assessment Content,” of the supplied design specification is
+authoritative for the exact bilingual S1-S8 question and option wording. The
+approved Phase 5 rubric and revised S4 mapping are documented in
+`docs/phase5-scoring-source-note.md`.
 
 Read `docs/source-map.md` before adding research content. Stitch mock statistics, scenario rewrites, guessed scoring, and real respondent data must never become production fixtures.
 

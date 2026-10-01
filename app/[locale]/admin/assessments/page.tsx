@@ -1,62 +1,44 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-
+import { notFound, redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin-shell";
-import { RiskBadge, StatusBadge } from "@/components/admin-records";
+import {
+  AdminFilters,
+  AdminPagination,
+  RiskBadge,
+  StatusBadge,
+} from "@/components/admin-records";
 import { getAdminCopy } from "@/src/admin/copy";
 import { formatAdminDate } from "@/src/admin/format";
-import { getDashboardData } from "@/src/admin/service";
+import { pageCount, parseAdminListQuery } from "@/src/admin/query";
+import { listAssessments } from "@/src/admin/service";
 import { requireAdmin } from "@/src/auth/authorization";
 import { isLocale } from "@/src/i18n";
 
-export const metadata: Metadata = { title: "Admin dashboard" };
-
-export default async function AdminDashboard({
+export default async function AssessmentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const actor = await requireAdmin(locale);
+  const query = parseAdminListQuery(await searchParams);
+  const data = await listAssessments(actor, query);
+  const pages = pageCount(data.total);
+  if (query.page > pages) redirect(`/${locale}/admin/assessments`);
   const t = getAdminCopy(locale);
-  const data = await getDashboardData(actor);
   return (
     <AdminShell
       actorName={actor.displayName}
-      intro={t.dashboardIntro}
+      intro={t.assessmentsIntro}
       locale={locale}
-      title={t.dashboardTitle}
+      title={t.assessmentsTitle}
     >
-      <section
-        className="metric-grid metric-grid--three"
-        aria-label={t.dashboardTitle}
-      >
-        <article className="panel metric-card">
-          <p>{t.totalParticipants}</p>
-          <strong>{data.metrics.participants}</strong>
-        </article>
-        <article className="panel metric-card">
-          <p>{t.completedAssessments}</p>
-          <strong>{data.metrics.completed}</strong>
-        </article>
-        <article className="panel metric-card">
-          <p>{t.activeAttempts}</p>
-          <strong>{data.metrics.incomplete}</strong>
-        </article>
-      </section>
-      <section className="panel admin-table-shell">
-        <div className="table-heading">
-          <h2>{t.recentAssessments}</h2>
-          <Link
-            className="button button-ghost"
-            href={`/${locale}/admin/assessments`}
-          >
-            {t.viewAll}
-          </Link>
-        </div>
-        {data.recent.length === 0 ? (
+      <section className="panel admin-list-panel">
+        <AdminFilters assessment locale={locale} query={query} />
+        {data.rows.length === 0 ? (
           <p className="admin-empty">{t.noRecords}</p>
         ) : (
           <div className="admin-table-scroll">
@@ -64,6 +46,7 @@ export default async function AdminDashboard({
               <thead>
                 <tr>
                   <th>{t.participant}</th>
+                  <th>{t.participantId}</th>
                   <th>{t.source}</th>
                   <th>{t.status}</th>
                   <th>{t.rawScore}</th>
@@ -75,13 +58,21 @@ export default async function AdminDashboard({
                 </tr>
               </thead>
               <tbody>
-                {data.recent.map((row) => (
+                {data.rows.map((row) => (
                   <tr key={row.id}>
                     <td>
                       <strong>{row.displayName}</strong>
-                      <small>{row.publicCode}</small>
                     </td>
-                    <td>{row.source === "web" ? t.website : t.googleForm}</td>
+                    <td>
+                      <bdi dir="ltr">{row.publicCode}</bdi>
+                    </td>
+                    <td>
+                      <span
+                        className={`source-label source-label--${row.source}`}
+                      >
+                        {row.source === "web" ? t.website : t.googleForm}
+                      </span>
+                    </td>
                     <td>
                       <StatusBadge locale={locale} status={row.status} />
                     </td>
@@ -104,6 +95,12 @@ export default async function AdminDashboard({
             </table>
           </div>
         )}
+        <AdminPagination
+          locale={locale}
+          pathname={`/${locale}/admin/assessments`}
+          query={query}
+          total={data.total}
+        />
       </section>
     </AdminShell>
   );

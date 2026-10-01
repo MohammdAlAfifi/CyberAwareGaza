@@ -36,6 +36,13 @@
       "when": 1790792955526,
       "tag": "0004_bored_callisto",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790868988796,
+      "tag": "0005_wild_hannibal_king",
+      "breakpoints": true
     }
   ]
 }
