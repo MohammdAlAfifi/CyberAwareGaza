@@ -14,11 +14,48 @@ const copy = {
     secure: "Private administrator session",
     dashboardTitle: "Administration dashboard",
     dashboardIntro:
-      "Live participant and assessment records. Analytics and data transfer remain unavailable until their planned phases.",
+      "Live, consent-aware participant and assessment analytics from the research database.",
     totalParticipants: "Total participants",
+    registeredUsers: "Registered users",
+    anonymousParticipants: "Anonymous participants",
     completedAssessments: "Completed assessments",
+    averageScore: "Average score",
+    lowRiskPercent: "Low risk %",
+    mediumRiskPercent: "Medium risk %",
+    highRiskPercent: "High risk %",
     activeAttempts: "Incomplete attempts",
     recentAssessments: "Recent assessments",
+    riskDistribution: "Risk distribution",
+    accountDistribution: "Registered vs anonymous",
+    uniqueParticipants: "unique participants",
+    eligibleAttempts: "eligible attempts",
+    classifiedParticipants: "classified participants",
+    analyticsSource: "Analytics source",
+    combinedResults: "Combined results",
+    websiteAssessments: "Website assessments",
+    googleFormAssessments: "Imported Google Form assessments",
+    applyFilter: "Apply filter",
+    activeSource: "Active source: {source}",
+    participantScope:
+      "Participant totals count unique participants associated with this source, including those without a completed assessment.",
+    assessmentScope:
+      "Assessment metrics use consented, completed attempts. Repeat attempts can contribute more than one record.",
+    versionScope:
+      "Score and response metrics use the active content/rubric pair: {version}.",
+    detectedVersions: "Eligible scoring versions: {versions}.",
+    incompatibleVersions:
+      "{count} eligible attempt(s) use another scoring version and are excluded from score, risk, and scenario calculations.",
+    noActiveVersion:
+      "No active compatible content and rubric version is available for score analytics.",
+    importedAccountNote:
+      "{count} imported participant(s) are included in total participants but excluded from the registered-versus-anonymous chart.",
+    percentageRounding:
+      "Percentages are rounded to one decimal, so displayed values may not total exactly 100%.",
+    noEligibleAssessments:
+      "No consented, completed assessments match this source.",
+    noClassifiedParticipants:
+      "No registered or anonymous participants match this source.",
+    rawScoreUnit: "raw score",
     viewAll: "View all",
     participantsTitle: "Participant records",
     participantsIntro:
@@ -91,7 +128,23 @@ const copy = {
       "This attempt is incomplete, so no score or risk level has been assigned.",
     analyticsTitle: "Scenario analytics",
     analyticsText:
-      "Scenario charts and aggregate analytics are planned for Phase 7. No placeholder metrics are shown here.",
+      "Response distributions for the eight approved bilingual assessment scenarios.",
+    scenarioNumber: "Scenario {number}",
+    totalEligibleResponses: "Total eligible responses",
+    responseDistribution: "Response distribution",
+    option: "Option",
+    count: "Count",
+    percentage: "Percentage",
+    scoreDeltaLabel: "Score delta",
+    detailedAnalytics: "View detailed analytics",
+    scenarioDetailsTitle: "Scenario {number} analytics",
+    backToScenarios: "Back to all scenarios",
+    responseDenominator:
+      "Denominator: {count} persisted response(s) for this scenario from consented, completed attempts using the active scoring version and selected source.",
+    attemptsDenominator:
+      "The active scoring scope contains {count} consented, completed attempt(s). A missing persisted response is not fabricated or counted.",
+    noScenarioResponses:
+      "No eligible responses exist for this scenario and source.",
     importTitle: "Import / Export",
     importText:
       "CSV import and export are planned for Phase 8. Existing import audit records are read-only in this phase.",
@@ -137,11 +190,48 @@ const copy = {
     secure: "جلسة مسؤول خاصة",
     dashboardTitle: "لوحة تحكم الإدارة",
     dashboardIntro:
-      "سجلات المشاركين والتقييمات الفعلية. تبقى التحليلات ونقل البيانات غير متاحة حتى مراحلهما المخططة.",
+      "تحليلات مباشرة تراعي الموافقة لسجلات المشاركين والتقييمات في قاعدة بيانات البحث.",
     totalParticipants: "إجمالي المشاركين",
+    registeredUsers: "المستخدمون المسجلون",
+    anonymousParticipants: "المشاركون المجهولون",
     completedAssessments: "التقييمات المكتملة",
+    averageScore: "متوسط الدرجة",
+    lowRiskPercent: "نسبة الخطر المنخفض",
+    mediumRiskPercent: "نسبة الخطر المتوسط",
+    highRiskPercent: "نسبة الخطر المرتفع",
     activeAttempts: "المحاولات غير المكتملة",
     recentAssessments: "أحدث التقييمات",
+    riskDistribution: "توزيع مستويات الخطر",
+    accountDistribution: "المسجلون مقابل المجهولين",
+    uniqueParticipants: "مشاركون فريدون",
+    eligibleAttempts: "محاولات مؤهلة",
+    classifiedParticipants: "مشاركون مصنفون",
+    analyticsSource: "مصدر التحليلات",
+    combinedResults: "النتائج المجمعة",
+    websiteAssessments: "تقييمات الموقع",
+    googleFormAssessments: "تقييمات نموذج Google المستوردة",
+    applyFilter: "تطبيق المرشح",
+    activeSource: "المصدر النشط: {source}",
+    participantScope:
+      "تحسب إجماليات المشاركين أشخاصًا فريدين مرتبطين بهذا المصدر، بما في ذلك من ليس لديهم تقييم مكتمل.",
+    assessmentScope:
+      "تستخدم مؤشرات التقييم المحاولات المكتملة والموافق عليها فقط. قد تساهم المحاولات المتكررة بأكثر من سجل.",
+    versionScope:
+      "تستخدم مؤشرات الدرجات والاستجابات زوج المحتوى وسلّم الدرجات النشط: {version}.",
+    detectedVersions: "إصدارات الدرجات المؤهلة: {versions}.",
+    incompatibleVersions:
+      "تستخدم {count} محاولة مؤهلة إصدارًا آخر من سلّم الدرجات، ولذلك تستبعد من حسابات الدرجات والمخاطر والسيناريوهات.",
+    noActiveVersion:
+      "لا يتوفر إصدار نشط ومتوافق للمحتوى وسلّم الدرجات من أجل تحليلات الدرجات.",
+    importedAccountNote:
+      "يشمل إجمالي المشاركين {count} مشاركًا مستوردًا، لكنهم مستبعدون من مخطط المسجلين مقابل المجهولين.",
+    percentageRounding:
+      "تُقرب النسب إلى منزلة عشرية واحدة، لذلك قد لا يساوي مجموع القيم المعروضة 100٪ تمامًا.",
+    noEligibleAssessments:
+      "لا توجد تقييمات مكتملة وموافق عليها تطابق هذا المصدر.",
+    noClassifiedParticipants:
+      "لا يوجد مشاركون مسجلون أو مجهولون يطابقون هذا المصدر.",
+    rawScoreUnit: "درجة خام",
     viewAll: "عرض الكل",
     participantsTitle: "سجلات المشاركين",
     participantsIntro:
@@ -214,7 +304,22 @@ const copy = {
       "هذه المحاولة غير مكتملة، لذلك لم تُمنح درجة أو مستوى مخاطر.",
     analyticsTitle: "تحليلات السيناريوهات",
     analyticsText:
-      "الرسوم والتحليلات التجميعية مخططة للمرحلة السابعة. لا تظهر هنا أي مؤشرات مؤقتة.",
+      "توزيعات الاستجابات للسيناريوهات الثمانية المعتمدة للتقييم ثنائي اللغة.",
+    scenarioNumber: "السيناريو {number}",
+    totalEligibleResponses: "إجمالي الاستجابات المؤهلة",
+    responseDistribution: "توزيع الاستجابات",
+    option: "الخيار",
+    count: "العدد",
+    percentage: "النسبة",
+    scoreDeltaLabel: "فرق الدرجة",
+    detailedAnalytics: "عرض التحليلات التفصيلية",
+    scenarioDetailsTitle: "تحليلات السيناريو {number}",
+    backToScenarios: "العودة إلى جميع السيناريوهات",
+    responseDenominator:
+      "المقام: {count} استجابة محفوظة لهذا السيناريو من محاولات مكتملة وموافق عليها تستخدم إصدار الدرجات النشط والمصدر المحدد.",
+    attemptsDenominator:
+      "يشمل نطاق الدرجات النشط {count} محاولة مكتملة وموافق عليها. لا تُنشأ استجابة مفقودة ولا تُحتسب.",
+    noScenarioResponses: "لا توجد استجابات مؤهلة لهذا السيناريو والمصدر.",
     importTitle: "الاستيراد / التصدير",
     importText:
       "استيراد وتصدير CSV مخطط للمرحلة الثامنة. سجلات تدقيق الاستيراد الحالية للقراءة فقط في هذه المرحلة.",

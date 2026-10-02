@@ -93,17 +93,35 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
   pagination, details, identity fallbacks, attempt histories, source labels, and
   stored Phase 5 response traces. A participant's summary score/risk is defined
   by the completed attempt with the latest `completed_at` timestamp.
-- Kept Scenario Analytics and CSV Import / Export explicitly unavailable until
-  Phases 7 and 8; no placeholder charts, fabricated metrics, or active transfer
-  controls are displayed.
+- Phase 6 intentionally left Scenario Analytics and CSV Import / Export
+  unavailable for their later phases; no placeholder metrics or active transfer
+  controls were introduced.
 - Added interactive private `admin` provisioning and forced password rotation
   for every temporary CLI bootstrap credential.
+
+## Phase 7 status: implemented, pending operator review
+
+- Replaced the admin dashboard placeholders with database-aggregated participant
+  totals, consent-eligible assessment metrics, flat accessible donuts, and a
+  bounded recent-assessments table.
+- Added one overview card and a detailed bilingual view for each of the eight
+  approved scenarios. Distributions use stable scenario/option IDs and persisted
+  response traces; displayed deltas come from the active versioned rubric.
+- Added shared Website, imported Google Form, and Combined source scopes.
+  Assessment analytics include only completed attempts with an affirmative
+  attempt-linked consent. Participant totals count unique source-associated
+  participants; repeat eligible attempts remain separate assessment records.
+- Score, risk, and response analytics use only the active compatible
+  content/rubric pair. Other eligible version pairs are identified and excluded
+  from those calculations rather than silently combined.
+- Added English/Arabic, desktop/mobile, role-boundary, provenance, repeated
+  attempt, consent exclusion, empty-percentage, and S4 mapping verification.
+  CSV import/export remains unavailable for Phase 8.
 
 ## Blocked source-dependent work
 
 - Implement option validation, contributions, feedback, score range, normalization, and Python parity fixtures.
 - Import and verify the historical CSV (including 93/91/2).
-- Produce content-complete result review and scenario analytics.
 
 ## Next execution order
 
@@ -112,7 +130,8 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
 3. Re-run the verified migration/check workflow before future schema releases and seed only approved reference content.
 4. Supply and reconcile the legacy scoring source, activate its versioned
    rubric, and complete the existing Phase 4 secure submission transaction.
-5. Add admin reporting, analytics, import/export, accessibility/browser checks, and performance/security verification.
+5. Add CSV import/export and its audit workflow, then complete the remaining
+   performance/security verification.
 6. Configure isolated Vercel/Supabase environments, preview smoke test, backup/restore drill, then production release with user authorization.
 
 No thesis chapter is modified in this repository.

@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { AdminShell } from "@/components/admin-shell";
-import { RiskBadge, StatusBadge } from "@/components/admin-records";
-import { getAdminCopy } from "@/src/admin/copy";
-import { formatAdminDate } from "@/src/admin/format";
-import { getDashboardData } from "@/src/admin/service";
+import { AdminDashboardView } from "@/components/admin-dashboard";
+import { parseAnalyticsSource } from "@/src/admin/analytics";
+import { getAnalyticsDashboard } from "@/src/admin/analytics-service";
 import { requireAdmin } from "@/src/auth/authorization";
 import { isLocale } from "@/src/i18n";
 
@@ -14,97 +11,21 @@ export const metadata: Metadata = { title: "Admin dashboard" };
 
 export default async function AdminDashboard({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const actor = await requireAdmin(locale);
-  const t = getAdminCopy(locale);
-  const data = await getDashboardData(actor);
+  const source = parseAnalyticsSource((await searchParams).source);
+  const data = await getAnalyticsDashboard(actor, source);
   return (
-    <AdminShell
+    <AdminDashboardView
       actorName={actor.displayName}
-      intro={t.dashboardIntro}
+      data={data}
       locale={locale}
-      title={t.dashboardTitle}
-    >
-      <section
-        className="metric-grid metric-grid--three"
-        aria-label={t.dashboardTitle}
-      >
-        <article className="panel metric-card">
-          <p>{t.totalParticipants}</p>
-          <strong>{data.metrics.participants}</strong>
-        </article>
-        <article className="panel metric-card">
-          <p>{t.completedAssessments}</p>
-          <strong>{data.metrics.completed}</strong>
-        </article>
-        <article className="panel metric-card">
-          <p>{t.activeAttempts}</p>
-          <strong>{data.metrics.incomplete}</strong>
-        </article>
-      </section>
-      <section className="panel admin-table-shell">
-        <div className="table-heading">
-          <h2>{t.recentAssessments}</h2>
-          <Link
-            className="button button-ghost"
-            href={`/${locale}/admin/assessments`}
-          >
-            {t.viewAll}
-          </Link>
-        </div>
-        {data.recent.length === 0 ? (
-          <p className="admin-empty">{t.noRecords}</p>
-        ) : (
-          <div className="admin-table-scroll">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>{t.participant}</th>
-                  <th>{t.source}</th>
-                  <th>{t.status}</th>
-                  <th>{t.rawScore}</th>
-                  <th>{t.risk}</th>
-                  <th>{t.submitted}</th>
-                  <th>
-                    <span className="sr-only">{t.viewDetails}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.recent.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <strong>{row.displayName}</strong>
-                      <small>{row.publicCode}</small>
-                    </td>
-                    <td>{row.source === "web" ? t.website : t.googleForm}</td>
-                    <td>
-                      <StatusBadge locale={locale} status={row.status} />
-                    </td>
-                    <td>{row.totalScore ?? "—"}</td>
-                    <td>
-                      <RiskBadge locale={locale} risk={row.risk} />
-                    </td>
-                    <td>{formatAdminDate(row.completedAt, locale)}</td>
-                    <td>
-                      <Link
-                        className="table-link"
-                        href={`/${locale}/admin/assessments/${row.id}`}
-                      >
-                        {t.viewDetails}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </AdminShell>
+    />
   );
 }
