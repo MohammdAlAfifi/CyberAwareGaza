@@ -43,6 +43,13 @@
       "when": 1790868988796,
       "tag": "0005_wild_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790974552389,
+      "tag": "0006_handy_saracen",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,19 @@ const pool = createMaintenancePool();
 
 try {
   const target = await verifyDatabaseConnection(pool, "DIRECT_DATABASE_URL");
+
+  // PostgreSQL requires newly added enum values to be committed before a
+  // later statement can use them in a constraint. Drizzle runs each migration
+  // inside one transaction, so additive enum changes that are referenced by
+  // the same migration must be committed first. These statements are safe to
+  // repeat and remain backwards-compatible if the subsequent migration fails.
+  await pool.query(
+    `alter type "public"."import_row_state" add value if not exists 'invalid' before 'duplicate'`,
+  );
+  await pool.query(
+    `alter type "public"."import_state" add value if not exists 'duplicate' before 'failed'`,
+  );
+
   const db = drizzle({ client: pool });
   await migrate(db, { migrationsFolder: "./drizzle" });
 

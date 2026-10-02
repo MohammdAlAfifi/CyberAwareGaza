@@ -13,6 +13,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
+  outputFileTracingIncludes: {
+    "/api/admin/exports/[kind]": [
+      "./node_modules/@ibm/plex-sans-arabic/fonts/complete/woff/*.woff",
+      "./public/CyberAwareGaza_Logo.jpg",
+    ],
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   async headers() {

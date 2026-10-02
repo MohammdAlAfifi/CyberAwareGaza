@@ -20,8 +20,7 @@ function whereSql(conditions: SQL[]) {
 
 function participantNameSql() {
   return sql`case
-    when p.type = 'anonymous' then 'Anonymous ' || p.anonymous_ordinal::text
-    when p.type = 'imported' then coalesce(nullif(p.source_participant_key, ''), p.public_code)
+    when p.type in ('anonymous', 'imported') then 'Anonymous ' || p.anonymous_ordinal::text
     else coalesce(nullif(a.display_name, ''), a.username)
   end`;
 }
@@ -54,6 +53,7 @@ export async function listParticipants(
     );
   }
   if (query.type !== "all") conditions.push(sql`p.type = ${query.type}`);
+  if (query.source !== "all") conditions.push(sql`p.source = ${query.source}`);
   if (query.risk !== "all") conditions.push(sql`latest.risk = ${query.risk}`);
   if (query.status === "completed") conditions.push(sql`latest.id is not null`);
   if (query.status === "incomplete") conditions.push(sql`latest.id is null`);
@@ -121,6 +121,9 @@ export type AttemptRow = {
   startedAt: Date;
   completedAt: Date | null;
   updatedAt: Date;
+  sourceSubmittedAt?: Date | null;
+  importBatchId?: string | null;
+  sourceRecordNumber?: number | null;
 };
 
 export async function listAssessments(
@@ -165,7 +168,10 @@ export async function listAssessments(
            aa.risk,
            aa.started_at as "startedAt",
            aa.completed_at as "completedAt",
-           aa.updated_at as "updatedAt"
+           aa.updated_at as "updatedAt",
+           aa.source_submitted_at as "sourceSubmittedAt",
+           aa.import_batch_id as "importBatchId",
+           aa.source_record_number as "sourceRecordNumber"
       from assessment_attempts aa
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
@@ -212,7 +218,9 @@ export async function getParticipantDetails(
     select aa.id, aa.participant_id as "participantId", p.public_code as "publicCode",
            p.type as "participantType", ${participantNameSql()} as "displayName",
            aa.source, aa.status, aa.total_score as "totalScore", aa.risk,
-           aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt"
+           aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt",
+           aa.source_submitted_at as "sourceSubmittedAt", aa.import_batch_id as "importBatchId",
+           aa.source_record_number as "sourceRecordNumber"
       from assessment_attempts aa
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
@@ -231,7 +239,9 @@ export async function getAssessmentDetails(
     select aa.id, aa.participant_id as "participantId", p.public_code as "publicCode",
            p.type as "participantType", ${participantNameSql()} as "displayName",
            aa.source, aa.status, aa.total_score as "totalScore", aa.risk,
-           aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt"
+           aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt",
+           aa.source_submitted_at as "sourceSubmittedAt", aa.import_batch_id as "importBatchId",
+           aa.source_record_number as "sourceRecordNumber"
       from assessment_attempts aa
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
@@ -312,18 +322,29 @@ export async function listImportAudits(actor: SessionActor) {
   const result = await db.execute<{
     id: string;
     filename: string;
+    fingerprint: string;
     state: "previewed" | "committed" | "failed";
     totalRows: number;
     acceptedRows: number;
     excludedRows: number;
     duplicateRows: number;
+    invalidRows: number;
+    importedAssessments: number;
+    source: "web" | "google_form";
+    createdBy: string;
     createdAt: Date;
     committedAt: Date | null;
   }>(sql`
-    select id, original_filename as filename, state, total_rows as "totalRows",
+    select ib.id, ib.original_filename as filename, ib.checksum as fingerprint, ib.state, ib.source,
+           coalesce(nullif(a.display_name, ''), a.username) as "createdBy",
+           ib.total_rows as "totalRows",
            accepted_rows as "acceptedRows", excluded_rows as "excludedRows",
-           duplicate_rows as "duplicateRows", created_at as "createdAt", committed_at as "committedAt"
-      from import_batches order by created_at desc limit 100
+           duplicate_rows as "duplicateRows", invalid_rows as "invalidRows",
+           imported_assessments as "importedAssessments",
+           ib.created_at as "createdAt", ib.committed_at as "committedAt"
+      from import_batches ib
+      join accounts a on a.id = ib.created_by_account_id
+     order by ib.created_at desc limit 100
   `);
   return result.rows;
 }

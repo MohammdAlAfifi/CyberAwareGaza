@@ -80,6 +80,28 @@ export default async function AssessmentDetailsPage({
             <dt>{t.completedAt}</dt>
             <dd>{formatAdminDate(a.completedAt, locale)}</dd>
           </div>
+          {a.source === "google_form" ? (
+            <>
+              <div>
+                <dt>
+                  {locale === "ar"
+                    ? "وقت إرسال نموذج Google"
+                    : "Google Form submission time"}
+                </dt>
+                <dd>{formatAdminDate(a.sourceSubmittedAt ?? null, locale)}</dd>
+              </div>
+              <div>
+                <dt>{locale === "ar" ? "سجل المصدر" : "Source record"}</dt>
+                <dd>{a.sourceRecordNumber ?? t.unavailable}</dd>
+              </div>
+              <div>
+                <dt>{locale === "ar" ? "دفعة الاستيراد" : "Import batch"}</dt>
+                <dd>
+                  <bdi dir="ltr">{a.importBatchId ?? t.unavailable}</bdi>
+                </dd>
+              </div>
+            </>
+          ) : null}
         </dl>
         {a.status !== "completed" && (
           <p className="admin-notice">{t.incompleteNotice}</p>

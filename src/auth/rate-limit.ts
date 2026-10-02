@@ -14,6 +14,9 @@ const limits = {
   anonymous: { attempts: 10, windowSeconds: 60 * 60 },
   adminLogin: { attempts: 5, windowSeconds: 15 * 60 },
   adminLoginIp: { attempts: 20, windowSeconds: 15 * 60 },
+  importPreview: { attempts: 20, windowSeconds: 15 * 60 },
+  importConfirm: { attempts: 10, windowSeconds: 15 * 60 },
+  adminExport: { attempts: 40, windowSeconds: 15 * 60 },
 } as const;
 
 export type RateLimitBucket = keyof typeof limits;

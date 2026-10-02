@@ -147,7 +147,7 @@ const copy = {
       "No eligible responses exist for this scenario and source.",
     importTitle: "Import / Export",
     importText:
-      "CSV import and export are planned for Phase 8. Existing import audit records are read-only in this phase.",
+      "Validate and confirm historical Google Form imports, then export consent-eligible research records and participant-response reports.",
     importAudit: "Import audit records",
     filename: "Filename",
     importState: "State",

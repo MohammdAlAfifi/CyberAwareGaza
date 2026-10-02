@@ -16,6 +16,12 @@ const rubric = JSON.parse(
     "utf8",
   ),
 );
+const migrationJournal = JSON.parse(
+  readFileSync(
+    new URL("../drizzle/meta/_journal.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 const missingVariables = ["DIRECT_DATABASE_URL", "DATABASE_URL"].filter(
   (name) => !process.env[name],
@@ -40,6 +46,17 @@ try {
     runtimePool,
     "DATABASE_URL",
   );
+
+  const migrationResult = await pool.query(
+    `select count(*)::integer as count
+       from drizzle.__drizzle_migrations`,
+  );
+  const appliedMigrationCount = migrationResult.rows[0].count;
+  if (appliedMigrationCount < migrationJournal.entries.length) {
+    throw new Error(
+      `Migration ledger has ${appliedMigrationCount} entries; expected at least ${migrationJournal.entries.length}. Run pnpm db:migrate.`,
+    );
+  }
 
   const tableResult = await pool.query(
     `select table_name
@@ -156,7 +173,7 @@ try {
   }
 
   console.log(
-    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, ${rubric.entries.length} Phase 5 scoring rules present, foundation seed present, and 12 atomic counter allocations.`,
+    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${appliedMigrationCount} migrations, ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, ${rubric.entries.length} Phase 5 scoring rules present, foundation seed present, and 12 atomic counter allocations.`,
   );
 } finally {
   await pool

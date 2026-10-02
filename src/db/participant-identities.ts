@@ -14,7 +14,12 @@ const counterKeys = {
 type ParticipantCreation =
   | { type: "registered"; accountId: string }
   | { type: "anonymous" }
-  | { type: "imported"; sourceParticipantKey: string };
+  | {
+      type: "imported";
+      sourceParticipantKey: string;
+      importBatchId: string;
+      sourceRecordNumber: number;
+    };
 
 type DatabaseTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -33,7 +38,7 @@ export async function createParticipantRecordInTransaction(
     counterKeys.participant,
   );
   const anonymousOrdinal =
-    input.type === "anonymous"
+    input.type === "anonymous" || input.type === "imported"
       ? await nextCounterValue(transaction, counterKeys.anonymous)
       : null;
 
@@ -47,6 +52,9 @@ export async function createParticipantRecordInTransaction(
       anonymousOrdinal,
       sourceParticipantKey:
         input.type === "imported" ? input.sourceParticipantKey : null,
+      importBatchId: input.type === "imported" ? input.importBatchId : null,
+      sourceRecordNumber:
+        input.type === "imported" ? input.sourceRecordNumber : null,
     })
     .returning();
 

@@ -21,7 +21,10 @@ export function participantDisplayName(input: {
   const username = input.username?.trim();
   if (input.type === "registered" && username) return username;
 
-  if (input.type === "anonymous" && input.anonymousOrdinal != null) {
+  if (
+    (input.type === "anonymous" || input.type === "imported") &&
+    input.anonymousOrdinal != null
+  ) {
     return formatAnonymousLabel(input.anonymousOrdinal);
   }
 

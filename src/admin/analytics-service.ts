@@ -28,8 +28,7 @@ function participantSourceSql(source: AnalyticsSource) {
 
 function participantNameSql() {
   return sql`case
-    when p.type = 'anonymous' then 'Anonymous ' || p.anonymous_ordinal::text
-    when p.type = 'imported' then coalesce(nullif(p.source_participant_key, ''), p.public_code)
+    when p.type in ('anonymous', 'imported') then 'Anonymous ' || p.anonymous_ordinal::text
     else coalesce(nullif(a.display_name, ''), a.username)
   end`;
 }

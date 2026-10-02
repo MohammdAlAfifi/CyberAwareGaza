@@ -38,11 +38,13 @@ export const sessionKind = pgEnum("session_kind", ["account", "anonymous"]);
 export const importState = pgEnum("import_state", [
   "previewed",
   "committed",
+  "duplicate",
   "failed",
 ]);
 export const importRowState = pgEnum("import_row_state", [
   "accepted",
   "excluded",
+  "invalid",
   "duplicate",
 ]);
 
@@ -109,6 +111,8 @@ export const participants = pgTable(
     anonymousOrdinal: integer("anonymous_ordinal"),
     source: collectionSource("source").notNull(),
     sourceParticipantKey: varchar("source_participant_key", { length: 160 }),
+    importBatchId: uuid("import_batch_id"),
+    sourceRecordNumber: integer("source_record_number"),
     ...timestamps,
   },
   (table) => [
@@ -133,7 +137,7 @@ export const participants = pgTable(
       "participants_shape_check",
       sql`(${table.type} = 'registered' and ${table.accountId} is not null and ${table.anonymousOrdinal} is null)
         or (${table.type} = 'anonymous' and ${table.accountId} is null and ${table.anonymousOrdinal} is not null)
-        or (${table.type} = 'imported' and ${table.accountId} is null and ${table.anonymousOrdinal} is null)`,
+        or (${table.type} = 'imported' and ${table.accountId} is null and ${table.anonymousOrdinal} is not null)`,
     ),
     check(
       "participants_source_shape_check",
@@ -330,6 +334,9 @@ export const assessmentAttempts = pgTable(
     status: attemptStatus("status").notNull().default("in_progress"),
     source: collectionSource("source").notNull(),
     sourceSubmissionKey: varchar("source_submission_key", { length: 200 }),
+    sourceSubmittedAt: timestamp("source_submitted_at", { withTimezone: true }),
+    importBatchId: uuid("import_batch_id"),
+    sourceRecordNumber: integer("source_record_number"),
     idempotencyKey: uuid("idempotency_key"),
     contentVersionId: varchar("content_version_id", { length: 64 }).references(
       () => contentVersions.id,
@@ -378,8 +385,13 @@ export const assessmentAttempts = pgTable(
     ),
     check(
       "attempts_completion_shape_check",
-      sql`(${table.status} = 'completed' and ${table.contentVersionId} is not null and ${table.rubricVersionId} is not null and ${table.totalScore} is not null and ${table.risk} is not null and ${table.completedAt} is not null)
+      sql`(${table.status} = 'completed' and ${table.contentVersionId} is not null and ${table.rubricVersionId} is not null and ${table.totalScore} is not null and ${table.risk} is not null and (${table.source} = 'google_form' or ${table.completedAt} is not null))
         or (${table.status} <> 'completed' and ${table.completedAt} is null)`,
+    ),
+    check(
+      "attempts_import_shape_check",
+      sql`(${table.source} = 'web' and ${table.importBatchId} is null and ${table.sourceRecordNumber} is null and ${table.sourceSubmittedAt} is null)
+        or (${table.source} = 'google_form' and ${table.importBatchId} is not null and ${table.sourceRecordNumber} is not null and ${table.sourceRecordNumber} > 1)`,
     ),
   ],
 ).enableRLS();
@@ -592,12 +604,19 @@ export const importBatches = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     checksum: varchar("checksum", { length: 64 }).notNull(),
+    source: collectionSource("source").notNull().default("google_form"),
     originalFilename: varchar("original_filename", { length: 255 }).notNull(),
     state: importState("state").notNull(),
     totalRows: integer("total_rows").notNull().default(0),
     acceptedRows: integer("accepted_rows").notNull().default(0),
     excludedRows: integer("excluded_rows").notNull().default(0),
     duplicateRows: integer("duplicate_rows").notNull().default(0),
+    invalidRows: integer("invalid_rows").notNull().default(0),
+    importedAssessments: integer("imported_assessments").notNull().default(0),
+    validationSummary: jsonb("validation_summary")
+      .$type<Record<string, string | number | boolean | null>>()
+      .notNull()
+      .default({}),
     createdByAccountId: uuid("created_by_account_id")
       .notNull()
       .references(() => accounts.id, { onDelete: "restrict" }),
@@ -607,8 +626,10 @@ export const importBatches = pgTable(
     committedAt: timestamp("committed_at", { withTimezone: true }),
   },
   (table) => [
-    unique("import_batches_checksum_unique").on(table.checksum),
     index("import_batches_state_created_idx").on(table.state, table.createdAt),
+    uniqueIndex("import_batches_committed_checksum_unique")
+      .on(table.checksum)
+      .where(sql`${table.state} = 'committed'`),
     check(
       "import_batches_checksum_check",
       sql`${table.checksum} ~ '^[0-9a-f]{64}$'`,
@@ -619,8 +640,9 @@ export const importBatches = pgTable(
     ),
     check(
       "import_batches_counts_check",
-      sql`${table.totalRows} >= 0 and ${table.acceptedRows} >= 0 and ${table.excludedRows} >= 0 and ${table.duplicateRows} >= 0
-        and (${table.acceptedRows} + ${table.excludedRows} + ${table.duplicateRows}) <= ${table.totalRows}`,
+      sql`${table.totalRows} >= 0 and ${table.acceptedRows} >= 0 and ${table.excludedRows} >= 0 and ${table.duplicateRows} >= 0 and ${table.invalidRows} >= 0 and ${table.importedAssessments} >= 0
+        and (${table.acceptedRows} + ${table.excludedRows} + ${table.duplicateRows} + ${table.invalidRows}) = ${table.totalRows}
+        and ${table.importedAssessments} <= ${table.acceptedRows}`,
     ),
     check(
       "import_batches_commit_shape_check",
@@ -641,6 +663,12 @@ export const importRows = pgTable(
     state: importRowState("state").notNull(),
     rejectionCode: varchar("rejection_code", { length: 80 }),
     rejectionDetail: text("rejection_detail"),
+    participantId: uuid("participant_id").references(() => participants.id, {
+      onDelete: "restrict",
+    }),
+    attemptId: uuid("attempt_id").references(() => assessmentAttempts.id, {
+      onDelete: "restrict",
+    }),
   },
   (table) => [
     primaryKey({ columns: [table.batchId, table.rowNumber] }),
@@ -652,8 +680,13 @@ export const importRows = pgTable(
     check("import_rows_row_number_check", sql`${table.rowNumber} > 0`),
     check(
       "import_rows_rejection_shape_check",
-      sql`(${table.state} = 'excluded' and ${table.rejectionCode} is not null)
-        or (${table.state} <> 'excluded' and ${table.rejectionCode} is null and ${table.rejectionDetail} is null)`,
+      sql`(${table.state} in ('excluded', 'invalid', 'duplicate') and ${table.rejectionCode} is not null)
+        or (${table.state} = 'accepted' and ${table.rejectionCode} is null and ${table.rejectionDetail} is null)`,
+    ),
+    check(
+      "import_rows_result_shape_check",
+      sql`(${table.participantId} is null and ${table.attemptId} is null)
+        or (${table.state} = 'accepted' and ${table.participantId} is not null and ${table.attemptId} is not null)`,
     ),
   ],
 ).enableRLS();

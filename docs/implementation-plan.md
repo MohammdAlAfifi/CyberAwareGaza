@@ -116,12 +116,28 @@ Credential-dependent Phase 1 exit checks passed against the configured developme
   from those calculations rather than silently combined.
 - Added English/Arabic, desktop/mobile, role-boundary, provenance, repeated
   attempt, consent exclusion, empty-percentage, and S4 mapping verification.
-  CSV import/export remains unavailable for Phase 8.
+  CSV import/export was deferred to Phase 8.
+
+## Phase 8 status: implemented, pending migration and operator review
+
+- Added server-validated historical Google Form CSV upload, column mapping,
+  row-level preview, explicit invalid-row exclusion, fingerprint-bound
+  confirmation, minimal diagnostics, and real import history.
+- Added transactional imported-anonymous participant allocation, consent-only
+  persistence, source/batch/record provenance, shared Phase 5 scoring, file and
+  source-response duplicate safeguards, and concurrency locking.
+- Added full-dataset Participants, Assessments, Risk Distribution, and Scenario
+  Analytics CSV exports plus professionally formatted participant-response
+  Excel and PDF reports with English/Arabic presentation.
+- The real historical CSV was not available in the workspace, so no research
+  records were inserted. Final 93/91/2 preview and 91/91/728 confirmation remain
+  an administrator verification step after migration.
 
 ## Blocked source-dependent work
 
 - Implement option validation, contributions, feedback, score range, normalization, and Python parity fixtures.
-- Import and verify the historical CSV (including 93/91/2).
+- Import and verify the historical CSV (including 93/91/2) after the operator
+  supplies it and confirms the validated preview.
 
 ## Next execution order
 
