@@ -8,16 +8,7 @@ import type { AnalyticsSource } from "@/src/admin/analytics";
 import { getAdminCopy } from "@/src/admin/copy";
 import type { Locale } from "@/src/i18n";
 
-const optionColors = ["#12324a", "#149b92", "#c27a05", "#8c5ba6"];
-
-function sourceName(locale: Locale, source: AnalyticsSource) {
-  const t = getAdminCopy(locale);
-  return source === "web"
-    ? t.websiteAssessments
-    : source === "google_form"
-      ? t.googleFormAssessments
-      : t.combinedResults;
-}
+const optionColors = ["#12324a", "#159a9c", "#0b6f72", "#76c8c9"];
 
 function scenarioTitle(locale: Locale, order: number) {
   return getAdminCopy(locale).scenarioNumber.replace("{number}", String(order));
@@ -25,26 +16,14 @@ function scenarioTitle(locale: Locale, order: number) {
 
 export function ScenarioAnalyticsOverview({
   actorName,
-  activeVersion,
-  eligibleAssessments,
-  eligibleAttempts,
   locale,
   scenarios,
   source,
-  versions,
 }: {
   actorName: string;
-  activeVersion: { contentLabel: string; rubricLabel: string } | null;
-  eligibleAssessments: number;
-  eligibleAttempts: number;
   locale: Locale;
   scenarios: ScenarioAnalytics[];
   source: AnalyticsSource;
-  versions: Array<{
-    contentVersionId: string;
-    rubricVersionId: string;
-    count: number;
-  }>;
 }) {
   const t = getAdminCopy(locale);
   return (
@@ -59,46 +38,6 @@ export function ScenarioAnalyticsOverview({
         pathname={`/${locale}/admin/scenario-analytics`}
         source={source}
       />
-      <section className="analytics-scope panel" aria-label={t.analyticsSource}>
-        <strong>
-          {t.activeSource.replace("{source}", sourceName(locale, source))}
-        </strong>
-        <p>{t.assessmentScope}</p>
-        <p>
-          {t.attemptsDenominator.replace("{count}", String(eligibleAttempts))}
-        </p>
-        {activeVersion ? (
-          <p>
-            {t.versionScope.replace(
-              "{version}",
-              `${activeVersion.contentLabel} / ${activeVersion.rubricLabel}`,
-            )}
-          </p>
-        ) : (
-          <p className="admin-warning">{t.noActiveVersion}</p>
-        )}
-        {versions.length > 0 && (
-          <p>
-            {t.detectedVersions.replace(
-              "{versions}",
-              versions
-                .map(
-                  (version) =>
-                    `${version.contentVersionId} / ${version.rubricVersionId} (${version.count})`,
-                )
-                .join(", "),
-            )}
-          </p>
-        )}
-        {eligibleAssessments > eligibleAttempts && (
-          <p className="admin-warning">
-            {t.incompatibleVersions.replace(
-              "{count}",
-              String(eligibleAssessments - eligibleAttempts),
-            )}
-          </p>
-        )}
-      </section>
       {scenarios.length === 0 ? (
         <section className="panel admin-empty-state">
           <h2>{t.unavailable}</h2>
@@ -129,10 +68,7 @@ export function ScenarioAnalyticsOverview({
                   chartId={`scenario-${scenario.key}`}
                   centerLabel={t.totalEligibleResponses}
                   centerValue={scenario.eligibleResponses}
-                  description={t.responseDenominator.replace(
-                    "{count}",
-                    String(scenario.eligibleResponses),
-                  )}
+                  description={t.totalEligibleResponses}
                   emptyLabel={t.noScenarioResponses}
                   items={scenario.options.map((option, index) => ({
                     id: option.id,
@@ -143,12 +79,6 @@ export function ScenarioAnalyticsOverview({
                   }))}
                   title={t.responseDistribution}
                 />
-                <p className="scenario-denominator">
-                  {t.responseDenominator.replace(
-                    "{count}",
-                    String(scenario.eligibleResponses),
-                  )}
-                </p>
                 <Link
                   className="table-link scenario-detail-link"
                   href={`/${locale}/admin/scenario-analytics/${scenario.key}${query}`}
@@ -160,31 +90,20 @@ export function ScenarioAnalyticsOverview({
           })}
         </section>
       )}
-      <p className="analytics-rounding-note">{t.percentageRounding}</p>
     </AdminShell>
   );
 }
 
 export function ScenarioAnalyticsDetail({
   actorName,
-  eligibleAssessments,
-  eligibleAttempts,
   locale,
   scenario,
   source,
-  versions,
 }: {
   actorName: string;
-  eligibleAssessments: number;
-  eligibleAttempts: number;
   locale: Locale;
   scenario: ScenarioAnalytics;
   source: AnalyticsSource;
-  versions: Array<{
-    contentVersionId: string;
-    rubricVersionId: string;
-    count: number;
-  }>;
 }) {
   const t = getAdminCopy(locale);
   const title = t.scenarioDetailsTitle.replace(
@@ -212,47 +131,13 @@ export function ScenarioAnalyticsDetail({
           <bdi dir="ltr">{scenario.key}</bdi>
         </p>
         <h2>{locale === "ar" ? scenario.questionAr : scenario.questionEn}</h2>
-        <p>{t.activeSource.replace("{source}", sourceName(locale, source))}</p>
-        <p>
-          {t.attemptsDenominator.replace("{count}", String(eligibleAttempts))}
-        </p>
-        <p>
-          {t.responseDenominator.replace(
-            "{count}",
-            String(scenario.eligibleResponses),
-          )}
-        </p>
-        {versions.length > 0 && (
-          <p>
-            {t.detectedVersions.replace(
-              "{versions}",
-              versions
-                .map(
-                  (version) =>
-                    `${version.contentVersionId} / ${version.rubricVersionId} (${version.count})`,
-                )
-                .join(", "),
-            )}
-          </p>
-        )}
-        {eligibleAssessments > eligibleAttempts && (
-          <p className="admin-warning">
-            {t.incompatibleVersions.replace(
-              "{count}",
-              String(eligibleAssessments - eligibleAttempts),
-            )}
-          </p>
-        )}
       </section>
       <section className="scenario-detail-grid">
         <DonutChart
           chartId={`scenario-detail-${scenario.key}`}
           centerLabel={t.totalEligibleResponses}
           centerValue={scenario.eligibleResponses}
-          description={t.responseDenominator.replace(
-            "{count}",
-            String(scenario.eligibleResponses),
-          )}
+          description={t.totalEligibleResponses}
           emptyLabel={t.noScenarioResponses}
           items={scenario.options.map((option, index) => ({
             id: option.id,
@@ -301,7 +186,6 @@ export function ScenarioAnalyticsDetail({
           </div>
         </section>
       </section>
-      <p className="analytics-rounding-note">{t.percentageRounding}</p>
     </AdminShell>
   );
 }

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useRef } from "react";
 
 import { Icon, type IconName } from "@/components/icon";
-import { LanguageSwitch } from "@/components/language-switch";
 import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/logout-button";
 import { getDictionary, type Locale } from "@/src/i18n";
@@ -69,7 +68,6 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         </Link>
         <p>{t.brandLabel}</p>
         <NavigationLinks items={items} locale={locale} />
-        <LanguageSwitch locale={locale} />
         <LogoutButton label={admin.logout} locale={locale} />
       </aside>
 
@@ -108,7 +106,6 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
           </button>
         </div>
         <NavigationLinks items={items} locale={locale} />
-        <LanguageSwitch locale={locale} />
         <LogoutButton label={admin.logout} locale={locale} />
       </dialog>
     </>

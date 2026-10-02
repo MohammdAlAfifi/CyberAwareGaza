@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AnalyticsSourceFilter } from "@/components/analytics-source-filter";
 import { AdminShell } from "@/components/admin-shell";
 import { DonutChart } from "@/components/donut-chart";
+import { Icon, type IconName } from "@/components/icon";
 import { RiskBadge } from "@/components/admin-records";
 import { percentage } from "@/src/admin/analytics";
 import type { AnalyticsDashboard } from "@/src/admin/analytics-service";
@@ -20,20 +21,40 @@ export function AdminDashboardView({
   locale: Locale;
 }) {
   const t = getAdminCopy(locale);
-  const sourceName =
-    data.source === "web"
-      ? t.websiteAssessments
-      : data.source === "google_form"
-        ? t.googleFormAssessments
-        : t.combinedResults;
   const scoreDenominator = data.attempts.currentVersion;
   const accountDenominator =
     data.participants.registered + data.participants.anonymous;
-  const metricCards = [
-    { label: t.totalParticipants, value: data.participants.total },
-    { label: t.registeredUsers, value: data.participants.registered },
-    { label: t.anonymousParticipants, value: data.participants.anonymous },
-    { label: t.completedAssessments, value: data.attempts.eligible },
+  const metricCards: Array<{
+    label: string;
+    value: number | string;
+    detail?: string;
+    icon: IconName;
+    tone: string;
+  }> = [
+    {
+      label: t.totalParticipants,
+      value: data.participants.total,
+      icon: "users",
+      tone: "navy",
+    },
+    {
+      label: t.registeredUsers,
+      value: data.participants.registered,
+      icon: "user",
+      tone: "teal",
+    },
+    {
+      label: t.anonymousParticipants,
+      value: data.participants.anonymous,
+      icon: "users",
+      tone: "deep-teal",
+    },
+    {
+      label: t.completedAssessments,
+      value: data.attempts.eligible,
+      icon: "assessment",
+      tone: "navy",
+    },
     {
       label: t.averageScore,
       value:
@@ -41,18 +62,26 @@ export function AdminDashboardView({
           ? "—"
           : data.attempts.averageScore.toFixed(1),
       detail: t.rawScoreUnit,
+      icon: "chart",
+      tone: "teal",
     },
     {
       label: t.lowRiskPercent,
       value: `${percentage(data.attempts.low, scoreDenominator).toFixed(1)}%`,
+      icon: "shield",
+      tone: "low",
     },
     {
       label: t.mediumRiskPercent,
       value: `${percentage(data.attempts.medium, scoreDenominator).toFixed(1)}%`,
+      icon: "alert",
+      tone: "medium",
     },
     {
       label: t.highRiskPercent,
       value: `${percentage(data.attempts.high, scoreDenominator).toFixed(1)}%`,
+      icon: "alert",
+      tone: "high",
     },
   ];
 
@@ -68,50 +97,21 @@ export function AdminDashboardView({
         pathname={`/${locale}/admin`}
         source={data.source}
       />
-      <section className="analytics-scope panel" aria-label={t.analyticsSource}>
-        <strong>{t.activeSource.replace("{source}", sourceName)}</strong>
-        <p>{t.participantScope}</p>
-        <p>{t.assessmentScope}</p>
-        {data.activeVersion ? (
-          <p>
-            {t.versionScope.replace(
-              "{version}",
-              `${data.activeVersion.contentLabel} / ${data.activeVersion.rubricLabel}`,
-            )}
-          </p>
-        ) : (
-          <p className="admin-warning">{t.noActiveVersion}</p>
-        )}
-        {data.versions.length > 0 && (
-          <p>
-            {t.detectedVersions.replace(
-              "{versions}",
-              data.versions
-                .map(
-                  (version) =>
-                    `${version.contentVersionId} / ${version.rubricVersionId} (${version.count})`,
-                )
-                .join(", "),
-            )}
-          </p>
-        )}
-        {data.attempts.excludedByVersion > 0 && (
-          <p className="admin-warning">
-            {t.incompatibleVersions.replace(
-              "{count}",
-              String(data.attempts.excludedByVersion),
-            )}
-          </p>
-        )}
-      </section>
-
       <section
         className="metric-grid analytics-metric-grid"
         aria-label={t.dashboardTitle}
       >
         {metricCards.map((metric) => (
-          <article className="panel metric-card" key={metric.label}>
-            <p>{metric.label}</p>
+          <article
+            className={`panel metric-card metric-card--${metric.tone}`}
+            key={metric.label}
+          >
+            <div className="metric-card-heading">
+              <p>{metric.label}</p>
+              <span className="metric-card-icon">
+                <Icon name={metric.icon} size={19} />
+              </span>
+            </div>
             <strong>{metric.value}</strong>
             {metric.detail && <small>{metric.detail}</small>}
           </article>
@@ -158,7 +158,6 @@ export function AdminDashboardView({
       </section>
 
       <div className="analytics-notes">
-        <p>{t.percentageRounding}</p>
         {data.participants.imported > 0 && (
           <p>
             {t.importedAccountNote.replace(

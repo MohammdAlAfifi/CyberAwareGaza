@@ -349,9 +349,28 @@ test("protects analytics and reports consented source-aware metrics and scenario
     (webBefore.scoreCount + webFixtureScores.length);
   await expect(metric("Average score")).toHaveText(expectedAverage.toFixed(1));
   await expect(page.getByText(excludedUsername)).toHaveCount(0);
+  await expect(page.getByLabel("Analytics source")).toHaveValue("web");
+  await expect(page.getByText(/Active source:/)).toHaveCount(0);
   await expect(
-    page.getByText("Active source: Website assessments"),
-  ).toBeVisible();
+    page.locator(".analytics-metric-grid .metric-card-icon"),
+  ).toHaveCount(8);
+  await expect(page.locator(".metric-card--low")).toHaveCount(1);
+  await expect(page.locator(".metric-card--medium")).toHaveCount(1);
+  await expect(page.locator(".metric-card--high")).toHaveCount(1);
+  const languageToggle = page.getByRole("group", {
+    name: "Choose interface language",
+  });
+  await expect(languageToggle).toBeVisible();
+  await languageToggle.getByRole("button", { name: "العربية" }).focus();
+  expect(
+    await languageToggle
+      .getByRole("button", { name: "العربية" })
+      .evaluate((element) => getComputedStyle(element).outlineStyle),
+  ).not.toBe("none");
+  await expect(page.locator(".admin-sidebar")).toHaveCSS(
+    "background-color",
+    "rgb(13, 43, 62)",
+  );
 
   await page.goto("/en/admin?source=google_form");
   await expect(metric("Total participants")).toHaveText(
@@ -369,9 +388,48 @@ test("protects analytics and reports consented source-aware metrics and scenario
 
   await page.goto("/en/admin/scenario-analytics");
   await expect(page.locator(".scenario-analytics-card")).toHaveCount(8);
-  await expect(
-    page.locator(".scenario-analytics-card").filter({ hasText: "S4" }),
-  ).toContainText("ahmed1234567");
+  await expect(page.getByText(/Denominator:/)).toHaveCount(0);
+  await expect(page.getByText(/Percentages are rounded/)).toHaveCount(0);
+  await expect(page.getByText(/Active source:/)).toHaveCount(0);
+  const scenarioFourCard = page
+    .locator(".scenario-analytics-card")
+    .filter({ hasText: "S4" });
+  await expect(scenarioFourCard).toContainText("ahmed1234567");
+  await expect(scenarioFourCard.locator(".donut-legend li")).toHaveCount(4);
+  expect(
+    await scenarioFourCard
+      .locator(".donut-swatch")
+      .evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).backgroundColor),
+      ),
+  ).toEqual([
+    "rgb(18, 50, 74)",
+    "rgb(21, 154, 156)",
+    "rgb(11, 111, 114)",
+    "rgb(118, 200, 201)",
+  ]);
+  expect(
+    Number.parseFloat(
+      await page
+        .locator(".scenario-analytics-card .scenario-question")
+        .first()
+        .evaluate((element) => getComputedStyle(element).fontSize),
+    ),
+  ).toBeLessThanOrEqual(18);
+  for (const scenario of assessmentScenarios) {
+    await page.goto(`/en/admin/scenario-analytics/${scenario.key}`);
+    await expect(page.locator(".scenario-detail-question h2")).toHaveText(
+      scenario.question.en,
+    );
+    await expect(page.locator("tbody tr")).toHaveCount(scenario.options.length);
+    expect(
+      Number.parseFloat(
+        await page
+          .locator(".scenario-detail-question h2")
+          .evaluate((element) => getComputedStyle(element).fontSize),
+      ),
+    ).toBeLessThanOrEqual(18);
+  }
   await page.goto("/en/admin/scenario-analytics/S4");
   const optionRows = page.locator("tbody tr");
   await expect(optionRows).toHaveCount(4);
@@ -389,6 +447,20 @@ test("protects analytics and reports consented source-aware metrics and scenario
     }),
   ).toBeVisible();
   expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  for (const scenario of assessmentScenarios) {
+    await page.goto(`/ar/admin/scenario-analytics/${scenario.key}`);
+    await expect(page.locator(".scenario-detail-question h2")).toHaveText(
+      scenario.question.ar,
+    );
+    await expect(page.locator("tbody tr")).toHaveCount(scenario.options.length);
+    expect(
+      Number.parseFloat(
+        await page
+          .locator(".scenario-detail-question h2")
+          .evaluate((element) => getComputedStyle(element).fontSize),
+      ),
+    ).toBeLessThanOrEqual(18);
+  }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/ar/admin/scenario-analytics");
   await expect(

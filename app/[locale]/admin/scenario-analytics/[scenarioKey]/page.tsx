@@ -24,12 +24,9 @@ export default async function ScenarioAnalyticsDetailPage({
   return (
     <ScenarioAnalyticsDetail
       actorName={actor.displayName}
-      eligibleAssessments={data.eligibleAssessments}
-      eligibleAttempts={data.eligibleAttempts}
       locale={locale}
       scenario={scenario}
       source={source}
-      versions={data.versions}
     />
   );
 }

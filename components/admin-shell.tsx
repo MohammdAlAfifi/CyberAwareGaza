@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
 import { AdminNavigation } from "@/components/admin-navigation";
+import { LanguageSwitch } from "@/components/language-switch";
 import { getAdminCopy } from "@/src/admin/copy";
 import type { Locale } from "@/src/i18n";
 
 export function AdminShell({
-  actorName,
   children,
   intro,
   locale,
@@ -28,9 +28,8 @@ export function AdminShell({
             <h1>{title}</h1>
             <p>{intro}</p>
           </div>
-          <div className="admin-session-label">
-            <strong>{t.signedIn.replace("{name}", actorName)}</strong>
-            <span>{t.secure}</span>
+          <div className="admin-heading-language">
+            <LanguageSwitch locale={locale} />
           </div>
         </header>
         {children}
