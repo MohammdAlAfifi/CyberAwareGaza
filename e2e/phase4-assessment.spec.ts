@@ -311,21 +311,25 @@ test("registered participant resumes answers and keeps scenario through language
   const submission = (await submitted.json()) as {
     attemptId: string;
     totalScore: number;
+    percentage: number;
     risk: string;
   };
   expect(submitted.ok(), JSON.stringify(submission)).toBe(true);
   registeredAttemptId = submission.attemptId;
-  expect(submission).toMatchObject({ totalScore: 2, risk: "high" });
-  await expect(
-    page.getByRole("heading", { name: "Assessment submitted" }),
-  ).toBeVisible();
+  expect(submission).toMatchObject({
+    totalScore: 42,
+    percentage: 52.5,
+    risk: "medium",
+  });
+  await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await page.getByRole("link", { name: "Return to Dashboard" }).click();
   await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   await expect(page.locator(".identity-list dd").nth(0)).toHaveText(
     "Completed",
   );
   await expect(page.locator(".identity-list dd").nth(1)).toHaveText("1");
   await expect(page.locator(".identity-list dd").nth(2)).toHaveText(
-    "High Risk",
+    "Medium Risk",
   );
   await expect(
     page.getByRole("link", { name: "View your result" }),
@@ -338,8 +342,8 @@ test("registered participant resumes answers and keeps scenario through language
   await expect(
     page.getByRole("heading", { name: "Your assessment result" }),
   ).toBeVisible();
-  await expect(page.locator(".score-ring-copy strong")).toHaveText("+2");
-  await expect(page.locator(".risk-text--high")).toHaveText("High Risk");
+  await expect(page.locator(".score-ring-copy strong")).toHaveText("52.5%");
+  await expect(page.locator(".risk-text--medium")).toHaveText("Medium Risk");
   await expect(page.locator(".answer-review-card")).toHaveCount(8);
   await expect(
     page.locator(".answer-review-card").first().getByText(firstOption),
@@ -360,7 +364,7 @@ test("registered participant resumes answers and keeps scenario through language
     new RegExp(`/ar/results/${registeredAttemptId}$`),
   );
   await expect(
-    page.getByText("Resilience Score", { exact: true }),
+    page.getByText("Risk percentage", { exact: true }),
   ).toBeVisible();
   await expect(
     page
@@ -392,7 +396,13 @@ test("registered participant resumes answers and keeps scenario through language
   for (const retry of retries) {
     expect(retry).toMatchObject({
       status: 200,
-      body: { ok: true, completed: true, totalScore: 2, risk: "high" },
+      body: {
+        ok: true,
+        completed: true,
+        totalScore: 42,
+        percentage: 52.5,
+        risk: "medium",
+      },
     });
   }
 

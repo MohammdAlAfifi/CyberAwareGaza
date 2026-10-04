@@ -7,6 +7,7 @@ import { formatAdminDate } from "@/src/admin/format";
 import { getAssessmentDetails } from "@/src/admin/service";
 import { requireAdmin } from "@/src/auth/authorization";
 import { isLocale } from "@/src/i18n";
+import { classifyResponseRisk } from "@/src/scoring/risk";
 
 export default async function AssessmentDetailsPage({
   params,
@@ -67,8 +68,10 @@ export default async function AssessmentDetailsPage({
             </dd>
           </div>
           <div>
-            <dt>{t.finalScore}</dt>
-            <dd>{a.totalScore ?? "—"}</dd>
+            <dt>{locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}</dt>
+            <dd>
+              {a.percentage === null ? "—" : `${a.percentage.toFixed(1)}%`}
+            </dd>
           </div>
           <div>
             <dt>{t.risk}</dt>
@@ -126,10 +129,18 @@ export default async function AssessmentDetailsPage({
                     <span className="admin-muted">—</span>
                   ) : (
                     <strong
-                      className={`score-delta ${answer.contribution >= 0 ? "score-delta--positive" : "score-delta--negative"}`}
+                      className={`score-delta score-delta--${classifyResponseRisk(answer.contribution)}`}
                     >
                       {answer.contribution > 0 ? "+" : ""}
                       {answer.contribution}
+                      {" · "}
+                      {
+                        {
+                          low: t.low,
+                          medium: t.medium,
+                          high: t.high,
+                        }[classifyResponseRisk(answer.contribution)]
+                      }
                     </strong>
                   )}
                 </header>

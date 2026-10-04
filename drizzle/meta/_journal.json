@@ -50,6 +50,13 @@
       "when": 1790974552389,
       "tag": "0006_handy_saracen",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791086400000,
+      "tag": "0007_scoring_v2_and_revision_audit",
+      "breakpoints": true
     }
   ]
 }

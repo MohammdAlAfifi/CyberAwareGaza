@@ -1,9 +1,10 @@
 import "server-only";
 
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, ne, or } from "drizzle-orm";
 
 import { db } from "@/src/db";
 import { assessmentAttempts } from "@/src/db/schema";
+import { RUBRIC_VERSION } from "@/src/scoring/rubric";
 
 export type ParticipantAssessmentSummary = {
   status: "not_started" | "in_progress" | "completed";
@@ -13,6 +14,7 @@ export type ParticipantAssessmentSummary = {
   history: Array<{
     attemptId: string;
     totalScore: number;
+    percentage: number;
     risk: "low" | "medium" | "high";
     completedAt: Date;
   }>;
@@ -25,12 +27,21 @@ export async function getParticipantAssessmentSummary(
     db
       .select({ status: assessmentAttempts.status, count: count() })
       .from(assessmentAttempts)
-      .where(eq(assessmentAttempts.participantId, participantId))
+      .where(
+        and(
+          eq(assessmentAttempts.participantId, participantId),
+          or(
+            ne(assessmentAttempts.status, "completed"),
+            eq(assessmentAttempts.rubricVersionId, RUBRIC_VERSION),
+          ),
+        ),
+      )
       .groupBy(assessmentAttempts.status),
     db
       .select({
         attemptId: assessmentAttempts.id,
         totalScore: assessmentAttempts.totalScore,
+        percentage: assessmentAttempts.scorePercentage,
         risk: assessmentAttempts.risk,
         completedAt: assessmentAttempts.completedAt,
       })
@@ -39,6 +50,7 @@ export async function getParticipantAssessmentSummary(
         and(
           eq(assessmentAttempts.participantId, participantId),
           eq(assessmentAttempts.status, "completed"),
+          eq(assessmentAttempts.rubricVersionId, RUBRIC_VERSION),
         ),
       )
       .orderBy(
@@ -50,6 +62,7 @@ export async function getParticipantAssessmentSummary(
 
   const history = completedAttempts.flatMap((attempt) =>
     attempt.totalScore === null ||
+    attempt.percentage === null ||
     attempt.risk === null ||
     attempt.completedAt === null
       ? []
@@ -57,6 +70,7 @@ export async function getParticipantAssessmentSummary(
           {
             attemptId: attempt.attemptId,
             totalScore: attempt.totalScore,
+            percentage: attempt.percentage,
             risk: attempt.risk,
             completedAt: attempt.completedAt,
           },

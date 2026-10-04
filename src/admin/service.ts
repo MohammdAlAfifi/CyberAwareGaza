@@ -5,6 +5,7 @@ import { sql, type SQL } from "drizzle-orm";
 import { ADMIN_PAGE_SIZE, type AdminListQuery } from "@/src/admin/query";
 import type { SessionActor } from "@/src/auth/sessions";
 import { db } from "@/src/db";
+import { RUBRIC_VERSION } from "@/src/scoring/rubric";
 
 type AdminActor = Extract<SessionActor, { kind: "admin" }>;
 
@@ -33,6 +34,7 @@ export type ParticipantRow = {
   username: string | null;
   createdAt: Date;
   latestScore: number | null;
+  latestPercentage: number | null;
   latestRisk: "low" | "medium" | "high" | null;
   latestCompletedAt: Date | null;
   hasCompleted: boolean;
@@ -75,6 +77,7 @@ export async function listParticipants(
            a.username,
            p.created_at as "createdAt",
            latest.total_score as "latestScore",
+           latest.score_percentage::double precision as "latestPercentage",
            latest.risk as "latestRisk",
            latest.completed_at as "latestCompletedAt",
            (latest.id is not null) as "hasCompleted",
@@ -82,9 +85,10 @@ export async function listParticipants(
       from participants p
       left join accounts a on a.id = p.account_id
       left join lateral (
-        select aa.id, aa.total_score, aa.risk, aa.completed_at
+        select aa.id, aa.total_score, aa.score_percentage, aa.risk, aa.completed_at
           from assessment_attempts aa
          where aa.participant_id = p.id and aa.status = 'completed'
+           and aa.rubric_version_id = ${RUBRIC_VERSION}
          order by aa.completed_at desc, aa.id desc
          limit 1
       ) latest on true
@@ -100,6 +104,7 @@ export async function listParticipants(
         select aa.id, aa.risk
           from assessment_attempts aa
          where aa.participant_id = p.id and aa.status = 'completed'
+           and aa.rubric_version_id = ${RUBRIC_VERSION}
          order by aa.completed_at desc, aa.id desc
          limit 1
       ) latest on true
@@ -117,6 +122,7 @@ export type AttemptRow = {
   source: "web" | "google_form";
   status: "in_progress" | "completed" | "abandoned" | "excluded";
   totalScore: number | null;
+  percentage: number | null;
   risk: "low" | "medium" | "high" | null;
   startedAt: Date;
   completedAt: Date | null;
@@ -132,6 +138,9 @@ export async function listAssessments(
 ) {
   assertAdmin(actor);
   const conditions: SQL[] = [];
+  conditions.push(
+    sql`(aa.status <> 'completed' or aa.rubric_version_id = ${RUBRIC_VERSION})`,
+  );
   const name = participantNameSql();
   if (query.search) {
     const pattern = `%${query.search}%`;
@@ -165,6 +174,7 @@ export async function listAssessments(
            aa.source,
            aa.status,
            aa.total_score as "totalScore",
+           aa.score_percentage::double precision as percentage,
            aa.risk,
            aa.started_at as "startedAt",
            aa.completed_at as "completedAt",
@@ -217,7 +227,7 @@ export async function getParticipantDetails(
   const attempts = await db.execute<AttemptRow>(sql`
     select aa.id, aa.participant_id as "participantId", p.public_code as "publicCode",
            p.type as "participantType", ${participantNameSql()} as "displayName",
-           aa.source, aa.status, aa.total_score as "totalScore", aa.risk,
+           aa.source, aa.status, aa.total_score as "totalScore", aa.score_percentage::double precision as percentage, aa.risk,
            aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt",
            aa.source_submitted_at as "sourceSubmittedAt", aa.import_batch_id as "importBatchId",
            aa.source_record_number as "sourceRecordNumber"
@@ -225,6 +235,7 @@ export async function getParticipantDetails(
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
      where aa.participant_id = ${participantId}
+       and (aa.status <> 'completed' or aa.rubric_version_id = ${RUBRIC_VERSION})
      order by aa.started_at desc, aa.id desc
   `);
   return { participant, attempts: attempts.rows };
@@ -238,7 +249,7 @@ export async function getAssessmentDetails(
   const result = await db.execute<AttemptRow>(sql`
     select aa.id, aa.participant_id as "participantId", p.public_code as "publicCode",
            p.type as "participantType", ${participantNameSql()} as "displayName",
-           aa.source, aa.status, aa.total_score as "totalScore", aa.risk,
+           aa.source, aa.status, aa.total_score as "totalScore", aa.score_percentage::double precision as percentage, aa.risk,
            aa.started_at as "startedAt", aa.completed_at as "completedAt", aa.updated_at as "updatedAt",
            aa.source_submitted_at as "sourceSubmittedAt", aa.import_batch_id as "importBatchId",
            aa.source_record_number as "sourceRecordNumber"
@@ -246,6 +257,7 @@ export async function getAssessmentDetails(
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
      where aa.id = ${attemptId}
+       and (aa.status <> 'completed' or aa.rubric_version_id = ${RUBRIC_VERSION})
      limit 1
   `);
   const attempt = result.rows[0];
@@ -347,4 +359,83 @@ export async function listImportAudits(actor: SessionActor) {
      order by ib.created_at desc limit 100
   `);
   return result.rows;
+}
+
+export async function deleteParticipant(
+  actor: SessionActor,
+  participantId: string,
+) {
+  assertAdmin(actor);
+  return db.transaction(async (transaction) => {
+    const locked = await transaction.execute<{
+      id: string;
+      publicCode: string;
+      type: "registered" | "anonymous" | "imported";
+      source: "web" | "google_form";
+      accountId: string | null;
+      attemptCount: number;
+    }>(sql`
+      select p.id, p.public_code as "publicCode", p.type, p.source,
+             p.account_id as "accountId",
+             (select count(*)::integer from assessment_attempts aa
+               where aa.participant_id = p.id) as "attemptCount"
+        from participants p
+       where p.id = ${participantId}
+       for update
+    `);
+    const participant = locked.rows[0];
+    if (!participant) return null;
+
+    await transaction.execute(sql`
+      update import_rows set participant_id = null, attempt_id = null
+       where participant_id = ${participantId}
+          or attempt_id in (
+            select id from assessment_attempts where participant_id = ${participantId}
+          )
+    `);
+    await transaction.execute(
+      sql`delete from sessions where participant_id = ${participantId}${
+        participant.accountId
+          ? sql` or account_id = ${participant.accountId}`
+          : sql``
+      }`,
+    );
+    await transaction.execute(sql`
+      delete from responses where attempt_id in (
+        select id from assessment_attempts where participant_id = ${participantId}
+      )
+    `);
+    await transaction.execute(sql`
+      delete from assessment_draft_answers where attempt_id in (
+        select id from assessment_attempts where participant_id = ${participantId}
+      )
+    `);
+    await transaction.execute(
+      sql`delete from consents where participant_id = ${participantId}`,
+    );
+    await transaction.execute(
+      sql`delete from assessment_attempts where participant_id = ${participantId}`,
+    );
+    await transaction.execute(
+      sql`delete from participants where id = ${participantId}`,
+    );
+    if (participant.accountId) {
+      await transaction.execute(
+        sql`delete from accounts where id = ${participant.accountId} and role = 'participant'`,
+      );
+    }
+    await transaction.execute(sql`
+      insert into admin_audit (actor_account_id, action, metadata)
+      values (${actor.accountId}, 'participant.deleted', ${JSON.stringify({
+        publicCode: participant.publicCode,
+        type: participant.type,
+        source: participant.source,
+        attemptCount: Number(participant.attemptCount),
+      })}::jsonb)
+    `);
+    return {
+      publicCode: participant.publicCode,
+      attemptCount: Number(participant.attemptCount),
+    };
+  });
 }

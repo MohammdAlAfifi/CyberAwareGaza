@@ -105,7 +105,7 @@ const dictionaries = {
       continue: "Continue",
     },
     auth: {
-      participantLogin: "Participant login",
+      participantLogin: "Login page",
       adminLogin: "Administrator login",
       adminIntro:
         "Use a privately provisioned administrator account. Public signup never grants administrative access.",
@@ -290,14 +290,15 @@ const dictionaries = {
         "Your choices mixed protective and risk-exposing decisions. Review the scenario guidance below and reinforce the habits that reduce exposure.",
       highInterpretation:
         "Your choices showed a stronger concentration of risk-exposing decisions. Work through the safer actions below and practice verification before acting.",
-      rawScore: "Raw cumulative score",
-      rawCumulative: "Raw cumulative score",
-      possibleRange: "Possible raw range:",
-      visualScale: "Visual position: {position}% of the possible raw range",
+      rawScore: "Risk percentage",
+      rawCumulative: "Risk percentage",
+      possibleRange: "Safe-decision points:",
+      visualScale:
+        "A higher percentage indicates safer cybersecurity decisions.",
       visualScaleAria:
-        "Raw score position is {position} percent along the possible range from {minimum} to {maximum}.",
+        "Risk percentage is {position} percent; higher values indicate safer cybersecurity decisions.",
       rawScoreNote:
-        "This is a raw cumulative score from −76 to 80. It is not a percentage or a 0–100 grade.",
+        "The percentage is calculated from the 0–80 point score and is not reversed. Higher values indicate safer decisions.",
       interpretationTitle: "What this risk level means",
       reviewIntro:
         "Review the exact answer you selected, its score contribution, and a safer action for every scenario.",
@@ -464,7 +465,7 @@ const dictionaries = {
       continue: "متابعة",
     },
     auth: {
-      participantLogin: "دخول المشارك",
+      participantLogin: "صفحة تسجيل الدخول",
       adminLogin: "دخول مسؤول النظام",
       adminIntro:
         "استخدم حساب مسؤول تم إنشاؤه بصورة خاصة. لا يمنح التسجيل العام صلاحية الإدارة مطلقًا.",
@@ -638,14 +639,15 @@ const dictionaries = {
         "جمعت اختياراتك بين قرارات وقائية وأخرى تعرضك للمخاطر. راجع إرشادات السيناريوهات أدناه وعزز العادات التي تقلل التعرض.",
       highInterpretation:
         "أظهرت اختياراتك تركيزًا أكبر من القرارات التي تعرضك للمخاطر. طبّق الإجراءات الأكثر أمانًا أدناه وتدرّب على التحقق قبل التصرف.",
-      rawScore: "الدرجة التراكمية الخام",
-      rawCumulative: "الدرجة التراكمية الخام",
-      possibleRange: "النطاق الخام الممكن:",
-      visualScale: "الموضع البصري: {position}% من النطاق الخام الممكن",
+      rawScore: "نسبة المخاطر",
+      rawCumulative: "نسبة المخاطر",
+      possibleRange: "نقاط القرار الآمن:",
+      visualScale:
+        "تشير النسبة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني.",
       visualScaleAria:
-        "موضع الدرجة الخام هو {position} بالمئة ضمن النطاق الممكن من {minimum} إلى {maximum}.",
+        "نسبة المخاطر هي {position} بالمئة؛ وتشير القيمة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني.",
       rawScoreNote:
-        "هذه درجة تراكمية خام من −76 إلى 80، وليست نسبة مئوية ولا درجة من 0 إلى 100.",
+        "تُحسب النسبة من مجموع النقاط من 0 إلى 80 ولا يتم عكسها؛ وتشير القيمة الأعلى إلى قرارات أكثر أمانًا.",
       interpretationTitle: "ماذا يعني مستوى المخاطر هذا؟",
       reviewIntro:
         "راجع الإجابة التي اخترتها بالضبط، ومساهمتها في الدرجة، وإجراءً أكثر أمانًا لكل سيناريو.",

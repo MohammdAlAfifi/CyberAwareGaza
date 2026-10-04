@@ -117,40 +117,6 @@ export default async function LandingPage({
         </div>
         <p>{t.landing.researchText}</p>
       </section>
-
-      <section
-        className="shell-preview page-width"
-        aria-labelledby="shells-title"
-      >
-        <div className="section-heading">
-          <p className="eyebrow">{t.common.preview}</p>
-          <h2 id="shells-title">{t.landing.shellsTitle}</h2>
-          <p>{t.landing.shellsText}</p>
-        </div>
-        <div className="shell-link-grid">
-          <Link className="shell-link" href={`/${locale}/assessment/preview`}>
-            <span className="shell-link-icon" aria-hidden="true">
-              01
-            </span>
-            <strong>{t.nav.assessmentPreview}</strong>
-            <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
-          </Link>
-          <Link className="shell-link" href={`/${locale}/results/preview`}>
-            <span className="shell-link-icon" aria-hidden="true">
-              —
-            </span>
-            <strong>{t.nav.resultPreview}</strong>
-            <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
-          </Link>
-          <Link className="shell-link" href={`/${locale}/admin`}>
-            <span className="shell-link-icon" aria-hidden="true">
-              ◇
-            </span>
-            <strong>{t.nav.adminPreview}</strong>
-            <span aria-hidden="true">{locale === "ar" ? "←" : "→"}</span>
-          </Link>
-        </div>
-      </section>
     </main>
   );
 }

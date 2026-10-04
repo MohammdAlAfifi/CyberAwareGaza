@@ -90,24 +90,30 @@ test.beforeAll(async () => {
     [anonymousCode, anonymousOrdinal],
   );
   participantIds.push(anonymous.rows[0].id);
+  await pool!.query(
+    `insert into sessions (token_hash,kind,participant_id,expires_at)
+     values ($1,'anonymous',$2,now()+interval '1 hour')`,
+    [rateHash("phase6Session", runId), anonymous.rows[0].id],
+  );
   const rules = await pool!.query(
     `select distinct on (scenario_key) scenario_key, option_id, contribution from rubric_entries where rubric_version_id = $1 order by scenario_key, contribution desc, option_id`,
     [RUBRIC_VERSION],
   );
   latestScore = rules.rows.reduce((sum, row) => sum + row.contribution, 0);
   const older = await pool!.query(
-    `insert into assessment_attempts (participant_id,status,source,content_version_id,rubric_version_id,total_score,risk,completed_at,started_at) values ($1,'completed','web',$2,$3,0,'high',now()-interval '2 days',now()-interval '3 days') returning id`,
+    `insert into assessment_attempts (participant_id,status,source,content_version_id,rubric_version_id,total_score,score_percentage,risk,completed_at,started_at) values ($1,'completed','web',$2,$3,0,0,'high',now()-interval '2 days',now()-interval '3 days') returning id`,
     [registered.rows[0].id, ASSESSMENT_CONTENT_VERSION, RUBRIC_VERSION],
   );
   attemptIds.push(older.rows[0].id);
   const latest = await pool!.query(
-    `insert into assessment_attempts (participant_id,status,source,content_version_id,rubric_version_id,total_score,risk,completed_at) values ($1,'completed','web',$2,$3,$4,$5,now()) returning id`,
+    `insert into assessment_attempts (participant_id,status,source,content_version_id,rubric_version_id,total_score,score_percentage,risk,completed_at) values ($1,'completed','web',$2,$3,$4,$5,$6,now()) returning id`,
     [
       registered.rows[0].id,
       ASSESSMENT_CONTENT_VERSION,
       RUBRIC_VERSION,
       latestScore,
-      classifyRisk(latestScore),
+      latestScore * 1.25,
+      classifyRisk(latestScore * 1.25),
     ],
   );
   latestAttemptId = latest.rows[0].id;
@@ -209,7 +215,7 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
     .click();
   await expect(participantPage).toHaveURL(/\/en\/home$/);
   await participantPage.goto(`/en/admin/assessments/${latestAttemptId}`);
-  await expect(participantPage).toHaveURL(/\/en\/admin\/login$/);
+  await expect(participantPage).toHaveURL(/\/en\/login$/);
   await participantContext.close();
 
   const context = await browser.newContext();
@@ -226,9 +232,10 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
     expect(response.status()).toBe(attempt < 5 ? 401 : 429);
   }
   await page.goto("/en/admin/login");
+  await expect(page).toHaveURL(/\/en\/login$/);
   await page.getByLabel("Username").fill(adminUsername);
   await page.getByLabel("Password", { exact: true }).fill(bootstrapPassword);
-  await page.getByRole("button", { name: "Sign in to administration" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/admin\/settings\?required=1$/);
   await page.goto("/en/admin/participants");
   await expect(page).toHaveURL(/\/en\/admin\/settings\?required=1$/);
@@ -242,12 +249,12 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   await page.goto(`/en/admin/participants?q=${participantUsername}`);
   const row = page.locator("tbody tr").filter({ hasText: participantUsername });
   await expect(row).toContainText(registeredCode);
-  await expect(row).toContainText(String(latestScore));
+  await expect(row).toContainText(`${(latestScore * 1.25).toFixed(1)}%`);
   await page.goto(
     `/en/admin/assessments?q=${participantUsername}&sort=highest`,
   );
   await expect(page.locator("tbody tr").first()).toContainText(
-    String(latestScore),
+    `${(latestScore * 1.25).toFixed(1)}%`,
   );
   await page.goto(`/en/admin/participants?q=${anonymousCode}`);
   await expect(page.locator("tbody tr")).toContainText(/Anonymous \d+/);
@@ -259,8 +266,8 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   await expect(incompleteRow).toContainText("—");
   await page.goto(`/en/admin/assessments/${latestAttemptId}`);
   await expect(page.locator(".admin-answer-card")).toHaveCount(8);
-  await expect(page.getByText("Final raw score").locator("..")).toContainText(
-    String(latestScore),
+  await expect(page.getByText("Risk percentage").locator("..")).toContainText(
+    `${(latestScore * 1.25).toFixed(1)}%`,
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/en/admin/participants");
@@ -280,4 +287,44 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   ).toBeVisible();
   expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
   await context.close();
+});
+
+test("deletes only a selected test participant and related records", async ({
+  page,
+}) => {
+  await page.goto("/en/login");
+  await page.getByLabel("Username").fill(adminUsername);
+  await page.getByLabel("Password", { exact: true }).fill(changedPassword);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/admin$/);
+  await page.goto(`/en/admin/participants?q=${anonymousCode}`);
+  const row = page.locator("tbody tr").filter({ hasText: anonymousCode });
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Delete participant?" }),
+  ).toBeVisible();
+  const deleted = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/admin/participants/") &&
+      response.request().method() === "DELETE",
+  );
+  await page.getByRole("button", { name: "Delete participant" }).click();
+  expect((await deleted).ok()).toBe(true);
+  await expect(row).toHaveCount(0);
+
+  const remaining = await pool!.query(
+    `select
+       (select count(*)::integer from participants where id = $1) participants,
+       (select count(*)::integer from assessment_attempts where participant_id = $1) attempts,
+       (select count(*)::integer from sessions where participant_id = $1) sessions,
+       (select count(*)::integer from admin_audit
+         where action = 'participant.deleted' and metadata->>'publicCode' = $2) audits`,
+    [participantIds[1], anonymousCode],
+  );
+  expect(remaining.rows[0]).toMatchObject({
+    participants: 0,
+    attempts: 0,
+    sessions: 0,
+    audits: 1,
+  });
 });

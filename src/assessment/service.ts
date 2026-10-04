@@ -270,6 +270,7 @@ export async function finalizeAssessment(input: {
         contentVersionId: assessmentAttempts.contentVersionId,
         rubricVersionId: assessmentAttempts.rubricVersionId,
         totalScore: assessmentAttempts.totalScore,
+        scorePercentage: assessmentAttempts.scorePercentage,
         risk: assessmentAttempts.risk,
       })
       .from(assessmentAttempts)
@@ -296,6 +297,7 @@ export async function finalizeAssessment(input: {
       if (
         attempt.rubricVersionId !== RUBRIC_VERSION ||
         attempt.totalScore === null ||
+        attempt.scorePercentage === null ||
         attempt.risk === null
       ) {
         throw new AssessmentError("scoring_unavailable", 503);
@@ -304,6 +306,7 @@ export async function finalizeAssessment(input: {
         completed: true as const,
         attemptId: input.attemptId,
         totalScore: attempt.totalScore,
+        percentage: attempt.scorePercentage,
         risk: attempt.risk,
       };
     }
@@ -379,6 +382,7 @@ export async function finalizeAssessment(input: {
         status: "completed",
         rubricVersionId: rubricVersion.id,
         totalScore: score.totalScore,
+        scorePercentage: score.percentage,
         risk: score.risk,
         completedAt: sql`now()`,
         updatedAt: sql`now()`,
@@ -392,6 +396,7 @@ export async function finalizeAssessment(input: {
       completed: true as const,
       attemptId: input.attemptId,
       totalScore: score.totalScore,
+      percentage: score.percentage,
       risk: score.risk,
     };
   });

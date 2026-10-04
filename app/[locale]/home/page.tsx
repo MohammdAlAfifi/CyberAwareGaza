@@ -69,7 +69,11 @@ export default async function ParticipantHome({
           <dl className="identity-list">
             <div>
               <dt>{t.assessmentStatus}</dt>
-              <dd>{assessmentStatus}</dd>
+              <dd
+                className={`assessment-status assessment-status--${assessmentSummary.status}`}
+              >
+                {assessmentStatus}
+              </dd>
             </div>
             <div>
               <dt>{t.attempts}</dt>
@@ -137,8 +141,14 @@ export default async function ParticipantHome({
                         <span
                           className={`risk-badge risk-badge--${result.risk}`}
                         >
-                          {riskLabel(result.risk)} · {t.rawScoreShort}{" "}
-                          <bdi dir="ltr">{result.totalScore}</bdi>
+                          {riskLabel(result.risk)} ·{" "}
+                          {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}{" "}
+                          <bdi dir="ltr">
+                            {new Intl.NumberFormat(locale, {
+                              maximumFractionDigits: 1,
+                            }).format(result.percentage)}
+                            %
+                          </bdi>
                         </span>
                       </div>
                       <Link

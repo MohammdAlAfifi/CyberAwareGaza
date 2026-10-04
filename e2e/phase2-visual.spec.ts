@@ -179,9 +179,7 @@ test("forms, safety modal, and state controls expose accessible names", async ({
 
   await page.setViewportSize(viewports.phone);
   await page.goto("/en/admin/login");
-  await expect(
-    page.getByRole("heading", { name: "Administrator login" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Login page" })).toBeVisible();
   await expect(page.getByAltText("CyberAwareGaza").first()).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Show password" }),

@@ -154,8 +154,6 @@ export function AssessmentFlow({
         return;
       }
       setStage("submitted");
-      await new Promise((resolve) => window.setTimeout(resolve, 650));
-      router.replace(`/${locale}/home`, { scroll: false });
       router.refresh();
     } catch {
       setMessage(t.errors.server_error);
@@ -184,10 +182,22 @@ export function AssessmentFlow({
 
   if (stage === "submitted") {
     return (
-      <Panel className="assessment-card assessment-gate-card">
-        <span className="spinner" aria-hidden="true" />
-        <h1>{t.submittedTitle}</h1>
-        <p>{t.submittedText}</p>
+      <Panel className="assessment-card assessment-gate-card thank-you-card">
+        <span className="section-icon" aria-hidden="true">
+          <Icon name="shield" />
+        </span>
+        <h1>{locale === "ar" ? "شكرًا لك" : "Thank You"}</h1>
+        <p>
+          {locale === "ar"
+            ? "تم حفظ تقييمك واحتساب نتيجتك بنجاح. يمكنك عرض النتيجة التفصيلية من لوحة التحكم."
+            : "Your assessment and calculated result were saved successfully. You can open the detailed result from your dashboard."}
+        </p>
+        <Link
+          className="button button-primary button-large"
+          href={`/${locale}/home`}
+        >
+          {locale === "ar" ? "العودة إلى لوحة التحكم" : "Return to Dashboard"}
+        </Link>
       </Panel>
     );
   }
@@ -238,7 +248,6 @@ export function AssessmentFlow({
         <h1>{t.instructionsTitle}</h1>
         <ul className="instruction-list">
           <li>{t.instructionsIntro}</li>
-          <li>{t.instructionsSafety}</li>
           <li>{t.instructionsPrivacy}</li>
         </ul>
         <button
@@ -266,7 +275,13 @@ export function AssessmentFlow({
       />
       <div className="question-block">
         <p className="question-label">{t.questionLabel}</p>
-        <h1 className="scenario-question">{scenario.question[locale]}</h1>
+        <h1 className="scenario-question">
+          {scenario.key === "S6" ? (
+            <ScenarioSixQuestion text={scenario.question[locale]} />
+          ) : (
+            scenario.question[locale]
+          )}
+        </h1>
       </div>
       <fieldset className="option-list" disabled={pending}>
         <legend className="sr-only">{t.questionLabel}</legend>
@@ -325,5 +340,18 @@ export function AssessmentFlow({
         </button>
       </div>
     </Panel>
+  );
+}
+
+function ScenarioSixQuestion({ text }: { text: string }) {
+  const [before, after = ""] = text.split("Invoice.pdf.exe");
+  return (
+    <>
+      {before}
+      <span className="scenario-filename" dir="ltr">
+        <span aria-hidden="true">📄</span> Invoice.pdf.exe
+      </span>
+      {after}
+    </>
   );
 }

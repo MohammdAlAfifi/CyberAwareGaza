@@ -49,7 +49,9 @@ export default async function AssessmentsPage({
                   <th>{t.participantId}</th>
                   <th>{t.source}</th>
                   <th>{t.status}</th>
-                  <th>{t.rawScore}</th>
+                  <th>
+                    {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                  </th>
                   <th>{t.risk}</th>
                   <th>{t.submitted}</th>
                   <th>
@@ -76,7 +78,11 @@ export default async function AssessmentsPage({
                     <td>
                       <StatusBadge locale={locale} status={row.status} />
                     </td>
-                    <td>{row.totalScore ?? "—"}</td>
+                    <td>
+                      {row.percentage === null
+                        ? "—"
+                        : `${row.percentage.toFixed(1)}%`}
+                    </td>
                     <td>
                       <RiskBadge locale={locale} risk={row.risk} />
                     </td>

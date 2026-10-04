@@ -48,6 +48,10 @@ const words = {
     choose: "Choose CSV",
     preview: "Validate and preview",
     validating: "Validating…",
+    uploading: "Uploading",
+    previewReady: "Preview Ready",
+    importing: "Importing",
+    failed: "Failed",
     mapping: "Detected column mapping",
     timestamp: "Timestamp",
     consent: "Research consent",
@@ -70,12 +74,8 @@ const words = {
     anyRisk: "All risk levels",
     from: "From date",
     to: "To date",
-    participants: "Participants CSV",
-    assessments: "Assessments CSV",
-    risks: "Risk distribution CSV",
-    scenarios: "Scenario analytics CSV",
-    excel: "Participant responses Excel",
-    pdf: "Participant responses PDF",
+    excel: "Export as Excel",
+    pdf: "Export as PDF",
     accepted: "Accepted rows",
     excluded: "Excluded rows",
     invalid: "Invalid rows",
@@ -90,6 +90,10 @@ const words = {
     choose: "اختيار ملف CSV",
     preview: "التحقق والمعاينة",
     validating: "جارٍ التحقق…",
+    uploading: "جارٍ الرفع",
+    previewReady: "المعاينة جاهزة",
+    importing: "جارٍ الاستيراد",
+    failed: "فشل",
     mapping: "تعيين الأعمدة المكتشف",
     timestamp: "الطابع الزمني",
     consent: "الموافقة البحثية",
@@ -112,12 +116,8 @@ const words = {
     anyRisk: "كل المستويات",
     from: "من تاريخ",
     to: "إلى تاريخ",
-    participants: "CSV للمشاركين",
-    assessments: "CSV للتقييمات",
-    risks: "CSV لتوزيع المخاطر",
-    scenarios: "CSV لتحليلات السيناريوهات",
-    excel: "Excel لاستجابات المشاركين",
-    pdf: "PDF لاستجابات المشاركين",
+    excel: "التصدير بصيغة Excel",
+    pdf: "التصدير بصيغة PDF",
     accepted: "الصفوف المقبولة",
     excluded: "الصفوف المستبعدة",
     invalid: "الصفوف غير الصالحة",
@@ -135,6 +135,17 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
   const [report, setReport] = useState<ImportReport | null>(null);
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState<"preview" | "confirm" | null>(null);
+  const [stage, setStage] = useState<
+    | "idle"
+    | "uploading"
+    | "validating"
+    | "preview_ready"
+    | "importing"
+    | "completed"
+    | "failed"
+  >("idle");
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [source, setSource] = useState("all");
   const [risk, setRisk] = useState("all");
@@ -154,25 +165,32 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
   async function validate() {
     if (!file) return;
     setBusy("preview");
+    setStage("uploading");
+    setUploadProgress(0);
     setError(null);
     setReport(null);
     const form = new FormData();
     form.set("file", file);
     try {
-      const response = await fetch("/api/admin/imports/preview", {
-        method: "POST",
-        body: form,
-      });
-      const payload = await response.json();
-      if (!response.ok)
-        throw new Error(
-          payload.message || payload.error || "Validation failed.",
-        );
+      const payload = await uploadForm<{ preview?: Preview }>(
+        "/api/admin/imports/preview",
+        form,
+        (loaded, total) => {
+          if (total > 0) setUploadProgress(Math.round((loaded / total) * 100));
+        },
+        () => {
+          setStage("validating");
+          setUploadProgress(null);
+        },
+      );
+      if (!payload.preview) throw new Error("Validation failed.");
       setPreview(payload.preview);
       setExcluded(new Set());
+      setStage("preview_ready");
     } catch (cause) {
       setPreview(null);
       setError(cause instanceof Error ? cause.message : "Validation failed.");
+      setStage("failed");
     } finally {
       setBusy(null);
     }
@@ -181,22 +199,31 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
   async function confirm() {
     if (!file || !preview || !ready) return;
     setBusy("confirm");
+    setStage("uploading");
+    setUploadProgress(0);
     setError(null);
     const form = new FormData();
     form.set("file", file);
     form.set("batchId", preview.batchId);
     form.set("excludedInvalidRecords", JSON.stringify([...excluded]));
     try {
-      const response = await fetch("/api/admin/imports/confirm", {
-        method: "POST",
-        body: form,
-      });
-      const payload = await response.json();
-      if (!response.ok)
-        throw new Error(payload.message || payload.error || "Import failed.");
+      const payload = await uploadForm<{ report?: ImportReport }>(
+        "/api/admin/imports/confirm",
+        form,
+        (loaded, total) => {
+          if (total > 0) setUploadProgress(Math.round((loaded / total) * 100));
+        },
+        () => {
+          setStage("importing");
+          setUploadProgress(null);
+        },
+      );
+      if (!payload.report) throw new Error("Import failed.");
       setReport(payload.report);
+      setStage("completed");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Import failed.");
+      setStage("failed");
     } finally {
       setBusy(null);
     }
@@ -218,15 +245,32 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
           <p>{t.uploadHelp}</p>
         </div>
         <div
-          className="csv-dropzone"
+          className={`csv-dropzone${dragging ? " csv-dropzone--dragging" : ""}`}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
           onDragOver={(event) => event.preventDefault()}
           onDrop={(event) => {
             event.preventDefault();
+            setDragging(false);
             const next = event.dataTransfer.files[0];
             if (next) {
+              if (!next.name.toLowerCase().endsWith(".csv")) {
+                setError(
+                  locale === "ar"
+                    ? "اختر ملف CSV صالحًا."
+                    : "Choose a valid CSV file.",
+                );
+                setStage("failed");
+                return;
+              }
               setFile(next);
               setPreview(null);
               setReport(null);
+              setError(null);
+              setStage("idle");
             }
           }}
         >
@@ -235,9 +279,22 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
             aria-label={t.choose}
             hidden
             onChange={(event) => {
-              setFile(event.target.files?.[0] ?? null);
+              const next = event.target.files?.[0] ?? null;
+              if (next && !next.name.toLowerCase().endsWith(".csv")) {
+                setFile(null);
+                setError(
+                  locale === "ar"
+                    ? "اختر ملف CSV صالحًا."
+                    : "Choose a valid CSV file.",
+                );
+                setStage("failed");
+                return;
+              }
+              setFile(next);
               setPreview(null);
               setReport(null);
+              setError(null);
+              setStage("idle");
             }}
             ref={inputRef}
             type="file"
@@ -260,6 +317,28 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
           >
             {busy === "preview" ? t.validating : t.preview}
           </button>
+        </div>
+        <div className="upload-state" aria-live="polite">
+          <strong>
+            {
+              {
+                idle: "",
+                uploading: t.uploading,
+                validating: t.validating,
+                preview_ready: t.previewReady,
+                importing: t.importing,
+                completed: t.complete,
+                failed: t.failed,
+              }[stage]
+            }
+          </strong>
+          {stage === "uploading" && uploadProgress !== null ? (
+            <progress max="100" value={uploadProgress}>
+              {uploadProgress}%
+            </progress>
+          ) : stage === "validating" || stage === "importing" ? (
+            <span className="indeterminate-progress" aria-hidden="true" />
+          ) : null}
         </div>
         {error ? (
           <p className="admin-required" role="alert">
@@ -403,7 +482,7 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
 
       <section className="panel transfer-card">
         <div>
-          <p className="eyebrow">CSV · XLSX · PDF</p>
+          <p className="eyebrow">XLSX · PDF</p>
           <h2>{t.exports}</h2>
           <p>{t.exportsHelp}</p>
         </div>
@@ -450,30 +529,6 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
         </div>
         <div className="export-grid">
           <a
-            className="button button-secondary"
-            href={exportHref("participants")}
-          >
-            {t.participants}
-          </a>
-          <a
-            className="button button-secondary"
-            href={exportHref("assessments")}
-          >
-            {t.assessments}
-          </a>
-          <a
-            className="button button-secondary"
-            href={exportHref("risk-distribution")}
-          >
-            {t.risks}
-          </a>
-          <a
-            className="button button-secondary"
-            href={exportHref("scenario-analytics")}
-          >
-            {t.scenarios}
-          </a>
-          <a
             className="button button-primary"
             href={exportHref("participant-responses", "xlsx")}
           >
@@ -489,4 +544,31 @@ export function ImportExportWorkspace({ locale }: { locale: Locale }) {
       </section>
     </>
   );
+}
+
+function uploadForm<T>(
+  url: string,
+  form: FormData,
+  onProgress: (loaded: number, total: number) => void,
+  onUploaded: () => void,
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("POST", url);
+    request.responseType = "json";
+    request.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) onProgress(event.loaded, event.total);
+    });
+    request.upload.addEventListener("load", onUploaded);
+    request.addEventListener("load", () => {
+      const body = request.response as T & { message?: string; error?: string };
+      if (request.status >= 200 && request.status < 300) resolve(body);
+      else
+        reject(new Error(body?.message || body?.error || "Validation failed."));
+    });
+    request.addEventListener("error", () =>
+      reject(new Error("Upload failed.")),
+    );
+    request.send(form);
+  });
 }

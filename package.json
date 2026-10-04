@@ -23,6 +23,8 @@
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.mjs",
     "db:seed": "node --env-file-if-exists=.env.local scripts/seed-foundation.mjs",
     "db:check": "node --env-file-if-exists=.env.local scripts/check-database.mjs",
+    "db:scoring-v2:preview": "node --env-file-if-exists=.env.local scripts/recalculate-scoring-v2.mjs",
+    "db:scoring-v2:apply": "node --env-file-if-exists=.env.local scripts/recalculate-scoring-v2.mjs --apply",
     "db:provision-admin": "node --env-file-if-exists=.env.local scripts/provision-admin.mjs"
   },
   "dependencies": {

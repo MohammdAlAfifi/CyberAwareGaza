@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin-shell";
+import { DeleteParticipantButton } from "@/components/delete-participant-button";
 import {
   AdminFilters,
   AdminPagination,
@@ -48,7 +49,9 @@ export default async function ParticipantsPage({
                   <th>{t.participantId}</th>
                   <th>{t.accountType}</th>
                   <th>{t.username}</th>
-                  <th>{t.latestScore}</th>
+                  <th>
+                    {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                  </th>
                   <th>{t.risk}</th>
                   <th>{t.latestSubmission}</th>
                   <th>{t.status}</th>
@@ -68,25 +71,43 @@ export default async function ParticipantsPage({
                     </td>
                     <td>{t[row.type]}</td>
                     <td>{row.username ?? "—"}</td>
-                    <td>{row.latestScore ?? "—"}</td>
+                    <td>
+                      {row.latestPercentage === null
+                        ? "—"
+                        : `${row.latestPercentage.toFixed(1)}%`}
+                    </td>
                     <td>
                       <RiskBadge locale={locale} risk={row.latestRisk} />
                     </td>
                     <td>{formatAdminDate(row.latestCompletedAt, locale)}</td>
                     <td>
                       <span
-                        className={`admin-status admin-status--${row.hasCompleted ? "completed" : "in_progress"}`}
+                        className={`admin-status admin-status--${row.hasCompleted ? "completed" : row.attemptCount > 0 ? "in_progress" : "not_started"}`}
                       >
-                        {row.hasCompleted ? t.completed : t.incomplete}
+                        {row.hasCompleted
+                          ? t.completed
+                          : row.attemptCount > 0
+                            ? t.inProgress
+                            : locale === "ar"
+                              ? "لم يبدأ"
+                              : "Not Started"}
                       </span>
                     </td>
                     <td>
-                      <Link
-                        className="table-link"
-                        href={`/${locale}/admin/participants/${row.id}`}
-                      >
-                        {t.viewDetails}
-                      </Link>
+                      <div className="table-actions">
+                        <Link
+                          className="table-link"
+                          href={`/${locale}/admin/participants/${row.id}`}
+                        >
+                          {t.viewDetails}
+                        </Link>
+                        <DeleteParticipantButton
+                          locale={locale}
+                          participantId={row.id}
+                          participantName={row.displayName}
+                          publicCode={row.publicCode}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

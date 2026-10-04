@@ -5,6 +5,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   primaryKey,
@@ -344,6 +345,11 @@ export const assessmentAttempts = pgTable(
     ),
     rubricVersionId: varchar("rubric_version_id", { length: 64 }),
     totalScore: integer("total_score"),
+    scorePercentage: numeric("score_percentage", {
+      precision: 5,
+      scale: 2,
+      mode: "number",
+    }),
     risk: riskCategory("risk"),
     startedAt: timestamp("started_at", { withTimezone: true })
       .notNull()
@@ -385,8 +391,12 @@ export const assessmentAttempts = pgTable(
     ),
     check(
       "attempts_completion_shape_check",
-      sql`(${table.status} = 'completed' and ${table.contentVersionId} is not null and ${table.rubricVersionId} is not null and ${table.totalScore} is not null and ${table.risk} is not null and (${table.source} = 'google_form' or ${table.completedAt} is not null))
+      sql`(${table.status} = 'completed' and ${table.contentVersionId} is not null and ${table.rubricVersionId} is not null and ${table.totalScore} is not null and (${table.rubricVersionId} <> 'cyberawaregaza-safe-decisions-v2' or ${table.scorePercentage} is not null) and ${table.risk} is not null and (${table.source} = 'google_form' or ${table.completedAt} is not null))
         or (${table.status} <> 'completed' and ${table.completedAt} is null)`,
+    ),
+    check(
+      "attempts_percentage_check",
+      sql`${table.scorePercentage} is null or (${table.scorePercentage} >= 0 and ${table.scorePercentage} <= 100)`,
     ),
     check(
       "attempts_import_shape_check",
@@ -716,6 +726,49 @@ export const adminAudit = pgTable(
     check(
       "admin_audit_action_check",
       sql`char_length(btrim(${table.action})) > 0`,
+    ),
+  ],
+).enableRLS();
+
+export const scoringRevisionAudit = pgTable(
+  "scoring_revision_audit",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => assessmentAttempts.id, { onDelete: "cascade" }),
+    fromRubricVersionId: varchar("from_rubric_version_id", {
+      length: 64,
+    }).notNull(),
+    toRubricVersionId: varchar("to_rubric_version_id", {
+      length: 64,
+    }).notNull(),
+    previousTotalScore: integer("previous_total_score").notNull(),
+    previousPercentage: numeric("previous_percentage", {
+      precision: 5,
+      scale: 2,
+      mode: "number",
+    }),
+    previousRisk: riskCategory("previous_risk").notNull(),
+    revisedTotalScore: integer("revised_total_score").notNull(),
+    revisedPercentage: numeric("revised_percentage", {
+      precision: 5,
+      scale: 2,
+      mode: "number",
+    }).notNull(),
+    revisedRisk: riskCategory("revised_risk").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    unique("scoring_revision_attempt_target_unique").on(
+      table.attemptId,
+      table.toRubricVersionId,
+    ),
+    index("scoring_revision_target_created_idx").on(
+      table.toRubricVersionId,
+      table.createdAt,
     ),
   ],
 ).enableRLS();

@@ -30,7 +30,7 @@ export async function requireAdmin(
   options: { allowPasswordChange?: boolean } = {},
 ) {
   const actor = await getCurrentSession();
-  if (!actor || actor.kind !== "admin") redirect(`/${locale}/admin/login`);
+  if (!actor || actor.kind !== "admin") redirect(`/${locale}/login`);
   if (actor.mustChangePassword && !options.allowPasswordChange) {
     redirect(`/${locale}/admin/settings?required=1`);
   }

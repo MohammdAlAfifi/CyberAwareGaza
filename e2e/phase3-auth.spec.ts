@@ -520,9 +520,10 @@ test("private admin credentials cross only the admin boundary", async ({
     expect(response.status()).toBe(attempt < 5 ? 401 : 429);
   }
   await page.goto("/en/admin/login");
+  await expect(page).toHaveURL(/\/en\/login$/);
   await page.getByLabel("Username").fill(adminUsername!);
   await page.getByLabel("Password", { exact: true }).fill(adminPassword!);
-  await page.getByRole("button", { name: "Sign in to administration" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/admin$/);
   await expect(
     page.getByRole("heading", { name: "Administration dashboard" }),

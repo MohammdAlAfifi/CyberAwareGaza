@@ -80,7 +80,7 @@ export async function buildParticipantResponseWorkbook(input: {
     ...assessmentScenarios.map(({ order }) =>
       rtl ? `إجابة السيناريو ${order}` : `Scenario ${order} answer`,
     ),
-    rtl ? "الدرجة الخام" : "Raw score",
+    rtl ? "نسبة المخاطر" : "Risk percentage",
     rtl ? "مستوى المخاطر" : "Risk level",
     rtl ? "إصدار التقييم" : "Scoring version",
   ];
@@ -103,7 +103,7 @@ export async function buildParticipantResponseWorkbook(input: {
       );
       return safeText(answer ? (rtl ? answer.answerAr : answer.answerEn) : "");
     }),
-    row.rawScore,
+    row.percentage / 100,
     localizedRisk(row.risk, rtl),
     safeText(row.scoringVersion),
   ]);
@@ -117,6 +117,9 @@ export async function buildParticipantResponseWorkbook(input: {
     columns: headers.map((name) => ({ name })),
     rows: body,
   });
+  for (let rowIndex = 8; rowIndex <= lastRow; rowIndex += 1) {
+    sheet.getCell(rowIndex, 14).numFmt = "0.0%";
+  }
   for (let rowIndex = 7; rowIndex <= lastRow; rowIndex += 1) {
     for (let columnIndex = 1; columnIndex <= 16; columnIndex += 1) {
       const cell = sheet.getCell(rowIndex, columnIndex);

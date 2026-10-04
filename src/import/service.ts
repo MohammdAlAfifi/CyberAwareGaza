@@ -46,18 +46,34 @@ export async function previewHistoricalImport(input: {
   filename: string;
   bytes: Uint8Array;
 }): Promise<StoredImportPreview> {
-  const existing = await db
-    .select({ key: assessmentAttempts.sourceSubmissionKey })
-    .from(assessmentAttempts)
-    .where(
-      and(
-        eq(assessmentAttempts.source, "google_form"),
-        isNotNull(assessmentAttempts.sourceSubmissionKey),
+  const [existingAttempts, retainedImportRows] = await Promise.all([
+    db
+      .select({ key: assessmentAttempts.sourceSubmissionKey })
+      .from(assessmentAttempts)
+      .where(
+        and(
+          eq(assessmentAttempts.source, "google_form"),
+          isNotNull(assessmentAttempts.sourceSubmissionKey),
+        ),
       ),
-    );
+    db
+      .select({ key: importRows.sourceRowKey })
+      .from(importRows)
+      .innerJoin(importBatches, eq(importBatches.id, importRows.batchId))
+      .where(
+        and(
+          isNotNull(importRows.sourceRowKey),
+          eq(importBatches.state, "committed"),
+        ),
+      ),
+  ]);
   let preview = parseHistoricalCsv(
     input.bytes,
-    new Set(existing.flatMap(({ key }) => (key ? [key] : []))),
+    new Set(
+      [...existingAttempts, ...retainedImportRows].flatMap(({ key }) =>
+        key ? [key] : [],
+      ),
+    ),
   );
   const [identical] = await db
     .select({ id: importBatches.id })
@@ -244,14 +260,30 @@ export async function confirmHistoricalImport(input: {
     const candidateKeys = rows.flatMap((row) =>
       row.outcome === "accepted" && row.sourceRowKey ? [row.sourceRowKey] : [],
     );
-    const existing = candidateKeys.length
-      ? await transaction
-          .select({ key: assessmentAttempts.sourceSubmissionKey })
-          .from(assessmentAttempts)
-          .where(inArray(assessmentAttempts.sourceSubmissionKey, candidateKeys))
-      : [];
+    const [existingAttempts, retainedRows] = candidateKeys.length
+      ? await Promise.all([
+          transaction
+            .select({ key: assessmentAttempts.sourceSubmissionKey })
+            .from(assessmentAttempts)
+            .where(
+              inArray(assessmentAttempts.sourceSubmissionKey, candidateKeys),
+            ),
+          transaction
+            .select({ key: importRows.sourceRowKey })
+            .from(importRows)
+            .innerJoin(importBatches, eq(importBatches.id, importRows.batchId))
+            .where(
+              and(
+                inArray(importRows.sourceRowKey, candidateKeys),
+                eq(importBatches.state, "committed"),
+              ),
+            ),
+        ])
+      : [[], []];
     const existingKeys = new Set(
-      existing.flatMap(({ key }) => (key ? [key] : [])),
+      [...existingAttempts, ...retainedRows].flatMap(({ key }) =>
+        key ? [key] : [],
+      ),
     );
     const effectiveRows = rows.map((row) =>
       row.outcome === "accepted" &&
@@ -332,6 +364,7 @@ export async function confirmHistoricalImport(input: {
           contentVersionId: version.contentId,
           rubricVersionId: version.rubricId,
           totalScore: score.totalScore,
+          scorePercentage: score.percentage,
           risk: score.risk,
           completedAt: row.sourceSubmittedAt,
           updatedAt: sql`now()`,

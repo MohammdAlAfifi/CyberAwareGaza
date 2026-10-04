@@ -28,11 +28,14 @@ export async function POST(request: NextRequest) {
     const session = await loginAccount({
       username: parsed.data.username,
       password: parsed.data.password,
-      expectedRole: "participant",
       clientAddress: requestClientAddress(request),
       previousToken: request.cookies.get(SESSION_COOKIE)?.value,
     });
-    const response = NextResponse.json({ ok: true as const });
+    const response = NextResponse.json({
+      ok: true as const,
+      role: session.role,
+      mustChangePassword: session.mustChangePassword,
+    });
     response.cookies.set(
       SESSION_COOKIE,
       session.token,

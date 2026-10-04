@@ -54,6 +54,7 @@ export function AuthCard({
       );
       const result = (await response.json()) as {
         ok: boolean;
+        role?: "participant" | "admin";
         mustChangePassword?: boolean;
         code?: keyof typeof t.errors;
         fields?: string[];
@@ -63,8 +64,9 @@ export function AuthCard({
         setMessage(t.errors[result.code ?? "server_error"]);
         return;
       }
+      const adminAccount = result.role === "admin" || admin;
       router.replace(
-        admin
+        adminAccount
           ? result.mustChangePassword
             ? `/${locale}/admin/settings?required=1`
             : `/${locale}/admin`
@@ -84,11 +86,31 @@ export function AuthCard({
   return (
     <section className={`auth-card${admin ? " admin-auth-card" : ""}`}>
       <p className="eyebrow">
-        {admin ? t.adminLogin : signup ? t.create : t.participantLogin}
+        {admin
+          ? t.adminLogin
+          : signup
+            ? t.create
+            : locale === "ar"
+              ? "صفحة تسجيل الدخول"
+              : "Login page"}
       </p>
-      <h1>{admin ? t.adminLogin : signup ? t.create : t.participantLogin}</h1>
+      <h1>
+        {admin
+          ? t.adminLogin
+          : signup
+            ? t.create
+            : locale === "ar"
+              ? "صفحة تسجيل الدخول"
+              : "Login page"}
+      </h1>
       <p className="auth-intro">
-        {admin ? t.adminIntro : signup ? t.createIntro : t.loginIntro}
+        {admin
+          ? t.adminIntro
+          : signup
+            ? t.createIntro
+            : locale === "ar"
+              ? "سجّل الدخول بحساب المشارك أو المسؤول. سيحدد الخادم صلاحية الحساب بأمان."
+              : "Sign in with a participant or administrator account. The server securely determines the account role."}
       </p>
       <form
         className="auth-form"

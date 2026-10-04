@@ -10,12 +10,32 @@ import {
   verifyDatabaseConnection,
 } from "./database-utils.mjs";
 
-const rubric = JSON.parse(
+const previousRubric = JSON.parse(
   readFileSync(
     new URL("../src/scoring/rubric-v1.json", import.meta.url),
     "utf8",
   ),
 );
+const activeRubric = {
+  id: "cyberawaregaza-safe-decisions-v2",
+  minimumScore: 0,
+  maximumScore: 80,
+  entries: previousRubric.entries.map((entry) => ({
+    ...entry,
+    contribution:
+      entry.optionId === "S4O2"
+        ? 8
+        : new Map([
+            [-10, 0],
+            [-8, 2],
+            [2, 4],
+            [4, 6],
+            [6, 6],
+            [8, 8],
+            [10, 10],
+          ]).get(entry.contribution),
+  })),
+};
 const migrationJournal = JSON.parse(
   readFileSync(
     new URL("../drizzle/meta/_journal.json", import.meta.url),
@@ -124,15 +144,15 @@ try {
        join rubric_entries re on re.rubric_version_id = rv.id
       where rv.id = $1 and rv.is_active = true
       order by re.scenario_key, re.option_id`,
-    [rubric.id],
+    [activeRubric.id],
   );
   if (
-    rubricResult.rows.length !== rubric.entries.length ||
-    rubricResult.rows[0]?.minimum_score !== rubric.minimumScore ||
-    rubricResult.rows[0]?.maximum_score !== rubric.maximumScore
+    rubricResult.rows.length !== activeRubric.entries.length ||
+    rubricResult.rows[0]?.minimum_score !== activeRubric.minimumScore ||
+    rubricResult.rows[0]?.maximum_score !== activeRubric.maximumScore
   ) {
     throw new Error(
-      `Phase 5 rubric must contain ${rubric.entries.length} rules and the ${rubric.minimumScore} to ${rubric.maximumScore} raw range`,
+      `Active scoring rubric must contain ${activeRubric.entries.length} rules and the ${activeRubric.minimumScore} to ${activeRubric.maximumScore} point range`,
     );
   }
   const storedContributions = new Map(
@@ -141,13 +161,13 @@ try {
       row.contribution,
     ]),
   );
-  for (const entry of rubric.entries) {
+  for (const entry of activeRubric.entries) {
     if (
       storedContributions.get(`${entry.scenarioKey}:${entry.optionId}`) !==
       entry.contribution
     ) {
       throw new Error(
-        `Phase 5 rubric contribution mismatch for ${entry.scenarioKey}:${entry.optionId}`,
+        `Active scoring rubric contribution mismatch for ${entry.scenarioKey}:${entry.optionId}`,
       );
     }
   }
@@ -173,7 +193,7 @@ try {
   }
 
   console.log(
-    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${appliedMigrationCount} migrations, ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, ${rubric.entries.length} Phase 5 scoring rules present, foundation seed present, and 12 atomic counter allocations.`,
+    `Database check passed via ${formatVerifiedTarget(maintenanceTarget)} and ${formatVerifiedTarget(runtimeTarget)}: ${appliedMigrationCount} migrations, ${expectedTables.length} tables, RLS enabled, 8 scenarios/25 options present, ${activeRubric.entries.length} active v2 scoring rules present, foundation seed present, and 12 atomic counter allocations.`,
   );
 } finally {
   await pool

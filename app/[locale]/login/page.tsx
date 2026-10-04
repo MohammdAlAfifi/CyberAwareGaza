@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AuthCard } from "@/components/auth-card";
 import { isLocale } from "@/src/i18n";
 
-export const metadata: Metadata = { title: "Participant login" };
+export const metadata: Metadata = { title: "Login page" };
 export default async function LoginPage({
   params,
 }: {

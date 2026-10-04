@@ -192,13 +192,15 @@ function drawAssessment(
         `رقم التقييم: ${row.assessmentId}`,
         `المصدر: ${source}`,
         `تاريخ الإرسال: ${submitted ? formatDate(submitted, "ar") : "غير متاح"}`,
-        `الدرجة الخام: ${row.rawScore}    مستوى المخاطر: ${localizedRisk(row.risk, true)}`,
+        `نسبة المخاطر: ${formatPercentage(row.percentage, "ar")}%    مستوى المخاطر: ${localizedRisk(row.risk, true)}`,
+        `إصدار التقييم: ${row.scoringVersion}`,
       ]
     : [
         `Assessment ID: ${row.assessmentId}`,
         `Source: ${source}`,
         `Submission date: ${submitted ? formatDate(submitted, "en") : "Not available"}`,
-        `Raw score: ${row.rawScore}    Risk level: ${localizedRisk(row.risk, false)}`,
+        `Risk percentage: ${formatPercentage(row.percentage, "en")}%    Risk level: ${localizedRisk(row.risk, false)}`,
+        `Scoring version: ${row.scoringVersion}`,
       ];
   for (const fact of facts) writeMixedLine(doc, fact, rtl);
   doc.moveDown(0.45);
@@ -343,6 +345,12 @@ function formatDate(value: Date, locale: "en" | "ar") {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone: "Asia/Hebron",
+  }).format(value);
+}
+
+function formatPercentage(value: number, locale: "en" | "ar") {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-PS" : "en-GB", {
+    maximumFractionDigits: 1,
   }).format(value);
 }
 

@@ -6,6 +6,7 @@ import type { SessionActor } from "@/src/auth/sessions";
 import { db } from "@/src/db";
 import { coerceDatabaseDate } from "@/src/export/database-values";
 import type { ExportFilters } from "@/src/export/filters";
+import { RUBRIC_VERSION } from "@/src/scoring/rubric";
 
 type AdminActor = Extract<SessionActor, { kind: "admin" }>;
 
@@ -33,6 +34,7 @@ export type ResponseReportRow = {
   completedAt: Date | null;
   scoringVersion: string;
   rawScore: number;
+  percentage: number;
   risk: "low" | "medium" | "high";
   answers: ReportAnswer[];
 };
@@ -44,6 +46,7 @@ function assertAdmin(actor: SessionActor): asserts actor is AdminActor {
 function attemptConditions(filters: ExportFilters, alias = sql`aa`): SQL[] {
   const conditions: SQL[] = [
     sql`${alias}.status = 'completed'`,
+    sql`${alias}.rubric_version_id = ${RUBRIC_VERSION}`,
     sql`exists (
       select 1 from consents c
        where c.attempt_id = ${alias}.id
@@ -97,7 +100,8 @@ export async function getResponseReportData(
            a.username, aa.id as "assessmentId", aa.source,
            aa.source_record_number as "sourceRecordNumber",
            aa.source_submitted_at as "sourceSubmittedAt", aa.completed_at as "completedAt",
-           aa.rubric_version_id as "scoringVersion", aa.total_score as "rawScore", aa.risk,
+           aa.rubric_version_id as "scoringVersion", aa.total_score as "rawScore",
+           aa.score_percentage::double precision as percentage, aa.risk,
            json_agg(json_build_object(
              'scenarioKey', r.scenario_key, 'order', s.display_order,
              'questionEn', s.question_en, 'questionAr', s.question_ar,
@@ -114,7 +118,7 @@ export async function getResponseReportData(
       ${where(conditions)}
      group by p.id, p.public_code, p.type, p.anonymous_ordinal, a.display_name, a.username,
               aa.id, aa.source, aa.source_record_number, aa.source_submitted_at,
-              aa.completed_at, aa.rubric_version_id, aa.total_score, aa.risk
+              aa.completed_at, aa.rubric_version_id, aa.total_score, aa.score_percentage, aa.risk
     having count(r.scenario_key) = 8
      order by coalesce(aa.source_submitted_at, aa.completed_at) desc nulls last, aa.id
   `);

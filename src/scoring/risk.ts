@@ -15,21 +15,34 @@ export type ScoreAnswer = {
 
 export type AssessmentScore = {
   totalScore: number;
+  percentage: number;
   risk: RiskCategory;
   contributions: ReadonlyMap<ScenarioKey, number>;
   rules: ReadonlyMap<ScenarioKey, ScoringRule>;
 };
 
 /**
- * Chapter 3 Table 3.5 risk bands. The assessment score is a raw cumulative
- * score, not a percentage.
+ * Version 2 risk bands use the unrounded percentage of the 0-80 score.
  */
-export function classifyRisk(totalScore: number): RiskCategory {
-  if (!Number.isInteger(totalScore))
-    throw new TypeError("Score must be an integer");
-  if (totalScore >= 25) return "low";
-  if (totalScore >= 10) return "medium";
-  return "high";
+export function classifyRisk(percentage: number): RiskCategory {
+  if (!Number.isFinite(percentage) || percentage < 0 || percentage > 100)
+    throw new TypeError("Percentage must be between 0 and 100");
+  if (percentage <= 50) return "high";
+  if (percentage <= 70) return "medium";
+  return "low";
+}
+
+export function scorePercentage(totalScore: number): number {
+  if (!Number.isInteger(totalScore) || totalScore < 0 || totalScore > 80)
+    throw new TypeError("Score must be an integer between 0 and 80");
+  return totalScore * 1.25;
+}
+
+export function classifyResponseRisk(contribution: number): RiskCategory {
+  if (contribution === 0 || contribution === 2) return "high";
+  if (contribution === 4 || contribution === 6) return "medium";
+  if (contribution === 8 || contribution === 10) return "low";
+  throw new TypeError("Unsupported response contribution");
 }
 
 /**
@@ -73,9 +86,11 @@ export function calculateAssessmentScore(
     throw new Error("Score is outside the approved raw range");
   }
 
+  const percentage = scorePercentage(totalScore);
   return {
     totalScore,
-    risk: classifyRisk(totalScore),
+    percentage,
+    risk: classifyRisk(percentage),
     contributions,
     rules,
   };

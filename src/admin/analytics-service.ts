@@ -126,7 +126,7 @@ export async function getAnalyticsDashboard(
                  where aa.content_version_id = ${activeVersion.contentVersionId}
                    and aa.rubric_version_id = ${activeVersion.rubricVersionId}
                )::integer as "currentVersion",
-               avg(aa.total_score) filter (
+               avg(aa.score_percentage) filter (
                  where aa.content_version_id = ${activeVersion.contentVersionId}
                    and aa.rubric_version_id = ${activeVersion.rubricVersionId}
                )::double precision as "averageScore",
@@ -183,13 +183,15 @@ export async function getAnalyticsDashboard(
   const recentResult = await db.execute<AttemptRow>(sql`
     select aa.id, aa.participant_id as "participantId", p.public_code as "publicCode",
            p.type as "participantType", ${participantNameSql()} as "displayName",
-           aa.source, aa.status, aa.total_score as "totalScore", aa.risk,
+           aa.source, aa.status, aa.total_score as "totalScore", aa.score_percentage::double precision as percentage, aa.risk,
            aa.started_at as "startedAt", aa.completed_at as "completedAt",
            aa.updated_at as "updatedAt"
       from assessment_attempts aa
       join participants p on p.id = aa.participant_id
       left join accounts a on a.id = p.account_id
      where ${eligibleSql}
+       and aa.content_version_id = ${activeVersion?.contentVersionId ?? ""}
+       and aa.rubric_version_id = ${activeVersion?.rubricVersionId ?? ""}
      ${sourceAttempts}
      order by aa.completed_at desc, aa.id desc
      limit 8

@@ -12,7 +12,7 @@ import {
   responses,
   scenarios,
 } from "@/src/db/schema";
-import { getScoringRule } from "@/src/scoring/rubric";
+import { getScoringRule, RUBRIC_VERSION } from "@/src/scoring/rubric";
 
 export type ParticipantResult = {
   attemptId: string;
@@ -21,6 +21,7 @@ export type ParticipantResult = {
   displayName: string;
   completedAt: Date;
   totalScore: number;
+  percentage: number;
   risk: "low" | "medium" | "high";
   responses: Array<{
     scenarioKey: ScenarioKey;
@@ -54,6 +55,7 @@ export async function getParticipantResult(
       accountDisplayName: accounts.displayName,
       completedAt: assessmentAttempts.completedAt,
       totalScore: assessmentAttempts.totalScore,
+      percentage: assessmentAttempts.scorePercentage,
       risk: assessmentAttempts.risk,
     })
     .from(assessmentAttempts)
@@ -67,6 +69,7 @@ export async function getParticipantResult(
         eq(assessmentAttempts.id, attemptId),
         eq(assessmentAttempts.participantId, participantId),
         eq(assessmentAttempts.status, "completed"),
+        eq(assessmentAttempts.rubricVersionId, RUBRIC_VERSION),
       ),
     )
     .limit(1);
@@ -75,6 +78,7 @@ export async function getParticipantResult(
     !attempt?.contentVersionId ||
     !attempt.completedAt ||
     attempt.totalScore === null ||
+    attempt.percentage === null ||
     !attempt.risk ||
     (attempt.participantType !== "registered" &&
       attempt.participantType !== "anonymous")
@@ -148,6 +152,7 @@ export async function getParticipantResult(
     displayName,
     completedAt: attempt.completedAt,
     totalScore: attempt.totalScore,
+    percentage: attempt.percentage,
     risk: attempt.risk,
     responses: reviewedResponses,
   };

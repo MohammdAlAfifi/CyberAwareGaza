@@ -81,7 +81,7 @@ async function snapshot(source: "web" | "google_form") {
        (select count(*)::integer from participants where source = $1 and type = 'anonymous') anonymous,
        count(*)::integer eligible,
        count(*) filter (where aa.content_version_id = $2 and aa.rubric_version_id = $3)::integer score_count,
-       coalesce(sum(aa.total_score) filter (where aa.content_version_id = $2 and aa.rubric_version_id = $3), 0)::integer score_sum
+       coalesce(sum(aa.score_percentage) filter (where aa.content_version_id = $2 and aa.rubric_version_id = $3), 0)::double precision score_sum
      from assessment_attempts aa
      where aa.source = $1 and aa.status = 'completed'
        and exists (select 1 from consents c where c.attempt_id = aa.id and c.participant_id = aa.participant_id and c.source = aa.source and c.decision = true)`,
@@ -119,8 +119,8 @@ async function insertCompletedAttempt({
   const score = calculateAssessmentScore(answers);
   const attempt = await pool!.query(
     `insert into assessment_attempts
-       (participant_id,status,source,source_submission_key,content_version_id,rubric_version_id,total_score,risk,completed_at)
-     values ($1,'completed',$2,$3,$4,$5,$6,$7,now()) returning id`,
+       (participant_id,status,source,source_submission_key,content_version_id,rubric_version_id,total_score,score_percentage,risk,completed_at)
+     values ($1,'completed',$2,$3,$4,$5,$6,$7,$8,now()) returning id`,
     [
       participantId,
       source,
@@ -130,6 +130,7 @@ async function insertCompletedAttempt({
       ASSESSMENT_CONTENT_VERSION,
       RUBRIC_VERSION,
       score.totalScore,
+      score.percentage,
       score.risk,
     ],
   );
@@ -153,7 +154,7 @@ async function insertCompletedAttempt({
       ],
     );
   }
-  return score.totalScore;
+  return score.percentage;
 }
 
 async function pageOverflow(page: import("@playwright/test").Page) {
@@ -303,7 +304,7 @@ test("protects analytics and reports consented source-aware metrics and scenario
 }) => {
   const visitor = await browser.newPage();
   await visitor.goto("/en/admin/scenario-analytics/S4");
-  await expect(visitor).toHaveURL(/\/en\/admin\/login$/);
+  await expect(visitor).toHaveURL(/\/en\/login$/);
   await visitor.close();
 
   const participantContext = await browser.newContext();
@@ -317,15 +318,16 @@ test("protects analytics and reports consented source-aware metrics and scenario
     .getByRole("button", { name: "Sign in", exact: true })
     .click();
   await participantPage.goto("/en/admin/scenario-analytics");
-  await expect(participantPage).toHaveURL(/\/en\/admin\/login$/);
+  await expect(participantPage).toHaveURL(/\/en\/login$/);
   await participantContext.close();
 
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto("/en/admin/login");
+  await expect(page).toHaveURL(/\/en\/login$/);
   await page.getByLabel("Username").fill(adminUsername);
   await page.getByLabel("Password", { exact: true }).fill(adminPassword);
-  await page.getByRole("button", { name: "Sign in to administration" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/admin$/);
 
   await page.goto("/en/admin?source=web");
@@ -347,7 +349,9 @@ test("protects analytics and reports consented source-aware metrics and scenario
     (webBefore.scoreSum +
       webFixtureScores.reduce((sum, score) => sum + score, 0)) /
     (webBefore.scoreCount + webFixtureScores.length);
-  await expect(metric("Average score")).toHaveText(expectedAverage.toFixed(1));
+  await expect(metric("Average score")).toHaveText(
+    `${expectedAverage.toFixed(1)}%`,
+  );
   await expect(page.getByText(excludedUsername)).toHaveCount(0);
   await expect(page.getByLabel("Analytics source")).toHaveValue("web");
   await expect(page.getByText(/Active source:/)).toHaveCount(0);
@@ -382,7 +386,9 @@ test("protects analytics and reports consented source-aware metrics and scenario
   const googleAverage =
     (googleBefore.scoreSum + googleFixtureScore) /
     (googleBefore.scoreCount + 1);
-  await expect(metric("Average score")).toHaveText(googleAverage.toFixed(1));
+  await expect(metric("Average score")).toHaveText(
+    `${googleAverage.toFixed(1)}%`,
+  );
   await expect(page.getByText(importedCode)).toBeVisible();
   await expect(page.getByText("Google Form import")).toBeVisible();
 
@@ -434,9 +440,9 @@ test("protects analytics and reports consented source-aware metrics and scenario
   const optionRows = page.locator("tbody tr");
   await expect(optionRows).toHaveCount(4);
   await expect(optionRows.nth(0)).toContainText("+10");
-  await expect(optionRows.nth(1)).toContainText("+10");
-  await expect(optionRows.nth(2)).toContainText("-10");
-  await expect(optionRows.nth(3)).toContainText("+2");
+  await expect(optionRows.nth(1)).toContainText("+8");
+  await expect(optionRows.nth(2)).toContainText("0");
+  await expect(optionRows.nth(3)).toContainText("+4");
 
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/ar/admin/scenario-analytics/S4?source=google_form");

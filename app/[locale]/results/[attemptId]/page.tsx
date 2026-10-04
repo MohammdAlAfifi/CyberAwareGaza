@@ -7,7 +7,7 @@ import { Panel } from "@/components/ui/panel";
 import { requireParticipant } from "@/src/auth/authorization";
 import { getDictionary, isLocale } from "@/src/i18n";
 import { getParticipantResult } from "@/src/results/service";
-import { MAXIMUM_SCORE, MINIMUM_SCORE } from "@/src/scoring/rubric";
+import { classifyResponseRisk } from "@/src/scoring/risk";
 
 export const metadata: Metadata = { title: "Assessment result" };
 
@@ -39,13 +39,10 @@ export default async function ParticipantResultPage({
     timeStyle: "short",
     timeZone: "Asia/Hebron",
   }).format(result.completedAt);
-  const rawScore = new Intl.NumberFormat(locale, {
-    signDisplay: "always",
-  }).format(result.totalScore);
-  const visualPosition = Math.round(
-    ((result.totalScore - MINIMUM_SCORE) / (MAXIMUM_SCORE - MINIMUM_SCORE)) *
-      100,
-  );
+  const displayPercentage = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 1,
+  }).format(result.percentage);
+  const visualPosition = result.percentage;
 
   return (
     <main id="main" className="result-page">
@@ -57,9 +54,6 @@ export default async function ParticipantResultPage({
             </span>
             <div>
               <h1>{result.displayName}</h1>
-              <p>
-                <bdi dir="ltr">{result.participantCode}</bdi>
-              </p>
             </div>
           </div>
           <dl>
@@ -101,10 +95,7 @@ export default async function ParticipantResultPage({
           <div className="result-hero-grid">
             <div
               className="result-score-block"
-              aria-label={t.visualScaleAria
-                .replace("{position}", String(visualPosition))
-                .replace("{minimum}", String(MINIMUM_SCORE))
-                .replace("{maximum}", String(MAXIMUM_SCORE))}
+              aria-label={`${displayPercentage}% ${locale === "ar" ? "نسبة القرارات الآمنة" : "safe-decision score percentage"}`}
             >
               <div className="score-ring">
                 <svg aria-hidden="true" viewBox="0 0 160 160">
@@ -126,27 +117,30 @@ export default async function ParticipantResultPage({
                   />
                 </svg>
                 <div className="score-ring-copy">
-                  <strong dir="ltr">{rawScore}</strong>
-                  <span>Resilience Score</span>
-                  <small>{t.rawCumulative}</small>
+                  <strong dir="ltr">{displayPercentage}%</strong>
+                  <span>Risk percentage</span>
                 </div>
               </div>
               <p>
-                {t.visualScale.replace("{position}", String(visualPosition))}
+                {locale === "ar"
+                  ? "تشير النسبة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني."
+                  : "A higher percentage indicates safer cybersecurity decisions."}
               </p>
               <small>
-                {t.possibleRange}{" "}
-                <bdi dir="ltr">
-                  {MINIMUM_SCORE}–{MAXIMUM_SCORE}
-                </bdi>
+                {locale === "ar"
+                  ? "نقاط القرار الآمن:"
+                  : "Safe-decision points:"}{" "}
+                <bdi dir="ltr">{result.totalScore}/80</bdi>
               </small>
             </div>
 
             <div className="result-summary-copy">
               <dl className="result-key-facts">
                 <div>
-                  <dt>{t.rawScore}</dt>
-                  <dd dir="ltr">{rawScore}</dd>
+                  <dt>
+                    {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                  </dt>
+                  <dd dir="ltr">{displayPercentage}%</dd>
                 </div>
                 <div>
                   <dt>{t.riskLabel}</dt>
@@ -164,7 +158,11 @@ export default async function ParticipantResultPage({
                   <p>{interpretation}</p>
                 </div>
               </div>
-              <p className="result-scale-note">{t.rawScoreNote}</p>
+              <p className="result-scale-note">
+                {locale === "ar"
+                  ? "لا يتم عكس النسبة؛ تشير القيمة الأعلى إلى قرارات أكثر أمانًا."
+                  : "The percentage is not reversed; a higher value indicates safer decisions."}
+              </p>
             </div>
           </div>
         </Panel>
@@ -202,12 +200,20 @@ export default async function ParticipantResultPage({
                     <h3>{response.question[locale]}</h3>
                   </div>
                   <span
-                    className={`score-delta ${response.contribution < 0 ? "score-delta--negative" : "score-delta--positive"}`}
+                    className={`score-delta score-delta--${classifyResponseRisk(response.contribution)}`}
                     dir="ltr"
                   >
                     {new Intl.NumberFormat(locale, {
                       signDisplay: "always",
                     }).format(response.contribution)}
+                    {" · "}
+                    {
+                      {
+                        low: t.lowRisk,
+                        medium: t.mediumRisk,
+                        high: t.highRisk,
+                      }[classifyResponseRisk(response.contribution)]
+                    }
                   </span>
                 </header>
                 <div className="answer-review-grid">

@@ -71,7 +71,7 @@ export async function signupParticipant(input: SignupInput) {
 type LoginInput = {
   username: string;
   password: string;
-  expectedRole: "participant" | "admin";
+  expectedRole?: "participant" | "admin";
   clientAddress: string;
   previousToken?: string;
 };
@@ -101,7 +101,11 @@ export async function loginAccount(input: LoginInput) {
     input.password,
   ).catch(() => false);
 
-  if (!account || !validPassword || account.role !== input.expectedRole) {
+  if (
+    !account ||
+    !validPassword ||
+    (input.expectedRole !== undefined && account.role !== input.expectedRole)
+  ) {
     throw new AuthError("invalid_credentials", 401);
   }
 
@@ -127,7 +131,11 @@ export async function loginAccount(input: LoginInput) {
     participantId,
     previousToken: input.previousToken,
   });
-  return { ...session, mustChangePassword: account.mustChangePassword };
+  return {
+    ...session,
+    role: account.role,
+    mustChangePassword: account.mustChangePassword,
+  };
 }
 
 export async function changeAdminPassword(input: {

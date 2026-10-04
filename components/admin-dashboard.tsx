@@ -60,8 +60,8 @@ export function AdminDashboardView({
       value:
         data.attempts.averageScore === null
           ? "—"
-          : data.attempts.averageScore.toFixed(1),
-      detail: t.rawScoreUnit,
+          : `${data.attempts.averageScore.toFixed(1)}%`,
+      detail: locale === "ar" ? "نسبة المخاطر" : "Risk percentage",
       icon: "chart",
       tone: "teal",
     },
@@ -217,7 +217,11 @@ export function AdminDashboardView({
                         {row.source === "web" ? t.website : t.googleForm}
                       </span>
                     </td>
-                    <td>{row.totalScore ?? "—"}</td>
+                    <td>
+                      {row.percentage === null
+                        ? "—"
+                        : `${row.percentage.toFixed(1)}%`}
+                    </td>
                     <td>
                       <RiskBadge locale={locale} risk={row.risk} />
                     </td>

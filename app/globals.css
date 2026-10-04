@@ -1225,6 +1225,7 @@ html[lang="ar"] .identity-list dt {
 }
 
 .session-limit-card {
+  grid-column: 1 / -1;
   border-color: #f2d89f;
   background: var(--warning-soft);
 }
@@ -1301,16 +1302,19 @@ html[lang="ar"] .identity-list dt {
 .risk-badge--low {
   color: #137a3d;
   background: #eaf8ef;
+  border: 1px solid #88c99f;
 }
 
 .risk-badge--medium {
   color: #a34b08;
   background: #fff4db;
+  border: 1px solid #e1ad54;
 }
 
 .risk-badge--high {
   color: #a52b22;
   background: #fef0ef;
+  border: 1px solid #e5a09a;
 }
 
 .auth-divider {
@@ -1473,12 +1477,22 @@ html[lang="ar"] .identity-list dt {
 
 .footer-inner {
   min-height: 94px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 1rem;
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+.footer-inner > :last-child {
+  text-align: end;
+}
+
+.footer-credit {
+  color: #000 !important;
+  text-align: center;
+  font-weight: 800;
 }
 
 .footer-inner strong {
@@ -2332,14 +2346,22 @@ html[dir="rtl"] .result-summary-copy {
   font-weight: 850;
 }
 
-.score-delta--positive {
+.score-delta--low {
   color: #137a3d;
   background: #eaf8ef;
+  border: 1px solid #88c99f;
 }
 
-.score-delta--negative {
+.score-delta--medium {
+  color: #a34b08;
+  background: #fff4db;
+  border: 1px solid #e1ad54;
+}
+
+.score-delta--high {
   color: #a52b22;
   background: #fef0ef;
+  border: 1px solid #e5a09a;
 }
 
 .answer-review-grid {
@@ -2794,6 +2816,16 @@ body:has(.admin-shell) {
     gap: 0.35rem;
   }
 
+  .footer-inner {
+    grid-template-columns: 1fr;
+    padding-block: 1.25rem;
+    text-align: center;
+  }
+
+  .footer-inner > :last-child {
+    text-align: center;
+  }
+
   .brand-logo {
     width: 124px;
     height: 46px;
@@ -3180,10 +3212,18 @@ html[dir="rtl"] .admin-table td {
 .admin-status--completed {
   color: #126536;
   background: #e8f7ed;
+  border: 1px solid #88c99f;
 }
 .admin-status--in_progress {
   color: #875006;
   background: #fff4d8;
+  border: 1px solid #e1ad54;
+}
+
+.admin-status--not_started {
+  color: #4b5563;
+  background: #f1f3f5;
+  border: 1px solid #b6bec8;
 }
 .admin-status--abandoned,
 .admin-status--excluded {
@@ -3779,6 +3819,129 @@ html[lang="ar"] .scenario-detail-question h2 {
   gap: 0.8rem;
   min-height: 7rem;
   padding: 1rem;
+}
+
+.csv-dropzone--dragging {
+  background: #e8f7f4;
+  border-color: var(--teal-dark);
+  box-shadow: 0 0 0 3px rgb(15 118 110 / 18%);
+}
+
+.upload-state {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.upload-state progress {
+  width: 100%;
+  accent-color: var(--teal);
+}
+
+.indeterminate-progress {
+  position: relative;
+  height: 0.42rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d8e7e5;
+}
+
+.indeterminate-progress::after {
+  position: absolute;
+  inset-block: 0;
+  width: 35%;
+  border-radius: inherit;
+  background: var(--teal);
+  animation: indeterminate-slide 1.2s ease-in-out infinite;
+  content: "";
+}
+
+@keyframes indeterminate-slide {
+  from {
+    inset-inline-start: -35%;
+  }
+  to {
+    inset-inline-start: 100%;
+  }
+}
+
+.assessment-status {
+  display: inline-flex;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.assessment-status--not_started {
+  color: #4b5563;
+  background: #f1f3f5;
+  border-color: #b6bec8;
+}
+
+.assessment-status--completed {
+  color: #126536;
+  background: #e8f7ed;
+  border-color: #88c99f;
+}
+
+.assessment-status--in_progress {
+  color: #875006;
+  background: #fff4d8;
+  border-color: #e1ad54;
+}
+
+.scenario-filename {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-inline: 0.25rem;
+  white-space: nowrap;
+}
+
+.button-danger {
+  color: #8d1d18;
+  background: #fef0ef;
+  border: 1px solid #d77b73;
+}
+
+.button-danger:hover:not(:disabled) {
+  background: #f9dedb;
+}
+
+.table-actions,
+.admin-detail-actions,
+.delete-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.admin-detail-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.delete-dialog {
+  width: min(34rem, calc(100% - 2rem));
+  padding: 0;
+  border: 1px solid #e5a09a;
+  border-radius: 1rem;
+  box-shadow: 0 24px 70px rgb(11 36 71 / 24%);
+}
+
+.delete-dialog::backdrop {
+  background: rgb(11 36 71 / 52%);
+}
+
+.delete-dialog-copy {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.delete-dialog-actions {
+  justify-content: flex-end;
 }
 
 .selected-file {

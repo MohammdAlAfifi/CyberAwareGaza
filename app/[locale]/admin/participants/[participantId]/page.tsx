@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminShell } from "@/components/admin-shell";
+import { DeleteParticipantButton } from "@/components/delete-participant-button";
 import { RiskBadge, StatusBadge } from "@/components/admin-records";
 import { getAdminCopy } from "@/src/admin/copy";
 import { formatAdminDate } from "@/src/admin/format";
@@ -28,6 +29,15 @@ export default async function ParticipantDetailsPage({
       title={t.participantDetails}
     >
       <section className="admin-detail-grid">
+        <div className="admin-detail-actions">
+          <DeleteParticipantButton
+            locale={locale}
+            participantId={p.id}
+            participantName={p.displayName}
+            publicCode={p.publicCode}
+            returnToList
+          />
+        </div>
         <article className="panel admin-detail-card">
           <h2>{t.identity}</h2>
           <dl className="admin-facts">
@@ -66,7 +76,11 @@ export default async function ParticipantDetailsPage({
               <dd>
                 {data.attempts.some((a) => a.status === "completed")
                   ? t.completed
-                  : t.incomplete}
+                  : data.attempts.some((a) => a.status === "in_progress")
+                    ? t.inProgress
+                    : locale === "ar"
+                      ? "لم يبدأ"
+                      : "Not Started"}
               </dd>
             </div>
           </dl>
@@ -82,7 +96,9 @@ export default async function ParticipantDetailsPage({
                   <tr>
                     <th>{t.source}</th>
                     <th>{t.status}</th>
-                    <th>{t.rawScore}</th>
+                    <th>
+                      {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                    </th>
                     <th>{t.risk}</th>
                     <th>{t.started}</th>
                     <th>{t.completedAt}</th>
@@ -98,7 +114,11 @@ export default async function ParticipantDetailsPage({
                       <td>
                         <StatusBadge locale={locale} status={row.status} />
                       </td>
-                      <td>{row.totalScore ?? "—"}</td>
+                      <td>
+                        {row.percentage === null
+                          ? "—"
+                          : `${row.percentage.toFixed(1)}%`}
+                      </td>
                       <td>
                         <RiskBadge locale={locale} risk={row.risk} />
                       </td>

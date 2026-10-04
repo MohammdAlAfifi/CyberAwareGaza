@@ -28,6 +28,7 @@ export const expectedTables = [
   "rubric_entries",
   "rubric_versions",
   "scenarios",
+  "scoring_revision_audit",
   "sessions",
 ];
 

@@ -6,12 +6,33 @@ import {
   verifyDatabaseConnection,
 } from "./database-utils.mjs";
 
-const rubric = JSON.parse(
+const previousRubric = JSON.parse(
   readFileSync(
     new URL("../src/scoring/rubric-v1.json", import.meta.url),
     "utf8",
   ),
 );
+const contributionMap = new Map([
+  [-10, 0],
+  [-8, 2],
+  [2, 4],
+  [4, 6],
+  [6, 6],
+  [8, 8],
+  [10, 10],
+]);
+const rubric = {
+  ...previousRubric,
+  id: "cyberawaregaza-safe-decisions-v2",
+  label: "CyberAwareGaza 0-80 safe cybersecurity decisions model",
+  minimumScore: 0,
+  maximumScore: 80,
+  entries: previousRubric.entries.map((entry) => ({
+    ...entry,
+    contribution:
+      entry.optionId === "S4O2" ? 8 : contributionMap.get(entry.contribution),
+  })),
+};
 
 const pool = createMaintenancePool();
 let client;
