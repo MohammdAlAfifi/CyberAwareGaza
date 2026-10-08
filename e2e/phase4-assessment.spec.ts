@@ -321,8 +321,41 @@ test("registered participant resumes answers and keeps scenario through language
     percentage: 52.5,
     risk: "medium",
   });
+  await expect(page).toHaveURL(
+    new RegExp(`/en/assessment/completed/${registeredAttemptId}$`),
+    { timeout: 45_000 },
+  );
   await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
-  await page.getByRole("link", { name: "Return to Dashboard" }).click();
+  await page
+    .getByRole("group", { name: "Choose interface language" })
+    .getByRole("button", { name: "العربية" })
+    .click();
+  await expect(page).toHaveURL(
+    new RegExp(`/ar/assessment/completed/${registeredAttemptId}$`),
+  );
+  await expect(page.getByRole("heading", { name: "شكرًا لك" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "شكرًا لك" })).toBeVisible();
+  await page
+    .getByRole("group", { name: "اختر لغة الواجهة" })
+    .getByRole("button", { name: "English" })
+    .click();
+  await expect(page).toHaveURL(
+    new RegExp(`/en/assessment/completed/${registeredAttemptId}$`),
+  );
+  await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await page
+    .getByRole("group", { name: "Choose interface language" })
+    .getByRole("button", { name: "العربية" })
+    .click();
+  await page.getByRole("link", { name: "العودة إلى لوحة التحكم" }).click();
+  await expect(page).toHaveURL(/\/ar\/home$/, { timeout: 15_000 });
+  await page
+    .getByRole("group", { name: "اختر لغة الواجهة" })
+    .getByRole("button", { name: "English" })
+    .click();
   await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   await expect(page.locator(".identity-list dd").nth(0)).toHaveText(
     "Completed",
@@ -475,6 +508,10 @@ test("anonymous results require the owning active anonymous session", async ({
     `http://localhost:3000/en/results/${registeredAttemptId}`,
   );
   expect(denied?.status()).toBe(404);
+  const deniedCompletion = await page.goto(
+    `http://localhost:3000/en/assessment/completed/${registeredAttemptId}`,
+  );
+  expect(deniedCompletion?.status()).toBe(404);
 
   await page.goto("http://localhost:3000/en/home");
   await page.getByRole("link", { name: "Start assessment" }).click();
@@ -502,6 +539,25 @@ test("anonymous results require the owning active anonymous session", async ({
   const submitted = await submitResponse;
   const submission = (await submitted.json()) as { attemptId: string };
   expect(submitted.ok(), JSON.stringify(submission)).toBe(true);
+  await expect(page).toHaveURL(
+    new RegExp(`/en/assessment/completed/${submission.attemptId}$`),
+    { timeout: 45_000 },
+  );
+  await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await page
+    .getByRole("group", { name: "Choose interface language" })
+    .getByRole("button", { name: "العربية" })
+    .click();
+  await expect(page).toHaveURL(
+    new RegExp(`/ar/assessment/completed/${submission.attemptId}$`),
+  );
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "شكرًا لك" })).toBeVisible();
+  await page
+    .getByRole("group", { name: "اختر لغة الواجهة" })
+    .getByRole("button", { name: "English" })
+    .click();
+  await page.getByRole("link", { name: "Return to Dashboard" }).click();
   await expect(page).toHaveURL(/\/en\/home$/, { timeout: 15_000 });
   await page.getByRole("link", { name: "View your result" }).click();
   await expect(page).toHaveURL(

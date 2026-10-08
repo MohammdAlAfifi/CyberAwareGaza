@@ -62,7 +62,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         <Link
           aria-label="CyberAwareGaza"
           className="admin-logo"
-          href={`/${locale}`}
+          href={`/${locale}/admin`}
         >
           <Logo priority />
         </Link>
@@ -75,7 +75,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
         <Link
           aria-label="CyberAwareGaza"
           className="admin-mobile-logo"
-          href={`/${locale}`}
+          href={`/${locale}/admin`}
         >
           <Logo priority />
         </Link>

@@ -10,11 +10,13 @@ import { ASSESSMENT_CONTENT_VERSION } from "@/src/assessment/content";
 import { RUBRIC_VERSION } from "@/src/scoring/rubric";
 
 test.describe.configure({ mode: "serial" });
-test.setTimeout(120_000);
+test.setTimeout(240_000);
 
 const runId = `${Date.now()}${Math.floor(Math.random() * 10_000)}`;
 const adminUsername = `phase6_admin_${runId}`;
 const participantUsername = `phase6_user_${runId}`;
+const participantDisplayName =
+  "Phase 6 participant with an intentionally very long display name for responsive dialog verification";
 const rateUsername = `phase6_rate_${runId}`;
 const bootstrapPassword = "Bootstrap-admin-123!";
 const changedPassword = "Changed-admin-password-456!";
@@ -37,6 +39,32 @@ let latestScore = 0;
 
 async function pageOverflow(page: import("@playwright/test").Page) {
   return page.evaluate(() => document.body.scrollWidth - window.innerWidth);
+}
+
+const adminPaths = [
+  "",
+  "/participants",
+  "/assessments",
+  "/scenario-analytics",
+  "/import-export",
+  "/settings",
+] as const;
+
+async function verifyAdminLogoNavigation(
+  page: import("@playwright/test").Page,
+  locale: "en" | "ar",
+  mobile: boolean,
+  paths: readonly (typeof adminPaths)[number][] = adminPaths,
+) {
+  for (const suffix of paths) {
+    await page.goto(`/${locale}/admin${suffix}`);
+    const logo = page.locator(mobile ? ".admin-mobile-logo" : ".admin-logo");
+    await expect(logo).toHaveAttribute("href", `/${locale}/admin`);
+    await logo.click();
+    await expect(page).toHaveURL(new RegExp(`/${locale}/admin$`), {
+      timeout: 45_000,
+    });
+  }
 }
 
 async function allocate(key: string) {
@@ -71,8 +99,12 @@ test.beforeAll(async () => {
   );
   accountIds.push(admin.rows[0].id);
   const account = await pool!.query(
-    `insert into accounts (normalized_username, username, password_hash, role) values ($1,$1,$2,'participant') returning id`,
-    [participantUsername, await passwordHash(participantPassword)],
+    `insert into accounts (normalized_username, username, display_name, password_hash, role) values ($1,$1,$2,$3,'participant') returning id`,
+    [
+      participantUsername,
+      participantDisplayName,
+      await passwordHash(participantPassword),
+    ],
   );
   accountIds.push(account.rows[0].id);
   const registeredOrdinal = await allocate("participant_public_code");
@@ -222,7 +254,9 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   const page = await context.newPage();
   for (let attempt = 0; attempt < 6; attempt += 1) {
     const response = await page.request.post("/api/auth/admin-login", {
-      headers: { Origin: "http://localhost:3000" },
+      headers: {
+        Origin: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+      },
       data: {
         locale: "en",
         username: rateUsername,
@@ -246,6 +280,7 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   await expect(
     page.getByText("Password changed. Your administrator session was rotated."),
   ).toBeVisible();
+  await verifyAdminLogoNavigation(page, "en", false);
   await page.goto(`/en/admin/participants?q=${participantUsername}`);
   const row = page.locator("tbody tr").filter({ hasText: participantUsername });
   await expect(row).toContainText(registeredCode);
@@ -270,16 +305,19 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
     `${(latestScore * 1.25).toFixed(1)}%`,
   );
   await page.setViewportSize({ width: 390, height: 844 });
+  await verifyAdminLogoNavigation(page, "en", true, ["/participants"]);
   await page.goto("/en/admin/participants");
   await expect(
     page.getByRole("button", { name: "Open admin navigation" }),
   ).toBeVisible();
   expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await verifyAdminLogoNavigation(page, "ar", false, ["/assessments"]);
   await page.goto("/ar/admin/assessments");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
   await page.setViewportSize({ width: 390, height: 844 });
+  await verifyAdminLogoNavigation(page, "ar", true, ["/settings"]);
   await page.goto("/ar/admin/assessments");
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await expect(
@@ -287,6 +325,99 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   ).toBeVisible();
   expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
   await context.close();
+});
+
+test("participant deletion dialog is accessible and responsive in both languages", async ({
+  page,
+}) => {
+  await page.goto("/en/login");
+  await page.getByLabel("Username").fill(adminUsername);
+  await page.getByLabel("Password", { exact: true }).fill(changedPassword);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/admin$/);
+
+  await page.goto(`/en/admin/participants?q=${participantUsername}`);
+  let row = page.locator("tbody tr").filter({ hasText: participantUsername });
+  let trigger = row.getByRole("button", { name: "Delete", exact: true });
+  await trigger.click();
+  let dialog = page.getByRole("dialog", { name: "Delete participant?" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+  await expect(dialog).toContainText(participantDisplayName);
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth - element.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await page.keyboard.press("Tab");
+  await expect(
+    dialog.getByRole("button", { name: "Delete participant" }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  expect(
+    await dialog.evaluate((element) =>
+      element.contains(document.activeElement),
+    ),
+  ).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await page.setViewportSize({ width: 360, height: 640 });
+  await trigger.click();
+  await expect(dialog.getByRole("button", { name: "Cancel" })).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "Delete participant" }),
+  ).toBeVisible();
+  expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth - element.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(trigger).toBeFocused();
+
+  await page.goto(`/ar/admin/participants?q=${participantUsername}`);
+  row = page.locator("tbody tr").filter({ hasText: participantUsername });
+  trigger = row.getByRole("button", { name: "حذف", exact: true });
+  await trigger.click();
+  dialog = page.getByRole("dialog", { name: "حذف المشارك؟" });
+  await expect(dialog.getByRole("button", { name: "إلغاء" })).toBeFocused();
+  await expect(dialog).toContainText(participantDisplayName);
+  expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth - element.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await dialog.getByRole("button", { name: "إلغاء" }).click();
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`/en/admin/participants?q=${participantUsername}`);
+  row = page.locator("tbody tr").filter({ hasText: participantUsername });
+  await row.getByRole("button", { name: "Delete", exact: true }).click();
+  dialog = page.getByRole("dialog", { name: "Delete participant?" });
+  await page.route(
+    "**/api/admin/participants/*",
+    (route) =>
+      route.fulfill({
+        body: JSON.stringify({ ok: false }),
+        contentType: "application/json",
+        status: 500,
+      }),
+    { times: 1 },
+  );
+  await dialog.getByRole("button", { name: "Delete participant" }).click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "The participant could not be deleted",
+  );
+  expect(
+    await dialog.evaluate(
+      (element) => element.scrollWidth - element.clientWidth,
+    ),
+  ).toBeLessThanOrEqual(1);
+  await dialog.getByRole("button", { name: "Cancel" }).click();
 });
 
 test("deletes only a selected test participant and related records", async ({
@@ -303,13 +434,38 @@ test("deletes only a selected test participant and related records", async ({
   await expect(
     page.getByRole("heading", { name: "Delete participant?" }),
   ).toBeVisible();
+  let deleteRequests = 0;
+  page.on("request", (request) => {
+    if (
+      request.method() === "DELETE" &&
+      request.url().includes("/api/admin/participants/")
+    ) {
+      deleteRequests += 1;
+    }
+  });
+  await page.route(
+    "**/api/admin/participants/*",
+    async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      await route.continue();
+    },
+    { times: 1 },
+  );
   const deleted = page.waitForResponse(
     (response) =>
       response.url().includes("/api/admin/participants/") &&
       response.request().method() === "DELETE",
   );
-  await page.getByRole("button", { name: "Delete participant" }).click();
+  const deleteButton = page.getByRole("button", {
+    name: "Delete participant",
+  });
+  await deleteButton.evaluate((button) => {
+    (button as HTMLButtonElement).click();
+    (button as HTMLButtonElement).click();
+  });
+  await expect(page.getByRole("button", { name: "Deleting…" })).toBeDisabled();
   expect((await deleted).ok()).toBe(true);
+  expect(deleteRequests).toBe(1);
   await expect(row).toHaveCount(0);
 
   const remaining = await pool!.query(

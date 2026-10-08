@@ -78,6 +78,39 @@ export async function getAssessmentJourney(
   };
 }
 
+/**
+ * Verifies a persisted web completion and its owner without requiring an
+ * active attempt. Keep both predicates in the query so an attempt id from a
+ * different participant never grants access to the completion page.
+ */
+export async function ownsCompletedAssessment(
+  participantId: string,
+  attemptId: string,
+): Promise<boolean> {
+  const [attempt] = await db
+    .select({ id: assessmentAttempts.id })
+    .from(assessmentAttempts)
+    .innerJoin(
+      consents,
+      and(
+        eq(consents.attemptId, assessmentAttempts.id),
+        eq(consents.participantId, participantId),
+        eq(consents.decision, true),
+      ),
+    )
+    .where(
+      and(
+        eq(assessmentAttempts.id, attemptId),
+        eq(assessmentAttempts.participantId, participantId),
+        eq(assessmentAttempts.source, "web"),
+        eq(assessmentAttempts.status, "completed"),
+      ),
+    )
+    .limit(1);
+
+  return Boolean(attempt);
+}
+
 export async function recordConsent(input: {
   participantId: string;
   decision: boolean;

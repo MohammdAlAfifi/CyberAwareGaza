@@ -11,11 +11,14 @@ import {
   assessmentScenarios,
   type ScenarioKey,
 } from "@/src/assessment/content";
-import { assessmentScenarioPath } from "@/src/assessment/navigation";
+import {
+  assessmentCompletionPath,
+  assessmentScenarioPath,
+} from "@/src/assessment/navigation";
 import { getDictionary, type Locale } from "@/src/i18n";
 
 type ErrorCode = keyof ReturnType<typeof getDictionary>["assessment"]["errors"];
-type Stage = "consent" | "declined" | "instructions" | "scenario" | "submitted";
+type Stage = "consent" | "declined" | "instructions" | "scenario";
 
 export function AssessmentFlow({
   locale,
@@ -147,14 +150,19 @@ export function AssessmentFlow({
       const result = (await response.json()) as {
         ok: boolean;
         completed?: boolean;
+        attemptId?: string;
         code?: ErrorCode;
       };
-      if (!response.ok || !result.ok || !result.completed) {
+      if (
+        !response.ok ||
+        !result.ok ||
+        !result.completed ||
+        !result.attemptId
+      ) {
         setMessage(t.errors[result.code ?? "server_error"]);
         return;
       }
-      setStage("submitted");
-      router.refresh();
+      router.replace(assessmentCompletionPath(locale, result.attemptId));
     } catch {
       setMessage(t.errors.server_error);
     } finally {
@@ -175,28 +183,6 @@ export function AssessmentFlow({
           href={`/${locale}/home`}
         >
           {t.returnHome}
-        </Link>
-      </Panel>
-    );
-  }
-
-  if (stage === "submitted") {
-    return (
-      <Panel className="assessment-card assessment-gate-card thank-you-card">
-        <span className="section-icon" aria-hidden="true">
-          <Icon name="shield" />
-        </span>
-        <h1>{locale === "ar" ? "شكرًا لك" : "Thank You"}</h1>
-        <p>
-          {locale === "ar"
-            ? "تم حفظ تقييمك واحتساب نتيجتك بنجاح. يمكنك عرض النتيجة التفصيلية من لوحة التحكم."
-            : "Your assessment and calculated result were saved successfully. You can open the detailed result from your dashboard."}
-        </p>
-        <Link
-          className="button button-primary button-large"
-          href={`/${locale}/home`}
-        >
-          {locale === "ar" ? "العودة إلى لوحة التحكم" : "Return to Dashboard"}
         </Link>
       </Panel>
     );
