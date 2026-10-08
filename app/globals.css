@@ -1565,6 +1565,37 @@ html[dir="rtl"] .mirrored-icon {
   margin-top: 1.5rem;
 }
 
+.thank-you-card {
+  padding-block: clamp(2.25rem, 6vw, 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.thank-you-card .section-icon {
+  margin-inline: auto;
+}
+
+.thank-you-card h1,
+.thank-you-card > p {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.thank-you-card > p {
+  margin-block: 0;
+}
+
+.thank-you-card > .button {
+  width: fit-content;
+  max-width: 100%;
+  justify-content: center;
+}
+
 .consent-question {
   margin-bottom: 1.4rem;
   color: var(--text);
@@ -2106,6 +2137,7 @@ html[lang="ar"] .result-participant-ribbon dt {
   position: relative;
   width: min(220px, 100%);
   aspect-ratio: 1;
+  container-type: inline-size;
 }
 
 .score-ring svg {
@@ -2149,9 +2181,12 @@ html[lang="ar"] .result-participant-ribbon dt {
 }
 
 .score-ring-copy strong {
+  max-width: calc(100% - 3.5rem);
   color: var(--navy);
-  font-size: clamp(2.2rem, 5vw, 3.35rem);
+  font-size: clamp(2rem, 20cqi, 2.65rem);
   line-height: 1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .score-ring-copy span {

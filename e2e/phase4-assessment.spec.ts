@@ -23,6 +23,12 @@ const pool = databaseUrl
 const participantCodes = new Set<string>();
 let registeredAttemptId = "";
 
+async function pageOverflow(page: Page) {
+  return page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  );
+}
+
 function rateHash(bucket: string, identifier: string) {
   return createHmac("sha256", sessionSecret!)
     .update(`${bucket}:${identifier}`)
@@ -48,6 +54,74 @@ async function participantCode(page: Page) {
   if (!code) throw new Error("Participant code unavailable");
   participantCodes.add(code);
   return code as string;
+}
+
+async function expectThankYouCentered(page: Page, direction: "ltr" | "rtl") {
+  const metrics = await page.locator(".thank-you-card").evaluate((card) => {
+    const cardBox = card.getBoundingClientRect();
+    const content = [
+      card.querySelector(".section-icon"),
+      card.querySelector("h1"),
+      card.querySelector("p"),
+      card.querySelector(".button"),
+    ].filter((element): element is Element => Boolean(element));
+    return {
+      direction: getComputedStyle(card).direction,
+      textAlign: getComputedStyle(card.querySelector("p")!).textAlign,
+      offsets: content.map((element) => {
+        const box = element.getBoundingClientRect();
+        return Math.abs(
+          box.left + box.width / 2 - (cardBox.left + cardBox.width / 2),
+        );
+      }),
+    };
+  });
+
+  expect(metrics.direction).toBe(direction);
+  expect(metrics.textAlign).toBe("center");
+  expect(Math.max(...metrics.offsets)).toBeLessThanOrEqual(2);
+  expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
+}
+
+async function expectRingValuesFit(page: Page) {
+  const value = page.locator(".score-ring-copy strong");
+  const original = await value.textContent();
+
+  for (const sample of ["0%", "50%", "70%", "100%", "92.5%"]) {
+    await value.evaluate((element, text) => {
+      element.textContent = text;
+    }, sample);
+    const metrics = await page.locator(".score-ring").evaluate((ring) => {
+      const ringBox = ring.getBoundingClientRect();
+      const copyBox = ring
+        .querySelector(".score-ring-copy")!
+        .getBoundingClientRect();
+      const valueBox = ring.querySelector("strong")!.getBoundingClientRect();
+      return {
+        copyCenterOffset: Math.abs(
+          copyBox.top + copyBox.height / 2 - (ringBox.top + ringBox.height / 2),
+        ),
+        horizontalOffset: Math.abs(
+          valueBox.left +
+            valueBox.width / 2 -
+            (ringBox.left + ringBox.width / 2),
+        ),
+        ringWidth: ringBox.width,
+        valueHeight: valueBox.height,
+        valueWidth: valueBox.width,
+        whiteSpace: getComputedStyle(ring.querySelector("strong")!).whiteSpace,
+      };
+    });
+    expect(metrics.copyCenterOffset).toBeLessThanOrEqual(1);
+    expect(metrics.horizontalOffset).toBeLessThanOrEqual(1);
+    expect(metrics.valueWidth).toBeLessThanOrEqual(metrics.ringWidth - 56);
+    expect(metrics.valueHeight).toBeLessThan(metrics.ringWidth / 3);
+    expect(metrics.whiteSpace).toBe("nowrap");
+  }
+
+  await value.evaluate((element, text) => {
+    element.textContent = text;
+  }, original);
 }
 
 async function clearRateLimits() {
@@ -139,6 +213,13 @@ test("registered participant resumes answers and keeps scenario through language
 }) => {
   test.skip(!configured, "Database and session configuration are required");
   await page.goto("http://localhost:3000/en/signup");
+  const favicon = await page.request.get("/favicon.ico");
+  expect(favicon.status()).toBe(200);
+  expect(favicon.headers()["content-type"]).toContain("image/x-icon");
+  expect((await favicon.body()).subarray(0, 4)).toEqual(
+    Buffer.from([0, 0, 1, 0]),
+  );
+  await expect(page.locator('head link[rel="icon"]')).toHaveCount(1);
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByLabel("Confirm password").fill(password);
@@ -326,6 +407,12 @@ test("registered participant resumes answers and keeps scenario through language
     { timeout: 45_000 },
   );
   await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expectThankYouCentered(page, "ltr");
+  await page.screenshot({
+    path: "tmp/thank-you-en-desktop.png",
+    fullPage: true,
+  });
   await page
     .getByRole("group", { name: "Choose interface language" })
     .getByRole("button", { name: "العربية" })
@@ -334,6 +421,13 @@ test("registered participant resumes answers and keeps scenario through language
     new RegExp(`/ar/assessment/completed/${registeredAttemptId}$`),
   );
   await expect(page.getByRole("heading", { name: "شكرًا لك" })).toBeVisible();
+  await expectThankYouCentered(page, "rtl");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectThankYouCentered(page, "rtl");
+  await page.screenshot({
+    path: "tmp/thank-you-ar-mobile.png",
+    fullPage: true,
+  });
   await page.reload();
   await expect(page.getByRole("heading", { name: "شكرًا لك" })).toBeVisible();
   await page
@@ -344,6 +438,7 @@ test("registered participant resumes answers and keeps scenario through language
     new RegExp(`/en/assessment/completed/${registeredAttemptId}$`),
   );
   await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
+  await expectThankYouCentered(page, "ltr");
   await page.reload();
   await expect(page.getByRole("heading", { name: "Thank You" })).toBeVisible();
   await page
@@ -381,6 +476,9 @@ test("registered participant resumes answers and keeps scenario through language
   await expect(
     page.locator(".answer-review-card").first().getByText(firstOption),
   ).toBeVisible();
+  await expectRingValuesFit(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expectRingValuesFit(page);
   await page.screenshot({
     path: "tmp/phase5-result-en.png",
     fullPage: true,
@@ -405,6 +503,10 @@ test("registered participant resumes answers and keeps scenario through language
       .first()
       .getByText(assessmentScenarios[0].options[0].ar),
   ).toBeVisible();
+  await expectRingValuesFit(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectRingValuesFit(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.screenshot({
     path: "tmp/phase5-result-ar.png",
     fullPage: true,
