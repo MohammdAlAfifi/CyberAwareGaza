@@ -14,6 +14,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   outputFileTracingIncludes: {
+    "/*": ["./certs/prod-ca-2021.crt"],
     "/api/admin/exports/[kind]": [
       "./node_modules/@ibm/plex-sans-arabic/fonts/complete/woff/*.woff",
       "./public/CyberAwareGaza_Logo.jpg",
