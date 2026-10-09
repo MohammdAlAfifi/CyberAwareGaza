@@ -7,3 +7,4 @@ confirmModulesPurge: false
 allowBuilds:
   "@ibm/plex-sans-arabic": false
   esbuild: true
+  unrs-resolver: true
