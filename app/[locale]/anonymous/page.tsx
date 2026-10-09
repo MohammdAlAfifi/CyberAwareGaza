@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AnonymousEntry } from "@/components/anonymous-entry";
-import { SourceGate } from "@/components/source-gate";
 import { Modal } from "@/components/ui/modal";
 import { TemporarySessionIcon } from "@/components/temporary-session-icon";
 import { getDictionary, isLocale } from "@/src/i18n";
@@ -34,7 +33,6 @@ export default async function AnonymousPage({
           title={modal.title}
           triggerLabel={modal.trigger}
         />
-        <SourceGate locale={locale} />
       </section>
     </main>
   );

@@ -66,11 +66,9 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
               ) : (
                 <Link href={`/${locale}/start`}>{t.nav.login}</Link>
               )}
-              <Link href={assessmentHref}>
-                {participantActive
-                  ? t.nav.participantDashboard
-                  : t.nav.participantAccess}
-              </Link>
+              {participantActive && (
+                <Link href={assessmentHref}>{t.nav.participantDashboard}</Link>
+              )}
             </nav>
           </details>
         </div>
