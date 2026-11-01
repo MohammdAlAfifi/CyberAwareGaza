@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AssessmentCompletion } from "@/components/assessment-completion";
+import { AssessmentFeedback } from "@/components/assessment-feedback";
 import { ownsCompletedAssessment } from "@/src/assessment/service";
 import { requireParticipant } from "@/src/auth/authorization";
 import { isLocale } from "@/src/i18n";
+import { hasAssessmentFeedback } from "@/src/feedback/service";
 
 export const metadata: Metadata = { title: "Assessment completed" };
 
@@ -24,10 +26,21 @@ export default async function AssessmentCompletedPage({
     notFound();
   }
 
+  // Feedback availability must never prevent access to the saved confirmation.
+  const submitted = await hasAssessmentFeedback(
+    actor.participantId,
+    attemptId,
+  ).catch(() => false);
+
   return (
     <main id="main" className="flow-page assessment-page">
       <div className="flow-width">
         <AssessmentCompletion locale={locale} />
+        <AssessmentFeedback
+          locale={locale}
+          attemptId={attemptId}
+          submitted={submitted}
+        />
       </div>
     </main>
   );

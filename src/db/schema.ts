@@ -730,6 +730,63 @@ export const adminAudit = pgTable(
   ],
 ).enableRLS();
 
+export const assessmentFeedback = pgTable(
+  "assessment_feedback",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    attemptId: uuid("attempt_id").notNull(),
+    participantId: uuid("participant_id").notNull(),
+    navigationRating: integer("navigation_rating").notNull(),
+    scenarioClarityRating: integer("scenario_clarity_rating").notNull(),
+    interactionRating: integer("interaction_rating").notNull(),
+    readabilityRating: integer("readability_rating").notNull(),
+    satisfactionRating: integer("satisfaction_rating").notNull(),
+    technicalProblem: boolean("technical_problem").notNull(),
+    comments: varchar("comments", { length: 2000 }),
+    consent: boolean("consent").notNull(),
+    consentedAt: timestamp("consented_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    language: varchar("language", { length: 2 }).notNull(),
+  },
+  (table) => [
+    unique("assessment_feedback_attempt_unique").on(table.attemptId),
+    foreignKey({
+      columns: [table.attemptId, table.participantId],
+      foreignColumns: [assessmentAttempts.id, assessmentAttempts.participantId],
+      name: "assessment_feedback_attempt_participant_fk",
+    }).onDelete("cascade"),
+    check(
+      "assessment_feedback_navigation_check",
+      sql`${table.navigationRating} between 1 and 5`,
+    ),
+    check(
+      "assessment_feedback_scenario_clarity_check",
+      sql`${table.scenarioClarityRating} between 1 and 5`,
+    ),
+    check(
+      "assessment_feedback_interaction_check",
+      sql`${table.interactionRating} between 1 and 5`,
+    ),
+    check(
+      "assessment_feedback_readability_check",
+      sql`${table.readabilityRating} between 1 and 5`,
+    ),
+    check(
+      "assessment_feedback_satisfaction_check",
+      sql`${table.satisfactionRating} between 1 and 5`,
+    ),
+    check("assessment_feedback_consent_check", sql`${table.consent} = true`),
+    check(
+      "assessment_feedback_language_check",
+      sql`${table.language} in ('en', 'ar')`,
+    ),
+  ],
+).enableRLS();
+
 export const scoringRevisionAudit = pgTable(
   "scoring_revision_audit",
   {

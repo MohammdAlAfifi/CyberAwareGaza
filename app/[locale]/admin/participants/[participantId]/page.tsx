@@ -97,7 +97,7 @@ export default async function ParticipantDetailsPage({
                     <th>{t.source}</th>
                     <th>{t.status}</th>
                     <th>
-                      {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                      {locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score"}
                     </th>
                     <th>{t.risk}</th>
                     <th>{t.started}</th>

@@ -68,7 +68,7 @@ export default async function AssessmentDetailsPage({
             </dd>
           </div>
           <div>
-            <dt>{locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}</dt>
+            <dt>{locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score"}</dt>
             <dd>
               {a.percentage === null ? "—" : `${a.percentage.toFixed(1)}%`}
             </dd>

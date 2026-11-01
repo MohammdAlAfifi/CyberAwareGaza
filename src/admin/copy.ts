@@ -73,7 +73,7 @@ const copy = {
     anonymous: "Anonymous",
     imported: "Imported",
     risk: "Risk",
-    allRisks: "All risk levels",
+    allRisks: "All assessment classifications",
     low: "Low risk",
     medium: "Medium risk",
     high: "High risk",
@@ -125,7 +125,7 @@ const copy = {
     excluded: "Excluded",
     noSavedResponses: "No saved responses are available for this attempt.",
     incompleteNotice:
-      "This attempt is incomplete, so no score or risk level has been assigned.",
+      "This attempt is incomplete, so no score or assessment classification has been assigned.",
     analyticsTitle: "Scenario analytics",
     analyticsText:
       "Response distributions for the eight approved bilingual assessment scenarios.",

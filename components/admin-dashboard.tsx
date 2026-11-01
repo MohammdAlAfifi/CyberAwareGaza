@@ -61,7 +61,7 @@ export function AdminDashboardView({
         data.attempts.averageScore === null
           ? "—"
           : `${data.attempts.averageScore.toFixed(1)}%`,
-      detail: locale === "ar" ? "نسبة المخاطر" : "Risk percentage",
+      detail: locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score",
       icon: "chart",
       tone: "teal",
     },

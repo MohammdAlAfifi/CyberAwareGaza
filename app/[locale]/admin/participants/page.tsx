@@ -50,7 +50,7 @@ export default async function ParticipantsPage({
                   <th>{t.accountType}</th>
                   <th>{t.username}</th>
                   <th>
-                    {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                    {locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score"}
                   </th>
                   <th>{t.risk}</th>
                   <th>{t.latestSubmission}</th>

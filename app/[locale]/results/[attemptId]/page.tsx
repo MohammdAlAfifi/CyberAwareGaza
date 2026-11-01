@@ -118,7 +118,7 @@ export default async function ParticipantResultPage({
                 </svg>
                 <div className="score-ring-copy">
                   <strong dir="ltr">{displayPercentage}%</strong>
-                  <span>Risk percentage</span>
+                  <span>{t.rawScore}</span>
                 </div>
               </div>
               <p>
@@ -138,7 +138,7 @@ export default async function ParticipantResultPage({
               <dl className="result-key-facts">
                 <div>
                   <dt>
-                    {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}
+                    {locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score"}
                   </dt>
                   <dd dir="ltr">{displayPercentage}%</dd>
                 </div>
@@ -159,9 +159,7 @@ export default async function ParticipantResultPage({
                 </div>
               </div>
               <p className="result-scale-note">
-                {locale === "ar"
-                  ? "لا يتم عكس النسبة؛ تشير القيمة الأعلى إلى قرارات أكثر أمانًا."
-                  : "The percentage is not reversed; a higher value indicates safer decisions."}
+                {t.rawScoreNote}
               </p>
             </div>
           </div>

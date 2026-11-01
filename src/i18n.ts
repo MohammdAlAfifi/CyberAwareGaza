@@ -11,6 +11,45 @@ const dictionaries = {
     language: "العربية",
     languageAria: "Switch to Arabic",
     languageToggle: "Choose interface language",
+    feedback: {
+      title: "Share Your Feedback",
+      optional: "Optional",
+      skip: "Skip for now",
+      description:
+        "Help us improve CyberAwareGaza by sharing your experience. This optional survey takes approximately 1–2 minutes and will not affect your assessment score.",
+      disagree: "1 = Strongly Disagree",
+      agree: "5 = Strongly Agree",
+      questions: [
+        "1. The website was easy to navigate.",
+        "2. The cybersecurity scenarios and answer options were clear and understandable.",
+        "3. It was easy to select answers and move between assessment questions.",
+        "4. The website content and interface were easy to read on my device.",
+        "5. Overall, I am satisfied with my experience using CyberAwareGaza.",
+      ],
+      technicalProblem:
+        "Did you encounter any technical problems while using the website?",
+      no: "No",
+      yes: "Yes",
+      comments: "Additional Comments or Suggestions",
+      placeholder:
+        "Tell us about any difficulties you experienced or suggestions for improving the website...",
+      notice:
+        "Your feedback may be used for academic research and to improve the platform. Participation is voluntary and does not affect your cybersecurity assessment results.",
+      consent:
+        "I agree to share my feedback for research and platform improvement.",
+      submit: "Submit Feedback",
+      submitting: "Submitting…",
+      successTitle: "Thank you for your feedback!",
+      successDescription:
+        "Your valuable insights have been submitted successfully and will contribute directly to academic research and platform improvements.",
+      dashboard: "Return to Dashboard",
+      invalid:
+        "Please answer all five rating questions, select Yes or No, and agree to share your feedback before submitting.",
+      saveError:
+        "Your feedback could not be saved. Your answers are still here. Please try again or skip for now.",
+      sessionError:
+        "Your session is no longer available or this assessment cannot receive feedback. You can return to your dashboard.",
+    },
     common: {
       preview: "Interface preview",
       home: "CyberAwareGaza home",
@@ -79,9 +118,9 @@ const dictionaries = {
           text: "A focused eight-question flow designed to be brief. Completion time varies by participant.",
         },
         {
-          badge: "Risk level",
+          badge: "Assessment Classification",
           title: "Personalized Result",
-          text: "Completed assessments use the installed scoring rubric to show the resulting risk level on the participant dashboard.",
+          text: "Completed assessments use the installed scoring rubric to show the resulting assessment classification on the participant dashboard.",
         },
         {
           badge: "Consent-led",
@@ -267,7 +306,7 @@ const dictionaries = {
       emptyText:
         "A verified score, risk label, interpretation, and answer review will appear only after scoring is implemented and a real assessment is completed.",
       scoreLabel: "Score",
-      riskLabel: "Risk level",
+      riskLabel: "Assessment Classification",
       unavailable: "Not calculated",
       feedbackTitle: "Personalized guidance",
       feedbackText:
@@ -290,16 +329,16 @@ const dictionaries = {
         "Your choices mixed protective and risk-exposing decisions. Review the scenario guidance below and reinforce the habits that reduce exposure.",
       highInterpretation:
         "Your choices showed a stronger concentration of risk-exposing decisions. Work through the safer actions below and practice verification before acting.",
-      rawScore: "Risk percentage",
-      rawCumulative: "Risk percentage",
+      rawScore: "Safe Decision Score",
+      rawCumulative: "Safe Decision Score",
       possibleRange: "Safe-decision points:",
       visualScale:
         "A higher percentage indicates safer cybersecurity decisions.",
       visualScaleAria:
-        "Risk percentage is {position} percent; higher values indicate safer cybersecurity decisions.",
+        "Safe Decision Score is {position} percent; higher values indicate safer cybersecurity decisions.",
       rawScoreNote:
-        "The percentage is calculated from the 0–80 point score and is not reversed. Higher values indicate safer decisions.",
-      interpretationTitle: "What this risk level means",
+        "This percentage reflects how safe your choices were within the assessment scenarios and does not represent your actual level of cybersecurity safety.",
+      interpretationTitle: "What this assessment classification means",
       reviewIntro:
         "Review the exact answer you selected, its score contribution, and a safer action for every scenario.",
       eightScenarios: "8 completed scenarios",
@@ -375,6 +414,42 @@ const dictionaries = {
     language: "English",
     languageAria: "التبديل إلى الإنجليزية",
     languageToggle: "اختر لغة الواجهة",
+    feedback: {
+      title: "شاركنا رأيك",
+      optional: "اختياري",
+      skip: "تخطي التقييم",
+      description:
+        "ساعدنا في تحسين CyberAwareGaza من خلال مشاركة تجربتك. يستغرق هذا الاستبيان الاختياري من 1 إلى 2 دقيقة ولن يؤثر على درجة تقييمك.",
+      disagree: "1 = أعارض بشدة",
+      agree: "5 = أوافق بشدة",
+      questions: [
+        "1. كان التنقل بين صفحات الموقع سهلًا.",
+        "2. كانت سيناريوهات الأمن السيبراني وخيارات الإجابة واضحة ومفهومة.",
+        "3. كان اختيار الإجابات والتنقل بين أسئلة التقييم سهلًا.",
+        "4. كان محتوى الموقع وواجهته واضحين وسهلَي القراءة على جهازي.",
+        "5. بشكل عام، أنا راضٍ عن تجربتي في استخدام موقع CyberAwareGaza.",
+      ],
+      technicalProblem: "هل واجهت أي مشكلات تقنية أثناء استخدام الموقع؟",
+      no: "لا",
+      yes: "نعم",
+      comments: "ملاحظات أو اقتراحات إضافية",
+      placeholder: "أخبرنا عن أي صعوبات واجهتها أو اقتراحات لتحسين الموقع...",
+      notice:
+        "قد يتم استخدام ملاحظاتك لأغراض البحث الأكاديمي وتحسين المنصة. المشاركة طوعية ولا تؤثر على نتائج تقييم الأمن السيبراني الخاص بك.",
+      consent: "أوافق على مشاركة ملاحظاتي لأغراض البحث وتحسين المنصة.",
+      submit: "إرسال التقييم",
+      submitting: "جارٍ الإرسال…",
+      successTitle: "شكراً جزيلاً على ملاحظاتك!",
+      successDescription:
+        "تم استلام ملاحظاتك بنجاح وسوف تسهم بشكل مباشر في البحث الأكاديمي وتطوير المنصة.",
+      dashboard: "العودة إلى لوحة التحكم",
+      invalid:
+        "يرجى الإجابة عن أسئلة التقييم الخمسة واختيار نعم أو لا والموافقة على مشاركة ملاحظاتك قبل الإرسال.",
+      saveError:
+        "تعذر حفظ ملاحظاتك. لا تزال إجاباتك موجودة. يرجى المحاولة مرة أخرى أو تخطي التقييم.",
+      sessionError:
+        "لم تعد جلستك متاحة أو لا يمكن إرسال ملاحظات لهذا التقييم. يمكنك العودة إلى لوحة التحكم.",
+    },
     common: {
       preview: "معاينة الواجهة",
       home: "الصفحة الرئيسية لمنصة CyberAwareGaza",
@@ -639,15 +714,15 @@ const dictionaries = {
         "جمعت اختياراتك بين قرارات وقائية وأخرى تعرضك للمخاطر. راجع إرشادات السيناريوهات أدناه وعزز العادات التي تقلل التعرض.",
       highInterpretation:
         "أظهرت اختياراتك تركيزًا أكبر من القرارات التي تعرضك للمخاطر. طبّق الإجراءات الأكثر أمانًا أدناه وتدرّب على التحقق قبل التصرف.",
-      rawScore: "نسبة المخاطر",
-      rawCumulative: "نسبة المخاطر",
+      rawScore: "نسبة القرارات الآمنة",
+      rawCumulative: "نسبة القرارات الآمنة",
       possibleRange: "نقاط القرار الآمن:",
       visualScale:
         "تشير النسبة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني.",
       visualScaleAria:
-        "نسبة المخاطر هي {position} بالمئة؛ وتشير القيمة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني.",
+        "نسبة القرارات الآمنة هي {position} بالمئة؛ وتشير القيمة الأعلى إلى قرارات أكثر أمانًا في الأمن السيبراني.",
       rawScoreNote:
-        "تُحسب النسبة من مجموع النقاط من 0 إلى 80 ولا يتم عكسها؛ وتشير القيمة الأعلى إلى قرارات أكثر أمانًا.",
+        "تعكس هذه النسبة مدى أمان اختياراتك ضمن سيناريوهات التقييم، ولا تمثل مستوى أمانك الفعلي في مجال الأمن السيبراني.",
       interpretationTitle: "ماذا يعني مستوى المخاطر هذا؟",
       reviewIntro:
         "راجع الإجابة التي اخترتها بالضبط، ومساهمتها في الدرجة، وإجراءً أكثر أمانًا لكل سيناريو.",

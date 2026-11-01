@@ -71,7 +71,7 @@ const words = {
     web: "Website",
     form: "Google Form",
     risk: "Risk",
-    anyRisk: "All risk levels",
+    anyRisk: "All assessment classifications",
     from: "From date",
     to: "To date",
     excel: "Export as Excel",

@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { DrizzleQueryError } from "drizzle-orm";
 
 import { AuthError } from "@/src/auth/errors";
 import { getSessionByToken, SESSION_COOKIE } from "@/src/auth/sessions";
@@ -18,6 +19,16 @@ export function adminApiFailure(error: unknown) {
     return NextResponse.json(
       { ok: false, error: error.code },
       { status: error.status },
+    );
+  }
+  if (error instanceof DrizzleQueryError) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "request_failed",
+        message: "The request could not be completed. Please try again.",
+      },
+      { status: 500 },
     );
   }
   const message = error instanceof Error ? error.message : "Request failed.";

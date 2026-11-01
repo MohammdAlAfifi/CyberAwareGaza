@@ -192,14 +192,14 @@ function drawAssessment(
         `رقم التقييم: ${row.assessmentId}`,
         `المصدر: ${source}`,
         `تاريخ الإرسال: ${submitted ? formatDate(submitted, "ar") : "غير متاح"}`,
-        `نسبة المخاطر: ${formatPercentage(row.percentage, "ar")}%    مستوى المخاطر: ${localizedRisk(row.risk, true)}`,
+        `نسبة القرارات الآمنة: ${formatPercentage(row.percentage, "ar")}%    مستوى المخاطر: ${localizedRisk(row.risk, true)}`,
         `إصدار التقييم: ${row.scoringVersion}`,
       ]
     : [
         `Assessment ID: ${row.assessmentId}`,
         `Source: ${source}`,
         `Submission date: ${submitted ? formatDate(submitted, "en") : "Not available"}`,
-        `Risk percentage: ${formatPercentage(row.percentage, "en")}%    Risk level: ${localizedRisk(row.risk, false)}`,
+        `Safe Decision Score: ${formatPercentage(row.percentage, "en")}%    Assessment Classification: ${localizedRisk(row.risk, false)}`,
         `Scoring version: ${row.scoringVersion}`,
       ];
   for (const fact of facts) writeMixedLine(doc, fact, rtl);

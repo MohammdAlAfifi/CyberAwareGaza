@@ -142,7 +142,7 @@ export default async function ParticipantHome({
                           className={`risk-badge risk-badge--${result.risk}`}
                         >
                           {riskLabel(result.risk)} ·{" "}
-                          {locale === "ar" ? "نسبة المخاطر" : "Risk percentage"}{" "}
+                          {locale === "ar" ? "نسبة القرارات الآمنة" : "Safe Decision Score"}{" "}
                           <bdi dir="ltr">
                             {new Intl.NumberFormat(locale, {
                               maximumFractionDigits: 1,

@@ -301,7 +301,7 @@ test("enforces bootstrap rotation, role boundaries, records, filters, details, a
   await expect(incompleteRow).toContainText("—");
   await page.goto(`/en/admin/assessments/${latestAttemptId}`);
   await expect(page.locator(".admin-answer-card")).toHaveCount(8);
-  await expect(page.getByText("Risk percentage").locator("..")).toContainText(
+  await expect(page.getByText("Safe Decision Score").locator("..")).toContainText(
     `${(latestScore * 1.25).toFixed(1)}%`,
   );
   await page.setViewportSize({ width: 390, height: 844 });

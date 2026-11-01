@@ -201,8 +201,12 @@ test.beforeAll(async () => {
   participantIds.push(excluded.rows[0].id);
   importedCode = await publicCode();
   const imported = await pool!.query(
-    `insert into participants (public_code,type,source,source_participant_key) values ($1,'imported','google_form',$2) returning id`,
-    [importedCode, `phase7-imported-${runId}`],
+    `insert into participants (public_code,type,source,source_participant_key,anonymous_ordinal) values ($1,'imported','google_form',$2,$3) returning id`,
+    [
+      importedCode,
+      `phase7-imported-${runId}`,
+      await allocate("anonymous_ordinal"),
+    ],
   );
   participantIds.push(imported.rows[0].id);
 

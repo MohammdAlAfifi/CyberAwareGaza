@@ -84,6 +84,29 @@ async function expectThankYouCentered(page: Page, direction: "ltr" | "rtl") {
 }
 
 async function expectRingValuesFit(page: Page) {
+  const label = page.locator(".score-ring-copy span");
+  await expect(label).toHaveText(
+    (await page.locator("html").getAttribute("lang")) === "ar"
+      ? "نسبة القرارات الآمنة"
+      : "Safe Decision Score",
+  );
+  const labelFits = await label.evaluate((element) => {
+    const ring = element.closest(".score-ring")!.getBoundingClientRect();
+    const box = element.getBoundingClientRect();
+    const centerX = ring.left + ring.width / 2;
+    const centerY = ring.top + ring.height / 2;
+    const innerRadius = (ring.width * (66 - 13 / 2)) / 160;
+    return (
+      Number.parseFloat(getComputedStyle(element).fontSize) < 12.16 &&
+      Math.abs(box.left + box.width / 2 - centerX) <= 1 &&
+      [box.left, box.right].every((x) =>
+        [box.top, box.bottom].every(
+          (y) => Math.hypot(x - centerX, y - centerY) < innerRadius,
+        ),
+      )
+    );
+  });
+  expect(labelFits).toBe(true);
   const value = page.locator(".score-ring-copy strong");
   const original = await value.textContent();
 
@@ -477,8 +500,10 @@ test("registered participant resumes answers and keeps scenario through language
     page.locator(".answer-review-card").first().getByText(firstOption),
   ).toBeVisible();
   await expectRingValuesFit(page);
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await expectRingValuesFit(page);
+  for (const width of [320, 375, 390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expectRingValuesFit(page);
+  }
   await page.screenshot({
     path: "tmp/phase5-result-en.png",
     fullPage: true,
@@ -495,8 +520,8 @@ test("registered participant resumes answers and keeps scenario through language
     new RegExp(`/ar/results/${registeredAttemptId}$`),
   );
   await expect(
-    page.getByText("Risk percentage", { exact: true }),
-  ).toBeVisible();
+    page.locator(".score-ring-copy span"),
+  ).toHaveText("نسبة القرارات الآمنة");
   await expect(
     page
       .locator(".answer-review-card")
@@ -504,9 +529,10 @@ test("registered participant resumes answers and keeps scenario through language
       .getByText(assessmentScenarios[0].options[0].ar),
   ).toBeVisible();
   await expectRingValuesFit(page);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expectRingValuesFit(page);
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  for (const width of [320, 375, 390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await expectRingValuesFit(page);
+  }
   await page.screenshot({
     path: "tmp/phase5-result-ar.png",
     fullPage: true,

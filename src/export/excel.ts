@@ -80,8 +80,8 @@ export async function buildParticipantResponseWorkbook(input: {
     ...assessmentScenarios.map(({ order }) =>
       rtl ? `إجابة السيناريو ${order}` : `Scenario ${order} answer`,
     ),
-    rtl ? "نسبة المخاطر" : "Risk percentage",
-    rtl ? "مستوى المخاطر" : "Risk level",
+    rtl ? "نسبة القرارات الآمنة" : "Safe Decision Score",
+    rtl ? "مستوى المخاطر" : "Assessment Classification",
     rtl ? "إصدار التقييم" : "Scoring version",
   ];
   sheet.getRow(7).values = headers;
