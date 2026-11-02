@@ -9,6 +9,7 @@ import { Logo } from "@/components/logo";
 import { LogoutButton } from "@/components/logout-button";
 import { getDictionary, type Locale } from "@/src/i18n";
 import { getAdminCopy } from "@/src/admin/copy";
+import { getFeedbackCopy } from "@/src/admin/feedback-copy";
 
 function NavigationLinks({
   items,
@@ -52,6 +53,7 @@ export function AdminNavigation({ locale }: { locale: Locale }) {
     ["users", admin.participants, `/${locale}/admin/participants`],
     ["assessment", admin.assessments, `/${locale}/admin/assessments`],
     ["chart", admin.analytics, `/${locale}/admin/scenario-analytics`],
+    ["feedback", getFeedbackCopy(locale).nav, `/${locale}/admin/feedbacks`],
     ["upload", admin.importExport, `/${locale}/admin/import-export`],
     ["settings", admin.settings, `/${locale}/admin/settings`],
   ];

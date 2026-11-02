@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { AnalyticsSourceFilter } from "@/components/analytics-source-filter";
 import { AdminShell } from "@/components/admin-shell";
+import { FeedbackCountCard } from "@/components/admin-feedback";
+import feedbackStyles from "./admin-feedback.module.css";
 import { DonutChart } from "@/components/donut-chart";
 import { Icon, type IconName } from "@/components/icon";
 import { RiskBadge } from "@/components/admin-records";
@@ -14,10 +16,12 @@ import type { Locale } from "@/src/i18n";
 export function AdminDashboardView({
   actorName,
   data,
+  feedbackCount,
   locale,
 }: {
   actorName: string;
   data: AnalyticsDashboard;
+  feedbackCount: number | null;
   locale: Locale;
 }) {
   const t = getAdminCopy(locale);
@@ -85,6 +89,22 @@ export function AdminDashboardView({
     },
   ];
 
+  const renderMetric = (metric: (typeof metricCards)[number]) => (
+    <article
+      className={`panel metric-card metric-card--${metric.tone}`}
+      key={metric.label}
+    >
+      <div className="metric-card-heading">
+        <p>{metric.label}</p>
+        <span className="metric-card-icon">
+          <Icon name={metric.icon} size={19} />
+        </span>
+      </div>
+      <strong>{metric.value}</strong>
+      {metric.detail && <small>{metric.detail}</small>}
+    </article>
+  );
+
   return (
     <AdminShell
       actorName={actorName}
@@ -98,24 +118,17 @@ export function AdminDashboardView({
         source={data.source}
       />
       <section
-        className="metric-grid analytics-metric-grid"
+        className={`metric-grid analytics-metric-grid ${feedbackStyles.dashboardGrid}`}
         aria-label={t.dashboardTitle}
       >
-        {metricCards.map((metric) => (
-          <article
-            className={`panel metric-card metric-card--${metric.tone}`}
-            key={metric.label}
-          >
-            <div className="metric-card-heading">
-              <p>{metric.label}</p>
-              <span className="metric-card-icon">
-                <Icon name={metric.icon} size={19} />
-              </span>
-            </div>
-            <strong>{metric.value}</strong>
-            {metric.detail && <small>{metric.detail}</small>}
-          </article>
-        ))}
+        {metricCards.slice(0, 4).map(renderMetric)}
+        <FeedbackCountCard locale={locale} count={feedbackCount} />
+      </section>
+      <section
+        className={`metric-grid analytics-metric-grid ${feedbackStyles.lowerMetrics}`}
+        aria-label={t.dashboardTitle}
+      >
+        {metricCards.slice(4).map(renderMetric)}
       </section>
 
       <section className="analytics-chart-grid">

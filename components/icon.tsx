@@ -7,6 +7,8 @@ export type IconName =
   | "chart"
   | "check"
   | "clock"
+  | "feedback"
+  | "star"
   | "close"
   | "globe"
   | "home"
@@ -26,6 +28,12 @@ const paths: Record<IconName, ReactNode> = {
   chart: <path d="M4 19V9m6 10V5m6 14v-7m4 7H2" />,
   check: <path d="m5 12 4 4L19 6" />,
   clock: <path d="M12 7v5l3 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9 2h6" />,
+  feedback: (
+    <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5Z" />
+  ),
+  star: (
+    <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+  ),
   close: <path d="m6 6 12 12M18 6 6 18" />,
   globe: (
     <path d="M3 12h18M12 3a15 15 0 0 1 0 18m0-18a15 15 0 0 0 0 18M4.9 7h14.2M4.9 17h14.2" />
